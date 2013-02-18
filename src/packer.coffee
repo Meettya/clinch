@@ -22,8 +22,7 @@ class Packer
   buldPackage : (package_name, package_config, main_cb) ->
     
     @_bundle_processor_.buildAll package_config, (err, package_code) =>
-      main_cb err if err
-
+      return main_cb err if err
       main_cb null, @_assemblePackage package_name, package_code
 
 
@@ -33,7 +32,7 @@ class Packer
   _assemblePackage : (package_name, package_code) ->
 
       # prepare environment
-      [ env_header, env_body ] = @_builEnvironment package_code.environment_list, package_code.members
+      [ env_header, env_body ] = @_buildEnvironment package_code.environment_list, package_code.members
 
       result = "var #{package_name} = (function() {\n    'use strict';\n" +
         env_header + 
@@ -67,7 +66,7 @@ class Packer
   This method build "environment" - local for package variables
   They immitate node.js internal gobal things (like process.nextTick, f.e.)
   ###
-  _builEnvironment : (names, paths) ->
+  _buildEnvironment : (names, paths) ->
     # just empty strings if no environment
     unless names.length
       return ['','']

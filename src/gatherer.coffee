@@ -72,23 +72,25 @@ class Gatherer
       dependencies_tree : {}
       names_map : {}
       source_code : {}
-      main_cb : main_cb # I need it in queue_fn to add new files to queue
+      err : null
 
     pack_cache.queue_obj = load_queue = async.queue @_queueFn, 50 # by now for ensure all ok
 
     load_queue.drain = =>
-      main_cb null, 
-        dependencies_tree : pack_cache.dependencies_tree
-        names_map : pack_cache.names_map
-        source_code : pack_cache.source_code
+      unless pack_cache.err
+        main_cb null, 
+          dependencies_tree : pack_cache.dependencies_tree
+          names_map : pack_cache.names_map
+          source_code : pack_cache.source_code
+      else
+        main_cb pack_cache.err
 
     load_queue.push 
       path_name : path_name
       parent    : '.'
       pack_cache : pack_cache
       , (err) ->
-        main_cb err if err
-
+        pack_cache.err = err
   ###
   Oh!
   Many things here, but its price of async code
@@ -97,14 +99,11 @@ class Gatherer
 
     # "- Run, Fores, run!!!""
     async.waterfall [
-
       # 1.resolve real filename
       (waterfall_cb) =>
         @_pathfinder_.resolveAbsolutePath path_name, path.dirname(parent), waterfall_cb
-      
       # 2. load source and compile it to js + get some meta data
       (real_file_name, waterfall_cb) =>
-
         # save all to tree, if some data exists - its return false
         unless @_dependenciesTreeSaver {path_name, parent, real_file_name, pack_cache}
           return queue_cb() # <---- YES! we are jamping out the train
@@ -147,7 +146,7 @@ class Gatherer
           parent : real_file_name
           pack_cache : pack_cache
           , (err) ->
-            pack_cache.main_cb err if err
+            pack_cache.err = err
 
         null
     null

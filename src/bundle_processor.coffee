@@ -26,9 +26,9 @@ class BundleProcessor
   This META-method bulid package and process it in one touch
   ###
   buildAll : (package_config, method_cb) ->
-    @buldRawPackageData package_config, (err, code) =>
-      method_cb err if err
 
+    @buldRawPackageData package_config, (err, code) =>
+      return method_cb err if err
       method_cb null, @changePathsToHashesInJoinedSet @joinBundleSets @replaceDependenciesInRawPackageData code
 
 
@@ -48,7 +48,7 @@ class BundleProcessor
         @_compileBundleSet liberal_gatherer, package_config.replacement, par_cb
 
       , (err, data) ->
-        method_cb err if err
+        return method_cb err if err
         method_cb null, data
   
   ###
@@ -141,12 +141,12 @@ class BundleProcessor
 
     map_fn = ([part_name, part_path], map_cb) -> 
       gatherer.buildModulePack part_path, (err, package_data) ->
-        map_cb err if err
+        return map_cb err if err
         package_data.package_name = part_name
         map_cb null, package_data
 
     async.map _.pairs(bundle_obj), map_fn, (err, res) ->
-      method_cb err if err
+      return method_cb err if err
       method_cb null, res
 
   ###

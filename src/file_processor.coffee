@@ -24,6 +24,8 @@ class FileProcessor
 
   HASH_SALT = 0xCAFEBABE # not sure what it is but looks its work :)
 
+  CS_BARE = yes # use bare to compile without a top-level function wrapper
+
   constructor: (@_options_={}) ->
     @_compillers_ = @_getAsyncCompilers()
 
@@ -94,7 +96,7 @@ class FileProcessor
       compilers['.coffee'] = (filename, cb) ->
         fs.readFile filename, 'utf8', (err, data) ->
           return cb err if err
-          cb null, CoffeeScript.compile(stripBOM(data)), yes
+          cb null, CoffeeScript.compile(stripBOM(data), bare: CS_BARE), yes
     catch err
 
     try
