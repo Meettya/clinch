@@ -18,7 +18,9 @@
     "async": "~0.2.5",
     "detective": "~0.2.1",
     "xxhash": "~0.1.1",
-    "uglify-js": "latest"
+    "uglify-js": "latest",
+    "async-cache": "~0.1.1",
+    "lru-cache": "~2.2.2"
   },
   "devDependencies": {
     "chai": "latest",
