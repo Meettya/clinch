@@ -8,6 +8,8 @@ This class pack all together with layout
 _       = require 'lodash'
 async   = require 'async'
 
+util = require 'util'
+
 BundleProcessor      = require './bundle_processor'
 
 class Packer
@@ -30,6 +32,8 @@ class Packer
   This method assemble result .js file from bundleset
   ###
   _assemblePackage : (package_name, package_code) ->
+
+      # console.log util.inspect package_code, true, null, true
 
       # prepare environment
       [ env_header, env_body ] = @_buildEnvironment package_code.environment_list, package_code.members

@@ -21,23 +21,38 @@ class BundleProcessor
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
 
-
   ###
   This META-method bulid package and process it in one touch
   ###
-  buildAll : (package_config, method_cb) ->
+  buildAll : ( package_config, method_cb) ->
 
-    @buldRawPackageData package_config, (err, code) =>
+    start = +new Date()
+
+    @buldRawPackageData  package_config, (err, code) =>
       return method_cb err if err
+
+      console.log 'buldRawPackageData tooks ', +new Date() - start
+
       method_cb null, @changePathsToHashesInJoinedSet @joinBundleSets @replaceDependenciesInRawPackageData code
 
 
   ###
+  BENCHMARK IMPROVE!!!
+  On simply test data I got about 97% of time in this method and 3% at all other
+  So, to speed up all process we are need to cache THIS part - buldRawPackageData
+  ###
+  ###
   This method will build raw package data
   ###
-  buldRawPackageData : (package_config, method_cb) ->
+  buldRawPackageData : ( package_config, method_cb) ->
+
+
+    start = +new Date()
 
     {liberal_gatherer, strict_gatherer} = @_buildGatherers package_config
+
+    console.log '_buildGatherers tooks ', +new Date() - start
+
 
     async.parallel
       bundle : (par_cb) =>  
@@ -49,6 +64,11 @@ class BundleProcessor
 
       , (err, data) ->
         return method_cb err if err
+
+        console.log 'parrallel tooks ', +new Date() - start
+
+        # console.log util.inspect data, true, null, true
+
         method_cb null, data
   
   ###
