@@ -86,7 +86,7 @@ class Packer
   ###
   _getHeader : () ->
     """    
-    var dependencies, name_resolver, require, sources;
+    var dependencies, name_resolver, require, sources, _this = this;
 
     name_resolver = function(parent, name) {
       if (dependencies[parent] == null) {
@@ -97,18 +97,16 @@ class Packer
       }
       return dependencies[parent][name];
     };
-    require = function(name) {
+    require = function(name, parent) {
       var exports, module, module_source, resolved_name, _ref;
       if (!(module_source = sources[name])) {
-        resolved_name = name_resolver(this.__clinch_module_parent, name);
+        resolved_name = name_resolver(parent, name);
         if (!(module_source = sources[resolved_name])) {
           throw Error("can`t find module source code: original_name - |" + name + "|, resolved_name - |" + resolved_name + "|");
         }
       }
-      module_source(exports = {}, module = {}, function(mod_name) {
-        return require.call({
-          __clinch_module_parent: resolved_name != null ? resolved_name : name
-        }, mod_name);
+      module_source.call(_this,exports = {}, module = {}, function(mod_name) {
+        return require(mod_name, resolved_name != null ? resolved_name : name);
       });
       return (_ref = module.exports) != null ? _ref : exports;
     };

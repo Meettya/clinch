@@ -55,14 +55,16 @@ my_package_raw = ->
       return throw Error "no one module resolved, name - |#{name}|, parent - |#{parent}|"
         
     dependencies[parent][name]
-      
-  require = (name) -> 
+  
+  here = this
+
+  require = (name, parent) => 
     unless module_source = sources[name]
-      resolved_name = name_resolver @__clinch_module_parent, name
+      resolved_name = name_resolver parent, name
       unless module_source = sources[resolved_name]
         throw Error "can`t find module source code: original_name - |#{name}|, resolved_name - |#{resolved_name}|"
-      
-    module_source exports = {}, module = {}, (mod_name) -> require.call { __clinch_module_parent : resolved_name ? name }, mod_name
+    
+    module_source exports = {}, module = {}, (mod_name) => require.call here, mod_name, resolved_name ? name
     module.exports ? exports
 
    main : require '/Users/meettya/github/browserpacker/test/fixtures/default/main.coffee'
