@@ -21,7 +21,7 @@ packer.buldPackage 'my_package', pack_config, (err, data) ->
     console.log 'Builder, err: ', err
   else
     util.log 'all works!!!'
-    #console.log 'Builder, data: \n', data
+    console.log 'Builder, data: \n', data
 
     vm.runInNewContext data, sandbox = {}
 
