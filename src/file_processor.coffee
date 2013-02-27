@@ -8,6 +8,10 @@ _       = require 'lodash'
 
 XXHash  = require 'xxhash' # ultra-mega-super fast hasher
 
+# our add-on parsers
+CoffeeScript  = require 'coffee-script'
+Eco           = require 'eco'
+
 ###
 Checker method decorator
 ###
@@ -26,9 +30,8 @@ class FileProcessor
 
   CS_BARE = yes # use bare to compile without a top-level function wrapper
 
-  COMPILLERS = null # fill up it at the end, its compillers list
-
   constructor: (@_options_={}) ->
+    @_compillers_ = @_getAsyncCompilers()
 
   ###
   This method load one file and, if it needed, compile it
@@ -36,8 +39,8 @@ class FileProcessor
   loadFile : (rejectOnInvalidFilenameType (filename, cb) ->
 
     file_ext = path.extname filename
-    if COMPILLERS[file_ext]?
-      COMPILLERS[file_ext] filename, (err, data, must_be_parsed) ->
+    if @_compillers_[file_ext]?
+      @_compillers_[file_ext] filename, (err, data, must_be_parsed) ->
         return cb err if err
         cb null, data, must_be_parsed
     else
@@ -63,7 +66,7 @@ class FileProcessor
   This method return supported extentions
   ###
   getSupportedFileExtentions : ->
-    _.keys COMPILLERS
+    _.keys @_compillers_
 
   ###
   This method from node.js lib/module
@@ -71,7 +74,7 @@ class FileProcessor
   // because the buffer-to-string conversion in `fs.readFileSync()`
   // translates it to FEFF, the UTF-16 BOM.
   ###
-  @stripBOM : (content) ->
+  _stripBOM : (content) ->
     if content.charCodeAt(0) is 0xFEFF then content.slice(1) else content
 
   ###
@@ -79,50 +82,35 @@ class FileProcessor
   OR construction with `try` and `require` take too match time.
   @return - error, data, isRealCode (ie. may have 'require' and need to be processed) 
   ###
-  @buildAsyncCompillers : -> 
-    stripBOM = @::constructor.stripBOM
+  _getAsyncCompilers : ->
+    # dont want to bind all callbacks
+    stripBOM = @_stripBOM
 
-    compillers = 
-      '.js'    : (filename, cb) ->
-          fs.readFile filename, 'utf8', (err, data) ->
-            return cb err if err
-            res = "\n// #{filename} \n" + stripBOM(data)
-            cb null, res, yes
-      '.json'  : (filename, cb) ->
-          fs.readFile filename, 'utf8', (err, data) ->
-            return cb err if err
-            res = "\n// #{filename} \n" + "module.exports = #{stripBOM(data)}"
-            cb null, res
-    try
-      CoffeeScript = require 'coffee-script'
-      compillers['.coffee'] = (filename, cb) ->
+    '.js'     : (filename, cb) ->
         fs.readFile filename, 'utf8', (err, data) ->
           return cb err if err
-          res = "\n// #{filename} \n" + CoffeeScript.compile(stripBOM(data), bare: CS_BARE)
+          res = "\n// #{filename} \n" + stripBOM(data)
           cb null, res, yes
-    catch err
 
-    try
-      eco = require 'eco'
-      if eco.precompile
-        compillers['.eco'] = (filename, cb) ->
-          fs.readFile filename, 'utf8', (err, data) ->
-            return cb err if err
-            content = eco.precompile stripBOM(data)
-            res = "\n// #{filename} \n" +  "module.exports = #{content}"
-            cb null, res       
-      else
-        compillers['.eco'] = (filename, cb) ->
-          fs.readFile filename, 'utf8', (err, data) ->
-            return cb err if err
-            res = "\n// #{filename} \n" + eco.precompile stripBOM(data)
-            cb null, res
-    catch err
+    '.json'   : (filename, cb) ->
+        fs.readFile filename, 'utf8', (err, data) ->
+          return cb err if err
+          res = "\n// #{filename} \n" + "module.exports = #{stripBOM(data)}"
+          cb null, res
 
-    compillers
+    '.coffee' : (filename, cb) ->
+      fs.readFile filename, 'utf8', (err, data) ->
+        return cb err if err
+        res = "\n// #{filename} \n" + CoffeeScript.compile(stripBOM(data), bare: CS_BARE)
+        cb null, res, yes
+    
+    '.eco'    : (filename, cb) ->
+        fs.readFile filename, 'utf8', (err, data) ->
+          return cb err if err
+          content = Eco.precompile stripBOM(data)
+          res = "\n// #{filename} \n" +  "module.exports = #{content}"
+          cb null, res       
 
-  # cant do it unless method defined
-  COMPILLERS = @::constructor.buildAsyncCompillers()
 
 module.exports = FileProcessor
 
