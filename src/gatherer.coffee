@@ -33,6 +33,9 @@ FileProcessor  = require './file_processor'
 
 class Gatherer
 
+  # this is cache max_age, huge because we are have brutal invalidator now
+  MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
+
   constructor: (@_options_={}) ->
     @_file_processor_ = new FileProcessor()
 
@@ -42,7 +45,7 @@ class Gatherer
     # its heavy cache with file content
     @_loader_cache_ = @_buildLoaderCache()
     # and its light cache with parsing results (search for require)
-    @_require_cache_ = LRU max : 1000, maxAge: 1000 * 60
+    @_require_cache_ = LRU max : 1000, maxAge: MAX_AGE
 
   ###
   This internal method for loaders cache, to slow get it from disk
@@ -52,7 +55,7 @@ class Gatherer
     new AsyncCache
       # options passed directly to the internal lru cache
       max: 100
-      maxAge: 1000 * 60
+      maxAge: MAX_AGE
       # method to load a thing if it's not in the cache.
       # key must be unique in the context of this cache.
       load : (key, cb) =>
@@ -130,7 +133,7 @@ class Gatherer
           return queue_cb() # <---- YES! we are jamping out the train
 
         # get all data and meta than go to next step
-        @_loader_cache_.get real_file_name, (err, data) ->
+         @_getFromCacheWithValidation real_file_name, (err, data) ->
           return waterfall_cb err if err
           waterfall_cb null, data.digest, data.content, {path_name, real_file_name}
 
@@ -148,10 +151,46 @@ class Gatherer
         waterfall_cb()
       ], (err) => queue_cb err # this is the end of waterfall
 
+
+  ###
+  This method get data and meta from cache with cache validation
+  At now try to use re-calculated file hash
+  ###
+  _getFromCacheWithValidation : (real_file_name, meth_cb) ->
+    # just get current data and all data from cache, and compare caches
+    async.parallel
+
+      current_digest : (parallel_cb) =>
+        @_file_processor_.getFileDigest real_file_name, parallel_cb
+
+      all_data : (parallel_cb) =>
+        @_loader_cache_.get real_file_name, parallel_cb
+
+    , (err, data) =>
+      return meth_cb err if err
+
+      # ok, now compare current file digest and cached
+      if data.current_digest is data.all_data.digest
+        # just return if all ok
+        meth_cb null, data.all_data
+      else
+        # console.log 'data.current_digest and data.all_data.digest missmatch, ', data.current_digest, data.all_data.digest
+        # or reset all caches and re-read data
+        @_resetCaches()
+        @_loader_cache_.get real_file_name, meth_cb
+
+  ###
+  This method reset all caches
+  ###
+  _resetCaches : ->
+    @_loader_cache_.reset()
+    @_require_cache_.reset()
+    null
+
   ###
   This method searching for requires, its just stub.
   later I re-write it to class
-  to subsitute detective with myown logic and acorn
+  to substitute detective with my own logic and acorn
   ###
   _findRequiresItself : (data) ->
     detective data

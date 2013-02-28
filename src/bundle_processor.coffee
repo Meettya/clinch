@@ -163,7 +163,7 @@ class BundleProcessor
 
     requireless_filter = package_config.requireless ? []
 
-    liberal_filter  = package_config.do_not_include ? []
+    liberal_filter  = package_config.exclude ? []
     strict_filter   = liberal_filter.concat _.keys package_config.replacement
 
     liberal_gatherer  : (name, cb) => 
