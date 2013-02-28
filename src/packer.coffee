@@ -33,38 +33,38 @@ class Packer
   ###
   _assemblePackage : (package_name, package_code) ->
 
-      # console.log util.inspect package_code, true, null, true
+    # console.log util.inspect package_code, true, null, true
 
-      # prepare environment
-      [ env_header, env_body ] = @_buildEnvironment package_code.environment_list, package_code.members
+    # prepare environment
+    [ env_header, env_body ] = @_buildEnvironment package_code.environment_list, package_code.members
 
-      result = "var #{package_name} = (function() {\n    'use strict';\n" +
-        env_header + 
-        @_getHeader() + 
-        "\n    dependencies = #{JSON.stringify package_code.dependencies_tree};\n"
+    result = "(function() {\n 'use strict';\n" +
+      env_header + 
+      @_getHeader() + 
+      "\n    dependencies = #{JSON.stringify package_code.dependencies_tree};\n"
 
-      # add sources
-      result += "    sources = {\n"
-      source_index = 0
-      for own name, code of package_code.source_code
-        result += if source_index++ is 0 then "" else ",\n"
-        result += JSON.stringify name
-        result += ": function(exports, module, require) {#{code}}"
-      result += "};\n"
+    # add sources
+    result += "    sources = {\n"
+    source_index = 0
+    for own name, code of package_code.source_code
+      result += if source_index++ is 0 then "" else ",\n"
+      result += JSON.stringify name
+      result += ": function(exports, module, require) {#{code}}"
+    result += "};\n"
 
-      # add environment body
-      result += env_body
+    # add environment body
+    result += env_body
 
-      # add bundle export
-      result += "return {\n"
-      bundle_index = 0
-      for bundle_name in package_code.bundle_list
-        result += if bundle_index++ is 0 then "" else ",\n"
-        result += JSON.stringify bundle_name
-        result += ": require(#{JSON.stringify package_code.members[bundle_name]})"
-      result += "};\n"
+    # add bundle export
+    result += "\n/* bundle export */\nthis.#{package_name} = {\n"
+    bundle_index = 0
+    for bundle_name in package_code.bundle_list
+      result += if bundle_index++ is 0 then "" else ",\n"
+      result += JSON.stringify bundle_name
+      result += ": require(#{JSON.stringify package_code.members[bundle_name]})"
+    result += "};\n"
 
-      result + @_getFooter()
+    result + @_getFooter()
 
   ###
   This method build "environment" - local for package variables

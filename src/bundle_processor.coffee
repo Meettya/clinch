@@ -20,19 +20,15 @@ class BundleProcessor
   constructor: (@_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
+    @_gatherer_ = new Gatherer()
 
   ###
   This META-method bulid package and process it in one touch
   ###
   buildAll : ( package_config, method_cb) ->
 
-    start = +new Date()
-
     @buldRawPackageData  package_config, (err, code) =>
       return method_cb err if err
-
-      console.log 'buldRawPackageData tooks ', +new Date() - start
-
       method_cb null, @changePathsToHashesInJoinedSet @joinBundleSets @replaceDependenciesInRawPackageData code
 
 
@@ -46,13 +42,7 @@ class BundleProcessor
   ###
   buldRawPackageData : ( package_config, method_cb) ->
 
-
-    start = +new Date()
-
     {liberal_gatherer, strict_gatherer} = @_buildGatherers package_config
-
-    console.log '_buildGatherers tooks ', +new Date() - start
-
 
     async.parallel
       bundle : (par_cb) =>  
@@ -64,11 +54,6 @@ class BundleProcessor
 
       , (err, data) ->
         return method_cb err if err
-
-        console.log 'parrallel tooks ', +new Date() - start
-
-        # console.log util.inspect data, true, null, true
-
         method_cb null, data
   
   ###
@@ -160,7 +145,7 @@ class BundleProcessor
   _compileBundleSet : (gatherer, bundle_obj, method_cb) ->
 
     map_fn = ([part_name, part_path], map_cb) -> 
-      gatherer.buildModulePack part_path, (err, package_data) ->
+      gatherer part_path, (err, package_data) ->
         return map_cb err if err
         package_data.package_name = part_name
         map_cb null, package_data
@@ -170,19 +155,21 @@ class BundleProcessor
       method_cb null, res
 
   ###
-  This method build two Gatherers:
+  This method build two pre-fired Gatherers:
     strict (for bundle and environment) and liberal (for replacement)
+  Just shorten call + now we are may have ONE gather for all
   ###
-  # TODO! add requireless too!
   _buildGatherers : (package_config) ->
 
     requireless_filter = package_config.requireless ? []
 
-    liberal_filter  = package_config.do_not_include ? []
+    liberal_filter  = package_config.exclude ? []
     strict_filter   = liberal_filter.concat _.keys package_config.replacement
 
-    liberal_gatherer : new Gatherer().addFilters(liberal_filter...).addRequireless requireless_filter...
-    strict_gatherer  : new Gatherer().addFilters(strict_filter...).addRequireless requireless_filter...
+    liberal_gatherer  : (name, cb) => 
+      @_gatherer_.buildModulePack name, {filters : liberal_filter, requireless : requireless_filter},cb
+    strict_gatherer   : (name, cb) =>
+      @_gatherer_.buildModulePack name, {filters : strict_filter, requireless : requireless_filter},cb
 
 
 module.exports = BundleProcessor

@@ -1,12 +1,23 @@
 {
   "name": "clinch",
-  "version": "0.0.8",
+  "version": "0.1.1",
   "description": "YA ComonJS to browser packer tool, well-suited for widgets by small overhead and big app by leazy code parser",
   "main": "./src/packer.coffee",
   "scripts": {
     "test": "mocha"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Meettya/clinch.git"
+  },
+  "keywords": [
+    "browser",
+    "require",
+    "commonjs",
+    "bundle",
+    "npm",
+    "javascript"
+    ],
   "author": "Dmitrii Karpich <meettya@gmail.com>",
   "license": "MIT",
   "dependencies": {
@@ -18,7 +29,8 @@
     "async": "~0.2.5",
     "detective": "~0.2.1",
     "xxhash": "~0.1.1",
-    "uglify-js": "latest"
+    "async-cache": "~0.1.1",
+    "lru-cache": "~2.2.2"
   },
   "devDependencies": {
     "chai": "latest",

@@ -54,7 +54,7 @@ module.exports =
   ###
   this is list of modules, whis is not be placed in bungle
   ###
-  do_not_include : [
+  exclude : [
     'underscore'
   ]
 

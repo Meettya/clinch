@@ -18,6 +18,12 @@ async   = require 'async'
 # temporary its here
 detective = require 'detective'
 
+# for cache
+#TODO may be change to LRU later
+AsyncCache = require 'async-cache'
+
+LRU     = require 'lru-cache'
+
 # for debug purposes 
 util = require 'util'
 
@@ -27,52 +33,70 @@ FileProcessor  = require './file_processor'
 
 class Gatherer
 
+  # this is cache max_age, huge because we are have brutal invalidator now
+  MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
+
   constructor: (@_options_={}) ->
     @_file_processor_ = new FileProcessor()
 
     @_pathfinder_ = new Resolver()
     @_pathfinder_.addExtensions '.coffee', '.eco'
 
-    @_filter_list_      = []
-    @_requireless_list_ = []
+    # its heavy cache with file content
+    @_loader_cache_ = @_buildLoaderCache()
+    # and its light cache with parsing results (search for require)
+    @_require_cache_ = LRU max : 1000, maxAge: MAX_AGE
+
+  ###
+  This internal method for loaders cache, to slow get it from disk
+  YES, it will be needed to implement cache invalidator :(
+  ###
+  _buildLoaderCache : () ->
+    new AsyncCache
+      # options passed directly to the internal lru cache
+      max: 100
+      maxAge: MAX_AGE
+      # method to load a thing if it's not in the cache.
+      # key must be unique in the context of this cache.
+      load : (key, cb) =>
+        @_getFileDataAndMeta key, cb
 
 
   ###
-  This is filter setter, list of regexps, matched file will be EXCLUDED
+  This is converter for ensure each array element is RegExp
+  @arg may be one value or Array
   ###
-  addFilters : (filter_list...) -> 
-    @_filter_list_ = @_filter_list_.concat _.map filter_list, (val) ->
+  _convertEachToRegexp : (first_filter, other_filters...) -> 
+    # 
+    filters_list = unless _.isArray first_filter
+      [first_filter].concat other_filters
+    else
+      first_filter
+
+    _.map filters_list, (val) ->
       if _.isRegExp val then val else new RegExp val
-    this
-
-  ###
-  This method will set lists of files to exclude it from require-loockup
-  Its needed for speedup bundle bulder with hige pre-bilded packages, like |lodash| 
-  ###
-  addRequireless : (requireless_list...) ->
-    @_requireless_list_ = @_requireless_list_.concat _.map requireless_list, (val) ->
-      if _.isRegExp val then val else new RegExp val
-    this   
-
-  ###
-  This method return actual filter list
-  ###
-  getFilters : ->
-    @_filter_list_
-
-  getRequireless : ->
-    @_requireless_list_
 
   ###
   This is Async version of packer
   ###
-  buildModulePack : (path_name, main_cb) ->
+  buildModulePack : (path_name, options={}, main_cb) ->
+   
+    #console.log 'buildModulePack options', options
     # then fill up chache for async logic
     pack_cache = 
       dependencies_tree : {}
       names_map : {}
       source_code : {}
       err : null
+      filters : []
+      requireless : []
+
+    # add filters
+    if options.filters?
+      pack_cache.filters = @_convertEachToRegexp options.filters
+    # and requireless
+    if options.requireless?
+      pack_cache.requireless = @_convertEachToRegexp options.requireless
 
     pack_cache.queue_obj = load_queue = async.queue @_queueFn, 50 # by now for ensure all ok
 
@@ -109,10 +133,12 @@ class Gatherer
           return queue_cb() # <---- YES! we are jamping out the train
 
         # get all data and meta than go to next step
-        @_getFileDataAndMeta real_file_name, path_name, waterfall_cb
+         @_getFromCacheWithValidation real_file_name, (err, data) ->
+          return waterfall_cb err if err
+          waterfall_cb null, data.digest, data.content, {path_name, real_file_name}
 
       # 3. save data and, if it real code, search for requires in it
-      ({digest, content, real_file_name, path_name}, waterfall_cb) =>
+      (digest, content, {real_file_name, path_name}, waterfall_cb) =>
         [data, may_have_reqire] = content
 
         # just ave all to result obj
@@ -125,10 +151,46 @@ class Gatherer
         waterfall_cb()
       ], (err) => queue_cb err # this is the end of waterfall
 
+
+  ###
+  This method get data and meta from cache with cache validation
+  At now try to use re-calculated file hash
+  ###
+  _getFromCacheWithValidation : (real_file_name, meth_cb) ->
+    # just get current data and all data from cache, and compare caches
+    async.parallel
+
+      current_digest : (parallel_cb) =>
+        @_file_processor_.getFileDigest real_file_name, parallel_cb
+
+      all_data : (parallel_cb) =>
+        @_loader_cache_.get real_file_name, parallel_cb
+
+    , (err, data) =>
+      return meth_cb err if err
+
+      # ok, now compare current file digest and cached
+      if data.current_digest is data.all_data.digest
+        # just return if all ok
+        meth_cb null, data.all_data
+      else
+        # console.log 'data.current_digest and data.all_data.digest missmatch, ', data.current_digest, data.all_data.digest
+        # or reset all caches and re-read data
+        @_resetCaches()
+        @_loader_cache_.get real_file_name, meth_cb
+
+  ###
+  This method reset all caches
+  ###
+  _resetCaches : ->
+    @_loader_cache_.reset()
+    @_require_cache_.reset()
+    null
+
   ###
   This method searching for requires, its just stub.
   later I re-write it to class
-  to subsitute detective with myown logic and acorn
+  to substitute detective with my own logic and acorn
   ###
   _findRequiresItself : (data) ->
     detective data
@@ -138,8 +200,19 @@ class Gatherer
   ###
   _findRequiresAndAddToQueue : ({may_have_reqire, data, real_file_name, path_name, pack_cache}) =>
     # and add new files to queue if it have `requires`
-    if may_have_reqire is yes and @_isFilesMustBeProcessed @_requireless_list_, path_name, real_file_name
-      for child in @_findRequiresItself data
+    if may_have_reqire is yes and @_isFilesMustBeProcessed pack_cache.requireless, path_name, real_file_name
+
+      # try to get all by cache
+      childrens = unless @_require_cache_.has real_file_name
+        #console.log 'cache miss', real_file_name
+        res = @_findRequiresItself data
+        @_require_cache_.set real_file_name, res
+        res
+      else
+        #console.log 'cache hit', real_file_name
+        @_require_cache_.get real_file_name
+
+      for child in childrens
 
         pack_cache.queue_obj.push
           path_name : child
@@ -154,7 +227,7 @@ class Gatherer
   ###
   This method get content and meta for filename
   ###
-  _getFileDataAndMeta : ( real_file_name, path_name, waterfall_cb ) ->
+  _getFileDataAndMeta : ( real_file_name, step_cb ) ->
 
     # get content and digest, it simplest do it parallel
     async.parallel
@@ -164,14 +237,7 @@ class Gatherer
       # 2.2 get file content and its (content) properties
       content : (parallel_cb) =>
         @_file_processor_.loadFile real_file_name, parallel_cb
-      # 2.3 just re-send data to next step
-      real_file_name : (parallel_cb) ->
-        parallel_cb null, real_file_name
-      # 2.4 just re-send data to next step
-      path_name : (parallel_cb) ->
-        parallel_cb null, path_name
-
-      , waterfall_cb # and parallel and, send all to next step
+      , step_cb # and parallel and, send all to next step
 
   ###
   This part-method handle save to tree
@@ -186,7 +252,7 @@ class Gatherer
     if dep_tree_par[path_name]?
       return false
     # try on filter each path state (alias)
-    unless @_isFilesMustBeProcessed @_filter_list_, path_name, real_file_name
+    unless @_isFilesMustBeProcessed pack_cache.filters, path_name, real_file_name
       # dependencies itself exists, but filtered out
       dep_tree_par[path_name] = null
       return false 
@@ -208,9 +274,9 @@ class Gatherer
   ie it filename NOT in list - it will be processed
   ###
   _isFilesMustBeProcessed : (filters_list, files_list...) ->
-   ! _.any files_list, (filename) ->
-     _.any filters_list, (filter_re) ->
-      filter_re.test filename 
+    ! _.any files_list, (filename) ->
+      _.any filters_list, (filter_re) ->
+        filter_re.test filename 
 
 
 module.exports = Gatherer
