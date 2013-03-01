@@ -244,7 +244,7 @@ class Gatherer
   if file exists or unnided - return false
   ###
   _dependenciesTreeSaver : ({path_name, parent, real_file_name, pack_cache}) =>
-    
+
     dep_tree_par = pack_cache.dependencies_tree[parent] ?= {}
     # avoid unneeded work, BUT do not do that - 'or pack_cache.names_map[real_file_name]?'
     # or you got 'race conditions'-like problem and all go wrong
@@ -256,6 +256,14 @@ class Gatherer
       # dependencies itself exists, but filtered out
       dep_tree_par[path_name] = null
       return false 
+
+    # and another one problem - node.js core modules, 
+    # which returned by `resolve` as one name, not absolute path
+    if @_pathfinder_.isCoreModule real_file_name
+      # just save dependencies, but do not proceed code
+      dep_tree_par[path_name] = null
+      return false    
+
     dep_tree_par[path_name] = real_file_name
     true
 

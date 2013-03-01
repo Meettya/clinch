@@ -18,6 +18,7 @@ fixtures     = fixtureRoot + "/default"
 fixturesFile = fixtures + "/summator"
 fixturesNpm  = fixtureRoot + "/node_modules/summator"
 fixturesTwoChild = fixtureRoot + '/two_children'
+fixturesWithCore = fixtureRoot + '/with_core'
 
 describe 'Gatherer:', ->
 
@@ -65,6 +66,16 @@ describe 'Gatherer:', ->
         expect(_.keys data[0].source_code).to.have.length 4
         expect(_.keys data[1].source_code).to.have.length 6
         done()
+
+    it 'should build pack for modules, used node.js core modules', (done) ->
+      res_fn = (err, data) ->
+        expect(err).to.be.null
+        #console.log util.inspect data, true, null, true
+        expect(_.keys data.source_code).to.have.length 1
+        expect(_.keys data.dependencies_tree).to.have.length 2
+        done()
+      g_obj.buildModulePack fixturesWithCore, g_conf, res_fn
+
 
   describe 'test buildModulePack() |requireless| options', ->
 

@@ -23,6 +23,7 @@ fixturesSingle = fixtures + '/substractor'
 fixturesTwoChild = fixtureRoot + '/two_children'
 fixturesPrinter = fixtureRoot + '/with_printf'
 fixturesReplacer = fixtureRoot + '/replacer'
+fixturesWithCore = fixtureRoot + '/with_core'
 
 describe 'Packer:', ->
 
@@ -175,7 +176,29 @@ describe 'Packer:', ->
 
       p_obj.buldPackage 'my_package', package_config, res_fn
 
+    it 'should build pack for modules, which use node.js core modules', (done) ->
 
+      package_config = 
+        bundle : 
+          cored : fixturesWithCore
+        replacement :
+          'util' : fixturesWithCore + '/util_shim'
+
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        # now we are got this back
+        # yes, I know, it just stupid naming
+        {formatter} = sandbox.my_package.cored
+
+        (formatter 'hello %s!', 'world').should.to.be.equal 'hello world!'
+        
+        done()
+
+      p_obj.buldPackage 'my_package', package_config, res_fn
 
 
 

@@ -22,6 +22,7 @@ fixturesSingle = fixtures + '/substractor'
 fixturesTwoChild = fixtureRoot + '/two_children'
 fixturesPrinter = fixtureRoot + '/with_printf'
 fixturesReplacer = fixtureRoot + '/replacer'
+fixturesWithCore = fixtureRoot + '/with_core'
 
 describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
@@ -120,4 +121,25 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
         #console.log util.inspect code, true, null, true
         done()
 
-      bp_obj.buildAll package_config, res_fn      
+      bp_obj.buildAll package_config, res_fn
+
+    it 'should build pack for modules, used node.js core modules', (done) ->
+
+      package_config = 
+        bundle : 
+          cored : fixturesWithCore
+        replacement :
+          'util' : fixturesWithCore + '/util_shim'
+
+      res_fn = (err, code) ->
+        console.log err if err
+        # console.log util.inspect code, true, null, true
+        done()
+
+      bp_obj.buildAll package_config, res_fn
+
+
+
+
+
+
