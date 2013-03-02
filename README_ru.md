@@ -4,7 +4,7 @@
 
 Он отлично подходит для небольших модулей благодаря малому оверхеду на имитацию require-логики.
 
-Он отлично продходит для больших приложений благодаря использованию ленивой инициализации кода, возможности подмены кода модулей, эмуляции глобальных node-переменых и реализации экспорта нескольких объектов сразу.
+Он отлично продходит для больших приложений благодаря возможности подмены кода модулей, эмуляции глобальных node-переменых и реализации экспорта нескольких объектов сразу.
 
 ## installation
 
@@ -23,6 +23,42 @@
         console.log 'Builder, err: ', err
       else
         console.log 'Builder, data: \n', data
+
+Контент файла `./hellow_world`
+
+    ###
+    This is 'Hello World!' example
+    ###
+    module.exports = 
+      hello_world : -> 'Hello World!'
+
+Даст нам в `data` примерно такие данные
+
+    (function() {
+        'use strict';
+        
+    <... skip clinch header ...>
+
+        dependencies = {};
+        sources = {
+    "2377150448": function(exports, module, require) {
+    // /Users/meettya/github/clinch/example/hello_world/hello_world.coffee 
+    /*
+    This is 'Hello World!' example
+    */
+    module.exports = {
+      hello_world: function() {
+        return 'Hello World!';
+      }
+    };
+    }};
+    this.my_package = {
+    "main": require(2377150448)};
+    }).call(this);
+
+И в браузере функция будет доступна вот так
+
+    hello_world = my_package.main.hello_world
 
 ## Особенности:
 
@@ -123,5 +159,11 @@
 
 Кроме того можете проверить директории `example` и `test` на предмет подсказок и примеров использования.
 
+## Примеры
 
+Смотри `example` или `test` директории.
+
+Кроме того несколько простых примеров результата доступны online тут - [clinch_demo](http://meettya.github.com/clinch_demo/index.html).
+
+Так же **clinch** был использован для упаковки проекта [TinyData](http://meettya.github.com/TinyData/demo.html), смотри исходники на странице или [packed lib](https://github.com/Meettya/TinyData/blob/master/lib_browser/tinydata.js)
 

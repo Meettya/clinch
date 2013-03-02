@@ -1,7 +1,7 @@
 
 # clinch
 
-YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhead and big app by lazy code parser, module replacement, node-environment emulations and multi-exports.
+YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhead and big app by module replacement, node-environment emulations and multi-exports.
 
 ## installation
 
@@ -20,6 +20,42 @@ YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhea
         console.log 'Builder, err: ', err
       else
         console.log 'Builder, data: \n', data
+
+Content of `./hellow_world`
+
+    ###
+    This is 'Hello World!' example
+    ###
+    module.exports = 
+      hello_world : -> 'Hello World!'
+
+Now `data` contain something like this
+
+    (function() {
+        'use strict';
+        
+    <... skip clinch header ...>
+
+        dependencies = {};
+        sources = {
+    "2377150448": function(exports, module, require) {
+    // /Users/meettya/github/clinch/example/hello_world/hello_world.coffee 
+    /*
+    This is 'Hello World!' example
+    */
+    module.exports = {
+      hello_world: function() {
+        return 'Hello World!';
+      }
+    };
+    }};
+    this.my_package = {
+    "main": require(2377150448)};
+    }).call(this);
+
+And in browser function may be accessed in this way
+
+    hello_world = my_package.main.hello_world
 
 ## API & settings
 
@@ -87,6 +123,10 @@ YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhea
 ## Examples
 
 See `example` or `test` dirs.
+
+Also some examples will be available online at [clinch_demo](http://meettya.github.com/clinch_demo/index.html).
+
+Also **clinch** will be used to browser-pack [TinyData](http://meettya.github.com/TinyData/demo.html), see sources and [packed lib](https://github.com/Meettya/TinyData/blob/master/lib_browser/tinydata.js)
 
 ## See also
 
