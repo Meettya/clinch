@@ -22,6 +22,9 @@ class BundleProcessor
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
     @_gatherer_ = new Gatherer()
 
+  flushGathererCache : ->
+    @_gatherer_.resetCaches()
+
   ###
   This META-method bulid package and process it in one touch
   ###

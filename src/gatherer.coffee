@@ -48,33 +48,12 @@ class Gatherer
     @_require_cache_ = LRU max : 1000, maxAge: MAX_AGE
 
   ###
-  This internal method for loaders cache, to slow get it from disk
-  YES, it will be needed to implement cache invalidator :(
+  This method reset all caches
   ###
-  _buildLoaderCache : () ->
-    new AsyncCache
-      # options passed directly to the internal lru cache
-      max: 100
-      maxAge: MAX_AGE
-      # method to load a thing if it's not in the cache.
-      # key must be unique in the context of this cache.
-      load : (key, cb) =>
-        @_getFileDataAndMeta key, cb
-
-
-  ###
-  This is converter for ensure each array element is RegExp
-  @arg may be one value or Array
-  ###
-  _convertEachToRegexp : (first_filter, other_filters...) -> 
-    # 
-    filters_list = unless _.isArray first_filter
-      [first_filter].concat other_filters
-    else
-      first_filter
-
-    _.map filters_list, (val) ->
-      if _.isRegExp val then val else new RegExp val
+  resetCaches : ->
+    @_loader_cache_.reset()
+    @_require_cache_.reset()
+    null
 
   ###
   This is Async version of packer
@@ -151,6 +130,34 @@ class Gatherer
         waterfall_cb()
       ], (err) => queue_cb err # this is the end of waterfall
 
+  ###
+  This internal method for loaders cache, to slow get it from disk
+  YES, it will be needed to implement cache invalidator :(
+  ###
+  _buildLoaderCache : () ->
+    new AsyncCache
+      # options passed directly to the internal lru cache
+      max: 100
+      maxAge: MAX_AGE
+      # method to load a thing if it's not in the cache.
+      # key must be unique in the context of this cache.
+      load : (key, cb) =>
+        @_getFileDataAndMeta key, cb
+
+
+  ###
+  This is converter for ensure each array element is RegExp
+  @arg may be one value or Array
+  ###
+  _convertEachToRegexp : (first_filter, other_filters...) -> 
+    # 
+    filters_list = unless _.isArray first_filter
+      [first_filter].concat other_filters
+    else
+      first_filter
+
+    _.map filters_list, (val) ->
+      if _.isRegExp val then val else new RegExp val
 
   ###
   This method get data and meta from cache with cache validation
@@ -176,16 +183,8 @@ class Gatherer
       else
         # console.log 'data.current_digest and data.all_data.digest missmatch, ', data.current_digest, data.all_data.digest
         # or reset all caches and re-read data
-        @_resetCaches()
+        @resetCaches()
         @_loader_cache_.get real_file_name, meth_cb
-
-  ###
-  This method reset all caches
-  ###
-  _resetCaches : ->
-    @_loader_cache_.reset()
-    @_require_cache_.reset()
-    null
 
   ###
   This method searching for requires, its just stub.

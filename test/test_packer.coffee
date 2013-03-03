@@ -200,7 +200,10 @@ describe 'Packer:', ->
 
       p_obj.buldPackage 'my_package', package_config, res_fn
 
+  describe 'flushCache()', ->
 
+    it 'should drop cache and return null', ->
+      expect(p_obj.flushCache()).to.be.null
 
 
 

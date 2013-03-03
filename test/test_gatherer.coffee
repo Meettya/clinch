@@ -128,4 +128,8 @@ describe 'Gatherer:', ->
         expect(err).to.be.null
         check_fn results, done
 
+  describe 'resetCaches()', ->
+
+    it 'should drop cache and return null', ->
+      expect(g_obj.resetCaches()).to.be.null
 

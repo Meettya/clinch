@@ -138,7 +138,10 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
       bp_obj.buildAll package_config, res_fn
 
+  describe 'flushGathererCache()', ->
 
+    it 'should drop cache and return null', ->
+      expect(bp_obj.flushGathererCache()).to.be.null
 
 
 

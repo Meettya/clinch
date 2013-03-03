@@ -27,6 +27,8 @@ class Packer
       return main_cb err if err
       main_cb null, @_assemblePackage package_name, package_code
 
+  flushCache : ->
+    @_bundle_processor_.flushGathererCache()
 
   ###
   This method assemble result .js file from bundleset

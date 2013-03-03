@@ -1,3 +1,7 @@
+## 0.1.7 / 2013-03-02 12:00 AM
+
+  - Add flushCache() method to force cache flush.
+
 ## 0.1.5 / 2013-03-02 10:00 PM
 
   - Remove unneeded dependencies

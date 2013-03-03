@@ -61,6 +61,8 @@ And in browser function may be accessed in this way
 
 **clinch** have minimalistic API
 
+### buldPackage()
+
     packer.buldPackage package_name, package_config, cb
 
 `package_name` - root bundle package name (like `$` for jQuery), remember about name collisions.
@@ -68,6 +70,12 @@ And in browser function may be accessed in this way
 `package_config` - package settings
 
 `cb` - standard callback, all in **clinch** are async
+
+### flushCache()
+
+    packer.flushCache()
+
+This method will force flush packer cache. As usually **clinch** flush cache if files changed, but for some rare cases its available to force it.
 
 ### package_config
 
