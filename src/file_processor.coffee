@@ -11,6 +11,7 @@ XXHash  = require 'xxhash' # ultra-mega-super fast hasher
 # our add-on parsers
 CoffeeScript  = require 'coffee-script'
 Eco           = require 'eco'
+Jade          = require 'jade'
 
 ###
 Checker method decorator
@@ -87,16 +88,16 @@ class FileProcessor
     stripBOM = @_stripBOM
 
     '.js'     : (filename, cb) ->
-        fs.readFile filename, 'utf8', (err, data) ->
-          return cb err if err
-          res = "\n// #{filename} \n" + stripBOM(data)
-          cb null, res, yes
+      fs.readFile filename, 'utf8', (err, data) ->
+        return cb err if err
+        res = "\n// #{filename} \n" + stripBOM(data)
+        cb null, res, yes
 
     '.json'   : (filename, cb) ->
-        fs.readFile filename, 'utf8', (err, data) ->
-          return cb err if err
-          res = "\n// #{filename} \n" + "module.exports = #{stripBOM(data)}"
-          cb null, res
+      fs.readFile filename, 'utf8', (err, data) ->
+        return cb err if err
+        res = "\n// #{filename} \n" + "module.exports = #{stripBOM(data)}"
+        cb null, res
 
     '.coffee' : (filename, cb) ->
       fs.readFile filename, 'utf8', (err, data) ->
@@ -105,11 +106,27 @@ class FileProcessor
         cb null, res, yes
     
     '.eco'    : (filename, cb) ->
-        fs.readFile filename, 'utf8', (err, data) ->
-          return cb err if err
-          content = Eco.precompile stripBOM(data)
-          res = "\n// #{filename} \n" +  "module.exports = #{content}"
-          cb null, res       
+      fs.readFile filename, 'utf8', (err, data) ->
+        return cb err if err
+        content = Eco.precompile stripBOM(data)
+        res = "\n// #{filename} \n" +  "module.exports = #{content}"
+        cb null, res       
+
+    '.jade'   : (filename, cb) ->
+      fs.readFile filename, 'utf8', (err, data) ->
+        return cb err if err
+
+        options = 
+          pretty : on
+          self : on
+          compileDebug : off
+          client: on
+          filename : filename
+
+        content = Jade.compile stripBOM(data), options
+        res = "\n// #{filename} \n" +  "module.exports = #{content}"
+        cb null, res
+
 
 
 module.exports = FileProcessor

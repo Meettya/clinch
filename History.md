@@ -1,3 +1,8 @@
+## 0.2.1 / 2013/03-05 02:00 PM
+
+  - Fix 'replacement' and 'exclude' - now its just string comparisons
+  - Add '.jade' template engine support, see Readme, wiki and './test/jade_powered' for details
+
 ## 0.1.7 / 2013-03-02 12:00 AM
 
   - Add flushCache() method to force cache flush.

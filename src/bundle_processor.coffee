@@ -30,7 +30,7 @@ class BundleProcessor
   ###
   buildAll : ( package_config, method_cb) ->
 
-    @buldRawPackageData  package_config, (err, code) =>
+    @buldRawPackageData package_config, (err, code) =>
       return method_cb err if err
       method_cb null, @changePathsToHashesInJoinedSet @joinBundleSets @replaceDependenciesInRawPackageData code
 

@@ -40,7 +40,7 @@ class Gatherer
     @_file_processor_ = new FileProcessor()
 
     @_pathfinder_ = new Resolver()
-    @_pathfinder_.addExtensions '.coffee', '.eco'
+    @_pathfinder_.addExtensions '.coffee', '.eco', '.jade'
 
     # its heavy cache with file content
     @_loader_cache_ = @_buildLoaderCache()
@@ -72,10 +72,10 @@ class Gatherer
 
     # add filters
     if options.filters?
-      pack_cache.filters = @_convertEachToRegexp options.filters
+      pack_cache.filters = @_forceFilterToArray options.filters
     # and requireless
     if options.requireless?
-      pack_cache.requireless = @_convertEachToRegexp options.requireless
+      pack_cache.requireless = @_forceFilterToArray options.requireless
 
     pack_cache.queue_obj = load_queue = async.queue @_queueFn, 50 # by now for ensure all ok
 
@@ -146,18 +146,15 @@ class Gatherer
 
 
   ###
-  This is converter for ensure each array element is RegExp
+  This is converter for ensure filter is Array
   @arg may be one value or Array
   ###
-  _convertEachToRegexp : (first_filter, other_filters...) -> 
+  _forceFilterToArray : (first_filter, other_filters...) -> 
     # 
     filters_list = unless _.isArray first_filter
       [first_filter].concat other_filters
     else
       first_filter
-
-    _.map filters_list, (val) ->
-      if _.isRegExp val then val else new RegExp val
 
   ###
   This method get data and meta from cache with cache validation
@@ -199,7 +196,7 @@ class Gatherer
   ###
   _findRequiresAndAddToQueue : ({may_have_reqire, data, real_file_name, path_name, pack_cache}) =>
     # and add new files to queue if it have `requires`
-    if may_have_reqire is yes and @_isFilesMustBeProcessed pack_cache.requireless, path_name, real_file_name
+    if may_have_reqire is yes and @_isFilesMustBeProcessed pack_cache.requireless, path_name
 
       # try to get all by cache
       childrens = unless @_require_cache_.has real_file_name
@@ -251,7 +248,7 @@ class Gatherer
     if dep_tree_par[path_name]?
       return false
     # try on filter each path state (alias)
-    unless @_isFilesMustBeProcessed pack_cache.filters, path_name, real_file_name
+    unless @_isFilesMustBeProcessed pack_cache.filters, path_name
       # dependencies itself exists, but filtered out
       dep_tree_par[path_name] = null
       return false 
@@ -280,11 +277,9 @@ class Gatherer
   return 'true' if file MUST be processed, 
   ie it filename NOT in list - it will be processed
   ###
-  _isFilesMustBeProcessed : (filters_list, files_list...) ->
-    ! _.any files_list, (filename) ->
-      _.any filters_list, (filter_re) ->
-        filter_re.test filename 
-
+  _isFilesMustBeProcessed : (filters_list, path_name) ->
+    ! _.any filters_list, (filter) ->
+        filter is path_name 
 
 module.exports = Gatherer
 

@@ -3,6 +3,10 @@
 
 YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhead and big app by module replacement, node-environment emulations and multi-exports.
 
+**NEW**! At now **clinch** are support `.jade` templates.
+
+Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be used wia `require()`. More information at './test', also examples was placed in wiki [jade template engine](https://github.com/Meettya/clinch/wiki/Jade-template-engine-support). In browser should be pre-loaded Jade's `runtime.js`.
+
 ## installation
 
     npm install clinch
