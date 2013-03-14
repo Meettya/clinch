@@ -1,7 +1,9 @@
 ###
-This is Service Locator for Clinch - its make available DI and simplify configuration. 
+This is DI Container for Clinch - its make available DI and simplify configuration. 
 ###
+_ = require 'lodash'
 
+# all our classes here
 Packer          = require './packer'
 Gatherer        = require './gatherer'
 FileProcessor   = require './file_processor'
@@ -27,11 +29,26 @@ class DIContainer
       up_key = key.toUpperCase()
 
       unless @_component_settings_[up_key]
-        throw Error "don't know settings name |#{key}|, mistype?"
+        throw Error "don't know component name |#{key}|, mistype?"
 
       @_component_settings_[up_key] = value
 
+    # clear cache to re-build new objects with new settings
+    @_flushComponentsChache()
     this
+
+  ###
+  This internal method to flush all objects cache
+  used if settings changed
+  YES, its copy-paste, but we are MUST to declare all object properties in constructor
+  ###
+  _flushComponentsChache : ->
+    @_packer_           = null
+    @_gatherer_         = null
+    @_file_processor_   = null
+    @_bundle_processor_ = null
+
+    null
 
   ###
   This method return component by it name
@@ -59,9 +76,9 @@ class DIContainer
   Internal initor to reduce constructor
   ###
   _initComponentSetting : ->
-    PACKER : {}
-    GATHERER : {}
-    FILEPROCESSOR : {}
+    PACKER          : {}
+    GATHERER        : {}
+    FILEPROCESSOR   : {}
     BUNDLEPROCESSOR : {}
 
 module.exports = DIContainer

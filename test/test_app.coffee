@@ -17,16 +17,18 @@ describe 'Clinch app itself:', ->
   clinch_obj = package_config = null
 
   beforeEach ->
-    clinch_obj = new Clinch()
+
+    jade = 
+      pretty : off
+
+    clinch_obj = new Clinch {jade}
 
   describe 'buldPackage()', ->
 
     it 'should build package', (done) ->
 
       jade_expected = """
-                      \n<div class="message">
-                        <p>Hello Bender!!!</p>
-                      </div>
+                      <div class="message"><p>Hello Bender!!!</p></div>
                       """
 
 

@@ -79,13 +79,13 @@ class FileProcessor
     if content.charCodeAt(0) is 0xFEFF then content.slice(1) else content
 
   ###
-  This is Async compilers list, it MUST be a class-level function.
-  OR construction with `try` and `require` take too match time.
+  This is Async compilers list.
   @return - error, data, isRealCode (ie. may have 'require' and need to be processed) 
   ###
   _getAsyncCompilers : ->
     # dont want to bind all callbacks
     stripBOM = @_stripBOM
+    jade_settings = @_options_.jade or {}
 
     '.js'     : (filename, cb) ->
       fs.readFile filename, 'utf8', (err, data) ->
@@ -117,11 +117,16 @@ class FileProcessor
         return cb err if err
 
         options = 
-          pretty : on
-          self : on
-          compileDebug : off
           client: on
           filename : filename
+
+        add_on_options = 
+          pretty : on
+          self : on
+          compileDebug : off  
+
+        # looks strange, but all ok - main options, user, add-on
+        _.defaults options, jade_settings, add_on_options
 
         content = Jade.compile stripBOM(data), options
         res = "\n// #{filename} \n" +  "module.exports = #{content}"

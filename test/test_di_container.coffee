@@ -47,3 +47,6 @@ describe 'DIContainer:', ->
       options = { IUnknown : {foo : 'bar' } }
       expect(-> r_obj.setComponentsSettings options).to.throw /mistype/
 
+
+
+

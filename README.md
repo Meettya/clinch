@@ -3,7 +3,15 @@
 
 YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhead and big app by module replacement, node-environment emulations and multi-exports.
 
-**NEW**! At now **clinch** are support `.jade` templates.
+## what supported?
+
+ - `.js`      - just put it to bundle as is
+ - `.json`    - wrap in `module.exports` as node do it on `require('file.json')`
+ - `.coffee`  - compile to JavaScript
+ - `.eco`     - precompile to JavaScript function
+ - `.jade`    - precompile it to [client-mode](https://github.com/visionmedia/jade#a4) way
+
+### More about .jade
 
 Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be used wia `require()`. More information at './test', also examples was placed in wiki [jade template engine](https://github.com/Meettya/clinch/wiki/Jade-template-engine-support). In browser should be pre-loaded Jade's `runtime.js`.
 
@@ -61,9 +69,16 @@ And in browser function may be accessed in this way
 
     hello_world = my_package.main.hello_world
 
-## API & settings
+## API
 
 **clinch** have minimalistic API
+
+### constructor
+
+    packer = new Clinch clinch_options
+
+`clinch_options` - Clinch settings
+
 
 ### buldPackage()
 
@@ -80,6 +95,23 @@ And in browser function may be accessed in this way
     packer.flushCache()
 
 This method will force flush packer cache. As usually **clinch** flush cache if files changed, but for some rare cases its available to force it.
+
+## Settings
+
+### clinch_options
+
+    ###
+    From v 2.0.3 Clinch support some settings
+    ###
+    log : off
+
+    ###
+    this settings will be applied to jade.compile() function
+    ###
+    jade :
+      pretty : on
+      self : on
+      compileDebug : off
 
 ### package_config
 
