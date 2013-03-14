@@ -9,7 +9,7 @@ YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhea
  - `.json`    - wrap in `module.exports` as node do it on `require('file.json')`
  - `.coffee`  - compile to JavaScript
  - `.eco`     - precompile to JavaScript function
- - `.jade`    - precompile it to [client-mode](https://github.com/visionmedia/jade#a4) way
+ - `.jade`    - precompile it in [client-mode](https://github.com/visionmedia/jade#a4) way
 
 ### More about .jade
 
@@ -103,7 +103,10 @@ This method will force flush packer cache. As usually **clinch** flush cache if 
     ###
     From v 2.0.3 Clinch support some settings
     ###
-    log : off
+
+    log : off     # will add verbose output, but now not realized yet
+    strict : on   # knob for 'use strict;' in bundle header
+    inject : on   # if changed to 'off' - bundle will not to inject 'package_name' to global
 
     ###
     this settings will be applied to jade.compile() function

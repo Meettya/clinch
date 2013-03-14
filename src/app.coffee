@@ -30,24 +30,30 @@ class Clinch
   ###
   This internal method used to configure components in DiC
   ###
-
-  ###
-  jade = 
-    pretty : on
-    self : on
-    compileDebug : off
-
-  clinch_obj = new Clinch {jade, log : on}
-
-  ###
   _configureComponents : ->
-
     # just use short-cut
     log = !!@_options_.log
 
-    # set jade compiler settings
+    ###
+    set jade compiler settings for jade.compile()
+    jade = 
+      pretty : on
+      self : on
+      compileDebug : off
+    ###
     if jade = @_options_.jade
       @_dic_obj_.setComponentsSettings FileProcessor : {jade, log}
+
+    ###
+    set packer settings
+    strict : on
+    inject : on
+    ###
+    packer_settings = {log}
+    for setting_name in ['strict', 'inject']
+      if @_options_[setting_name]?
+        packer_settings[setting_name] = @_options_[setting_name]
+    @_dic_obj_.setComponentsSettings Packer : packer_settings
 
     null
 

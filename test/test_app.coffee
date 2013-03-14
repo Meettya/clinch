@@ -21,7 +21,7 @@ describe 'Clinch app itself:', ->
     jade = 
       pretty : off
 
-    clinch_obj = new Clinch {jade}
+    clinch_obj = new Clinch {jade, strict : off}
 
   describe 'buldPackage()', ->
 
@@ -52,6 +52,8 @@ describe 'Clinch app itself:', ->
       res_fn = (err, code) ->
         expect(err).to.be.null
 
+        # console.log code
+
         # this is browser emulation
         vm.runInNewContext code, jade_sandbox
         {JadePowered} = jade_sandbox.my_package
@@ -72,4 +74,24 @@ describe 'Clinch app itself:', ->
       expect(clinch_obj.flushCache()).to.be.null
 
 
+  describe 'constructor options', ->
+
+    it 'should supress injection on "inject : off" ', (done) ->
+
+      clinch_obj = new Clinch {inject : off}
+
+      package_config = 
+        bundle : 
+          JadePowered : fixturesJade
+        replacement :
+          fs : fixturesWebShims + '/noops'
+          jade : fixturesWebShims + '/noops'
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        vm.runInNewContext code, jade_sandbox = {}
+        jade_sandbox.should.not.to.contain.keys 'my_package'
+        done()
+
+      clinch_obj.buldPackage 'my_package', package_config, res_fn  
 

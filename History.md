@@ -1,3 +1,9 @@
+## 0.2.3 / 2013/03-15 01:00 AM
+
+  - Add settings to Clinch constructor - 'jade', 'strict', 'inject'
+  - Huge refactor to DiC
+  - Update docs
+
 ## 0.2.1 / 2013/03-05 02:00 PM
 
   - Fix 'replacement' and 'exclude' - now its just string comparisons

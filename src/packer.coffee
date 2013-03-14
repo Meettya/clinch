@@ -13,6 +13,10 @@ class Packer
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
 
+    @_settings_ = 
+      strict : @_options_.strict ? on
+      inject : @_options_.inject ? on
+
   ###
   This method create browser package with given cofiguration
   ###
@@ -32,7 +36,9 @@ class Packer
     # prepare environment
     [ env_header, env_body ] = @_buildEnvironment package_code.environment_list, package_code.members
 
-    result = "(function() {\n 'use strict';\n" +
+    strict_str = if @_settings_.strict then '\n \'use strict\';' else ''
+
+    result = "(function() {#{strict_str}\n" +
       env_header + 
       @_getHeader() + 
       "\n    dependencies = #{JSON.stringify package_code.dependencies_tree};\n"
@@ -50,7 +56,10 @@ class Packer
     result += env_body
 
     # add bundle export
-    result += "\n/* bundle export */\nthis.#{package_name} = {\n"
+
+    var_prefix = if @_settings_.inject then 'this.' else 'var '
+
+    result += "\n/* bundle export */\n#{var_prefix}#{package_name} = {\n"
     bundle_index = 0
     for bundle_name in package_code.bundle_list
       result += if bundle_index++ is 0 then "" else ",\n"
