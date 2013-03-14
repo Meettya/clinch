@@ -8,15 +8,10 @@ This class pack all together with layout
 _       = require 'lodash'
 async   = require 'async'
 
-util = require 'util'
-
-BundleProcessor      = require './bundle_processor'
-
 class Packer
-  constructor: (@_options_={}) ->
+  constructor: (@_bundle_processor_, @_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
-    @_bundle_processor_ = new BundleProcessor()
 
   ###
   This method create browser package with given cofiguration
@@ -26,9 +21,6 @@ class Packer
     @_bundle_processor_.buildAll package_config, (err, package_code) =>
       return main_cb err if err
       main_cb null, @_assemblePackage package_name, package_code
-
-  flushCache : ->
-    @_bundle_processor_.flushGathererCache()
 
   ###
   This method assemble result .js file from bundleset

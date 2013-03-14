@@ -12,7 +12,8 @@ util = require 'util'
 
 lib_path = GLOBAL?.lib_path || ''
 
-BundleProcessor = require "#{lib_path}bundle_processor"
+# change to DIContainer
+DIContainer = require "#{lib_path}di_container"
 
 fixtureRoot  = __dirname + "/fixtures"
 fixtures     = fixtureRoot + "/default"
@@ -29,7 +30,8 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
   bp_obj = package_config = null
 
   beforeEach ->
-    bp_obj = new BundleProcessor()
+    registry_obj = new DIContainer()
+    bp_obj = registry_obj.getComponent 'BundleProcessor'
 
     package_config = 
       bundle : 
@@ -138,10 +140,6 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
       bp_obj.buildAll package_config, res_fn
 
-  describe 'flushGathererCache()', ->
-
-    it 'should drop cache and return null', ->
-      expect(bp_obj.flushGathererCache()).to.be.null
 
 
 

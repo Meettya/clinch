@@ -29,16 +29,13 @@ util = require 'util'
 
 # and all togehter!
 Resolver      = require 'async-resolve'
-FileProcessor  = require './file_processor'
 
 class Gatherer
 
   # this is cache max_age, huge because we are have brutal invalidator now
   MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
 
-  constructor: (@_options_={}) ->
-    @_file_processor_ = new FileProcessor()
-
+  constructor: (@_file_processor_, @_options_={}) ->
     @_pathfinder_ = new Resolver()
     @_pathfinder_.addExtensions '.coffee', '.eco', '.jade'
 
