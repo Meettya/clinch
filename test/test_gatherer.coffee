@@ -11,7 +11,8 @@ util = require 'util'
 
 lib_path = GLOBAL?.lib_path || ''
 
-Gatherer = require "#{lib_path}gatherer"
+# change to DIContainer
+DIContainer = require "#{lib_path}di_container"
 
 fixtureRoot  = __dirname + "/fixtures"
 fixtures     = fixtureRoot + "/default"
@@ -25,7 +26,12 @@ describe 'Gatherer:', ->
   g_obj = g_conf = null
 
   beforeEach ->
-    g_obj = new Gatherer()
+    ###
+    YES, I know it will be correctly to create object with mock etc.
+    but it SHOULD work right this and now I don't care about it at all
+    ###
+    registry_obj = new DIContainer()
+    g_obj = registry_obj.getComponent 'Gatherer'
     
   describe 'buildModulePack() *async*', ->
 

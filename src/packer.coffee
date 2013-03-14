@@ -8,15 +8,14 @@ This class pack all together with layout
 _       = require 'lodash'
 async   = require 'async'
 
-util = require 'util'
-
-BundleProcessor      = require './bundle_processor'
-
 class Packer
-  constructor: (@_options_={}) ->
+  constructor: (@_bundle_processor_, @_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
-    @_bundle_processor_ = new BundleProcessor()
+
+    @_settings_ = 
+      strict : @_options_.strict ? on
+      inject : @_options_.inject ? on
 
   ###
   This method create browser package with given cofiguration
@@ -26,9 +25,6 @@ class Packer
     @_bundle_processor_.buildAll package_config, (err, package_code) =>
       return main_cb err if err
       main_cb null, @_assemblePackage package_name, package_code
-
-  flushCache : ->
-    @_bundle_processor_.flushGathererCache()
 
   ###
   This method assemble result .js file from bundleset
@@ -40,7 +36,9 @@ class Packer
     # prepare environment
     [ env_header, env_body ] = @_buildEnvironment package_code.environment_list, package_code.members
 
-    result = "(function() {\n 'use strict';\n" +
+    strict_str = if @_settings_.strict then '\n \'use strict\';' else ''
+
+    result = "(function() {#{strict_str}\n" +
       env_header + 
       @_getHeader() + 
       "\n    dependencies = #{JSON.stringify package_code.dependencies_tree};\n"
@@ -58,7 +56,10 @@ class Packer
     result += env_body
 
     # add bundle export
-    result += "\n/* bundle export */\nthis.#{package_name} = {\n"
+
+    var_prefix = if @_settings_.inject then 'this.' else 'var '
+
+    result += "\n/* bundle export */\n#{var_prefix}#{package_name} = {\n"
     bundle_index = 0
     for bundle_name in package_code.bundle_list
       result += if bundle_index++ is 0 then "" else ",\n"

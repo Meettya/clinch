@@ -19,7 +19,7 @@ fixturesWebShims = fixtureRoot + '/web_modules'
 
 JadePowered = require "#{fixturesJade}"
 
-describe 'clinch and template engines:', ->
+describe 'Clinch and template engines:', ->
 
   clinch_obj = package_config = null
 

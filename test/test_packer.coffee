@@ -13,7 +13,8 @@ util = require 'util'
 
 lib_path = GLOBAL?.lib_path || ''
 
-Packer = require "#{lib_path}packer"
+# change to DIContainer
+DIContainer = require "#{lib_path}di_container"
 
 fixtureRoot  = __dirname + "/fixtures"
 fixtures     = fixtureRoot + "/default"
@@ -30,7 +31,8 @@ describe 'Packer:', ->
   p_obj = package_config = null
 
   beforeEach ->
-    p_obj = new Packer()
+    registry_obj = new DIContainer()
+    p_obj = registry_obj.getComponent 'Packer'
     
   describe 'buldPackage()', ->
 
@@ -95,7 +97,6 @@ describe 'Packer:', ->
         (obj.lowest 5,8,9,3,6).should.to.equal 3
         done()
 
-      p_obj = new Packer log : on
       p_obj.buldPackage 'my_package', package_config, res_fn
 
 
@@ -200,10 +201,6 @@ describe 'Packer:', ->
 
       p_obj.buldPackage 'my_package', package_config, res_fn
 
-  describe 'flushCache()', ->
-
-    it 'should drop cache and return null', ->
-      expect(p_obj.flushCache()).to.be.null
 
 
 
