@@ -11,6 +11,14 @@ YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhea
  - `.eco`     - precompile to JavaScript function
  - `.jade`    - precompile it in [client-mode](https://github.com/visionmedia/jade#a4) way
 
+## what about my custom template engine?
+
+This possibility almost exists - **clinch** from 0.2.5 have API for third party processors, but template engine must support template-to-function precompilation.
+
+For example, **Jade** have it, but for **Handlebars** I can't find it. If you know some way to use it - please, advise me.
+
+More info and example - below at description of method `registerProcessor()`
+
 ### More about .jade
 
 Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be used wia `require()`. More information at './test', also examples was placed in wiki [jade template engine](https://github.com/Meettya/clinch/wiki/Jade-template-engine-support). In browser should be pre-loaded Jade's `runtime.js`.
@@ -89,6 +97,29 @@ And in browser function may be accessed in this way
 `package_config` - package settings
 
 `cb` - standard callback, all in **clinch** are async
+
+### registerProcessor()
+
+    packer.registerProcessor file_extention, fn
+
+This method allow to register any file content processor, which will be used to process files with `file_extention`.
+
+`file_extention` - file extension to proceed
+`fn` - processor function
+
+Example:
+
+    # add .econ processor
+    packer.registerProcessor '.econ', (file_content, filename, cb) ->
+      content = Eco.precompile file_content
+      cb null, "module.exports = #{content}"
+
+At now **clinch** will be compile all required `.econ` files with this function.
+
+And in module code:
+
+    template = require './template' # ./template.econ, extension may be omitted
+    res = template data # res now is some html-contented string
 
 ### flushCache()
 

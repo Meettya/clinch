@@ -1,7 +1,13 @@
+## 0.2.5 / 2013/03-16 10:00 PM
+
+  - Add registerProcessor() method for custom file processors
+  - Huge refactor
+  - Update docs
+
 ## 0.2.3 / 2013/03-15 01:00 AM
 
   - Add settings to Clinch constructor - 'jade', 'strict', 'inject'
-  - Huge refactor to DiC
+  - Huge refactor to Dependency Injector Container
   - Update docs
 
 ## 0.2.1 / 2013/03-05 02:00 PM

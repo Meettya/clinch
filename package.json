@@ -1,6 +1,6 @@
 {
   "name": "clinch",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "description": "YA ComonJS to browser packer tool, well-suited for widgets by small overhead and big app by smart settings",
   "main": "./src/app.coffee",
   "scripts": {
@@ -17,7 +17,7 @@
     "bundle",
     "npm",
     "javascript"
-    ],
+  ],
   "author": "Dmitrii Karpich <meettya@gmail.com>",
   "license": "MIT",
   "dependencies": {

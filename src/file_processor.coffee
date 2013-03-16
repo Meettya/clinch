@@ -32,7 +32,9 @@ class FileProcessor
   CS_BARE = yes # use bare to compile without a top-level function wrapper
 
   constructor: (@_options_={}) ->
-    @_compillers_ = @_getAsyncCompilers()
+    @_compilers_ = @_getAsyncCompilers @_getJadeSettings @_options_.jade
+    # and add third party compilers
+    _.assign @_compilers_, @_options_.third_party_compilers
 
   ###
   This method load one file and, if it needed, compile it
@@ -40,10 +42,14 @@ class FileProcessor
   loadFile : (rejectOnInvalidFilenameType (filename, cb) ->
 
     file_ext = path.extname filename
-    if @_compillers_[file_ext]?
-      @_compillers_[file_ext] filename, (err, data, must_be_parsed) ->
+    if @_compilers_[file_ext]?
+      fs.readFile filename, 'utf8', (err, data) =>
         return cb err if err
-        cb null, data, must_be_parsed
+        @_compilers_[file_ext] @_stripBOM(data), filename, (err, result, must_be_parsed) ->
+          return cb err if err
+          # TODO! add show_filename to settings and it works here
+          res = "\n// #{filename} \n" + result
+          cb null, res, must_be_parsed
     else
       cb null, false
   
@@ -67,7 +73,7 @@ class FileProcessor
   This method return supported extentions
   ###
   getSupportedFileExtentions : ->
-    _.keys @_compillers_
+    _.keys @_compilers_
 
   ###
   This method from node.js lib/module
@@ -79,59 +85,35 @@ class FileProcessor
     if content.charCodeAt(0) is 0xFEFF then content.slice(1) else content
 
   ###
-  This is Async compilers list.
-  @return - error, data, isRealCode (ie. may have 'require' and need to be processed) 
+  This internal method for Jade settings
   ###
-  _getAsyncCompilers : ->
-    # dont want to bind all callbacks
-    stripBOM = @_stripBOM
-    jade_settings = @_options_.jade or {}
+  _getJadeSettings : (options = {})->
+    # looks strange, but all ok - main options, user, add-on
+    _.defaults {client: on}, options, pretty: on, self: on, compileDebug: off
 
-    '.js'     : (filename, cb) ->
-      fs.readFile filename, 'utf8', (err, data) ->
-        return cb err if err
-        res = "\n// #{filename} \n" + stripBOM(data)
-        cb null, res, yes
+  ###
+  This is Async compilers list.
+  @return - error, data, isRealCode (ie. may have 'require' and should to be processed) 
+  ###
+  _getAsyncCompilers : (jade_settings) ->
 
-    '.json'   : (filename, cb) ->
-      fs.readFile filename, 'utf8', (err, data) ->
-        return cb err if err
-        res = "\n// #{filename} \n" + "module.exports = #{stripBOM(data)}"
-        cb null, res
+    '.js'     : (data, filename, cb) ->
+      cb null, data, yes
 
-    '.coffee' : (filename, cb) ->
-      fs.readFile filename, 'utf8', (err, data) ->
-        return cb err if err
-        res = "\n// #{filename} \n" + CoffeeScript.compile(stripBOM(data), bare: CS_BARE)
-        cb null, res, yes
+    '.json'   : (data, filename, cb) ->
+      cb null, "module.exports = #{data}"
+
+    '.coffee' : (data, filename, cb) ->
+      content = CoffeeScript.compile data, bare: CS_BARE
+      cb null, content, yes
     
-    '.eco'    : (filename, cb) ->
-      fs.readFile filename, 'utf8', (err, data) ->
-        return cb err if err
-        content = Eco.precompile stripBOM(data)
-        res = "\n// #{filename} \n" +  "module.exports = #{content}"
-        cb null, res       
+    '.eco'    : (data, filename, cb) ->
+      content = Eco.precompile data
+      cb null, "module.exports = #{content}"
 
-    '.jade'   : (filename, cb) ->
-      fs.readFile filename, 'utf8', (err, data) ->
-        return cb err if err
-
-        options = 
-          client: on
-          filename : filename
-
-        add_on_options = 
-          pretty : on
-          self : on
-          compileDebug : off  
-
-        # looks strange, but all ok - main options, user, add-on
-        _.defaults options, jade_settings, add_on_options
-
-        content = Jade.compile stripBOM(data), options
-        res = "\n// #{filename} \n" +  "module.exports = #{content}"
-        cb null, res
-
+    '.jade'   : (data, filename, cb) ->
+      content = Jade.compile data, _.assign jade_settings, {filename}
+      cb null, "module.exports = #{content}"
 
 
 module.exports = FileProcessor

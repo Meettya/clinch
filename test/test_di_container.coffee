@@ -21,7 +21,7 @@ describe 'DIContainer:', ->
       expect(r_obj.getComponent 'FileProcessor').to.be.an 'object'
 
     it 'should throw error on unknown component', ->
-      expect(-> r_obj.getComponent 'IUnknown').to.throw /418/
+      expect(-> r_obj.getComponent 'IUnknown').to.throw /mistype/
 
     it 'should return component as singleton (in one DIContainer object)', ->
       first = r_obj.getComponent 'FileProcessor'
@@ -47,6 +47,15 @@ describe 'DIContainer:', ->
       options = { IUnknown : {foo : 'bar' } }
       expect(-> r_obj.setComponentsSettings options).to.throw /mistype/
 
+  describe 'addComponentsSettings()', ->
 
+    it 'should setup one-step settings for known component', ->
+      expect(r_obj.addComponentsSettings 'FileProcessor', 'third_party_compilers', foo : -> ).to.be.an.instanceof DIContainer
+
+    it 'should setup deep settings for known component', ->
+      expect(r_obj.addComponentsSettings 'FileProcessor', 'foo', 'bar', 'baz', 'deep', xyz : -> ).to.be.an.instanceof DIContainer
+
+    it 'should throw error on unknown component name (mistype?)', ->
+      expect(-> r_obj.addComponentsSettings 'IUnknown', 'foo', bar : -> ).to.throw /mistype/
 
 

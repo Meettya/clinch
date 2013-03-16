@@ -8,9 +8,13 @@ vm = require 'vm'
 
 fixtureRoot  = __dirname + "/fixtures"
 fixturesJade = fixtureRoot + '/jade_powered'
+fixturesEcon = fixtureRoot + '/econ_powered'
 fixturesWebShims = fixtureRoot + '/web_modules'
 
 Clinch = require "../"
+
+# for third party processor check
+Eco = require 'eco'
 
 describe 'Clinch app itself:', ->
 
@@ -72,6 +76,55 @@ describe 'Clinch app itself:', ->
 
     it 'should drop cache and return null', ->
       expect(clinch_obj.flushCache()).to.be.null
+
+
+  describe 'registerProcessor()', ->
+
+    it 'should add new processor and use it', (done) -> 
+
+      econ_expected = """
+                      <div class="message"><p>Hello Bender!!!</p></div>
+                      """
+
+      package_config = 
+        bundle : 
+          EconPowered : fixturesEcon
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # console.log code
+
+        # this is browser emulation
+        vm.runInNewContext code, econ_sandbox = {}
+        {EconPowered} = econ_sandbox.my_package
+        
+        econ_obj = new EconPowered()
+        res = econ_obj.renderData name : 'Bender'
+        res.should.to.be.equal econ_expected
+
+        done()
+
+      # add .econ processor
+      clinch_obj.registerProcessor '.econ', (data, filename, cb) ->
+        content = Eco.precompile data
+        cb null, "module.exports = #{content}"
+
+      # just for my test, don't look on it as an example
+      # add .dummy processor to ensure .econ not rewritten
+      clinch_obj.registerProcessor '.dummy', (data, filename, cb) ->
+        content = Eco.precompile data
+        cb null, "module.exports = function(){return 'Dummy'};"
+
+      # here we are build our package, its what you need for browser
+      clinch_obj.buldPackage 'my_package', package_config, res_fn    
+
+
+    it 'should throw error if file extention not a String', ->
+      expect(-> clinch_obj.registerProcessor 22 , -> ).to.throw TypeError
+
+    it 'should throw error if processor not a Function', ->
+      expect(-> clinch_obj.registerProcessor '.foo' , 'bar' ).to.throw TypeError
 
 
   describe 'constructor options', ->

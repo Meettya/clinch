@@ -2,6 +2,8 @@
 This is main entry point for Clinch - API and setting here
 ###
 
+_ = require 'lodash'
+
 # its our registry
 DIContainer = require "./di_container"
 
@@ -26,6 +28,22 @@ class Clinch
   flushCache : ->
     gatherer = @_dic_obj_.getComponent 'Gatherer'
     gatherer.resetCaches()
+
+
+  ###
+  This method add third party file processor to Clinch
+  ###
+  registerProcessor : (file_extention, processor_fn) ->
+    # some naive checks
+    unless _.isString file_extention
+      throw TypeError "file extention must be a String but get |#{file_extention}|"
+    unless _.isFunction processor_fn
+      throw TypeError "processor must be a Function but get |#{processor_fn}|"
+
+    processor_obj = {}
+    processor_obj[file_extention] = processor_fn
+
+    @_dic_obj_.addComponentsSettings 'FileProcessor' , 'third_party_compilers', processor_obj
 
   ###
   This internal method used to configure components in DiC

@@ -14,6 +14,14 @@
  - `.eco`     - прекомпилируется как JavaScript функция
  - `.jade`    - прекомпилируется как [client-mode](https://github.com/visionmedia/jade#a4) вариант
 
+## а можно подключить мой любимый шаблонизатор?
+
+Такая возможность почти есть - **clinch** с версии 0.2.5 реализует возможность подключения сторонних парсеров, но со стороны парсера должна быть поддержка предкомпиляции щаблона в функцию.
+
+У **Jade** такая возможность есть, у Handlebars я ее не нашел. Если это все же возможно - сообщите мне.
+
+Подробност и и пример - ниже, в описании метода `registerProcessor()`
+
 ### Немного про .jade
 
 Скомпилированный [client-mode](https://github.com/visionmedia/jade#a4) шаблон может быть запрошен через `require()`. Подробнее можно посмотреть в тестах, так же пример есть на страничке wiki [jade template engine](https://github.com/Meettya/clinch/wiki/Jade-template-engine-support). В браузере необходимо загрузить `runtime.js` от **Jade**.
@@ -123,6 +131,30 @@
 `package_config` - настройки пакета.
 
 `cb` - стандартный коллбек, для работы с результатами, все в **clinch** асинхронно.
+
+### registerProcessor()
+
+    packer.registerProcessor file_extention, fn
+
+Данный метод позволяет зарегистрировать произвольный обработчик контента файла, который будет использован для обработки файла с указанным разрешением.
+
+`file_extention` - разрешение файла, которое будет обработано
+`fn` - функция для обработки файла
+
+Простой пример:
+
+    # add .econ processor
+    packer.registerProcessor '.econ', (file_content, filename, cb) ->
+      content = Eco.precompile file_content
+      cb null, "module.exports = #{content}"
+
+Теперь **clinch** будет компилировать указаным образом все запрошенные файлы с разрешением `.econ`
+
+Т.е. в коде модуля можно будет написать так
+
+    template = require './template' # ./template.econ, расширение можно не указывать
+    res = template data # в res будет какой-то html
+
 
 ### flushCache()
 

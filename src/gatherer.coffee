@@ -37,7 +37,8 @@ class Gatherer
 
   constructor: (@_file_processor_, @_options_={}) ->
     @_pathfinder_ = new Resolver()
-    @_pathfinder_.addExtensions '.coffee', '.eco', '.jade'
+    # NB! addExtensions need list, but getSupportedFileExtentions return array, so...
+    @_pathfinder_.addExtensions @_file_processor_.getSupportedFileExtentions()...
 
     # its heavy cache with file content
     @_loader_cache_ = @_buildLoaderCache()
