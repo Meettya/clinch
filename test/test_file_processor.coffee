@@ -72,6 +72,18 @@ describe 'FileProcessor:', ->
         done()
       fp_obj.loadFile fixturesErr, res_fn
 
+  describe 'getFileDigest() *async*', ->
+
+    it 'should calculate digest by file content', (done) ->
+      res_fn = (err, data) ->
+        expect(err).to.be.null
+        expect(data).to.not.be.null
+        expect(data).to.not.be.undefined
+        data.should.to.be.a 'number'
+        # console.log data
+        done()
+      fp_obj.getFileDigest fixturesCoffee, res_fn
+
   describe 'getSupportedFileExtentions()', ->
 
     it 'should return array of supported file extentions', ->
