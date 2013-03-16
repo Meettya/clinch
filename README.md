@@ -105,6 +105,7 @@ And in browser function may be accessed in this way
 This method allow to register any file content processor, which will be used to process files with `file_extention`.
 
 `file_extention` - file extension to proceed
+
 `fn` - processor function
 
 Example:
