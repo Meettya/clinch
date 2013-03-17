@@ -15,9 +15,9 @@ YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhea
 
 This possibility almost exists - **clinch** from 0.2.5 have API for third party processors, but template engine must support template-to-function precompilation.
 
-For example, **Jade** have it, but for **Handlebars** I can't find it. If you know some way to use it - please, advise me.
-
 More info and example - below at description of method `registerProcessor()`
+
+For additional example - see [using Handelbars](https://github.com/Meettya/clinch/wiki/Handlebars-template-engine-support)- yap, now [Hadlebars](http://handlebarsjs.com/) supported as add-on.
 
 ### More about .jade
 

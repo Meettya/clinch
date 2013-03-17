@@ -1,6 +1,6 @@
 {
   "name": "clinch",
-  "version": "0.2.5",
+  "version": "0.2.7",
   "description": "YA ComonJS to browser packer tool, well-suited for widgets by small overhead and big app by smart settings",
   "main": "./src/app.coffee",
   "scripts": {
@@ -36,6 +36,7 @@
     "chai": "latest",
     "mocha": "latest",
     "sprintf": "latest",
-    "dateformat": "latest"
+    "dateformat": "latest",
+    "handlebars": "~1.0.10"
   }
 }

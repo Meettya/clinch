@@ -1,3 +1,7 @@
+## 0.2.7 / 2013/03-17 02:00 PM
+
+  - Add Handlebars example, update docs, add test
+
 ## 0.2.5 / 2013/03-16 10:00 PM
 
   - Add registerProcessor() method for custom file processors
