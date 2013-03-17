@@ -3,7 +3,7 @@
 
 YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhead and big app by module replacement, node-environment emulations and multi-exports.
 
-## what supported?
+## what in a box?
 
  - `.js`      - just put it to bundle as is
  - `.json`    - wrap in `module.exports` as node do it on `require('file.json')`
@@ -17,7 +17,7 @@ This possibility almost exists - **clinch** from 0.2.5 have API for third party 
 
 More info and example - below at description of method `registerProcessor()`
 
-For additional example - see [using Handelbars](https://github.com/Meettya/clinch/wiki/Handlebars-template-engine-support)- yap, now [Hadlebars](http://handlebarsjs.com/) supported as add-on.
+For additional example - see [using Handelbars](https://github.com/Meettya/clinch/wiki/Handlebars-template-engine-support) - yap, now [Hadlebars](http://handlebarsjs.com/) supported as add-on.
 
 ### More about .jade
 

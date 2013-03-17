@@ -1,8 +1,8 @@
 {
   "name": "clinch",
-  "version": "0.2.7",
+  "version": "0.2.9",
   "description": "YA ComonJS to browser packer tool, well-suited for widgets by small overhead and big app by smart settings",
-  "main": "./src/app.coffee",
+  "main": "./lib/app",
   "scripts": {
     "test": "mocha"
   },
@@ -22,10 +22,10 @@
   "license": "MIT",
   "dependencies": {
     "coffee-script": ">=1.3.3",
-    "lodash": "latest",
-    "async-resolve": "latest",
-    "eco": "latest",
-    "jade": "latest",
+    "lodash": "*",
+    "async-resolve": "*",
+    "eco": "*",
+    "jade": "*",
     "async": "~0.2.5",
     "detective": "~0.2.1",
     "xxhash": "~0.1.1",
@@ -33,10 +33,11 @@
     "lru-cache": "~2.2.2"
   },
   "devDependencies": {
-    "chai": "latest",
-    "mocha": "latest",
-    "sprintf": "latest",
-    "dateformat": "latest",
-    "handlebars": "~1.0.10"
+    "chai": "*",
+    "mocha": "*",
+    "sprintf": "*",
+    "dateformat": "*",
+    "handlebars": "~1.0.10",
+    "colors": "~0.6.0-1"
   }
 }
