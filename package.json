@@ -21,7 +21,7 @@
   "author": "Dmitrii Karpich <meettya@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "coffee-script": ">=1.3.3",
+    "coffee-script": "*",
     "lodash": "*",
     "async-resolve": "*",
     "eco": "*",
