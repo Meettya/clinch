@@ -39,5 +39,8 @@
     "dateformat": "*",
     "handlebars": "~1.0.10",
     "colors": "~0.6.0-1"
+  },
+  "engines": {
+    "node": ">=0.8.0"
   }
 }

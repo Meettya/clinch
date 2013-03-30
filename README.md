@@ -1,3 +1,4 @@
+[![Dependency Status](https://gemnasium.com/Meettya/clinch.png)](https://gemnasium.com/Meettya/clinch)
 
 # clinch
 
