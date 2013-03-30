@@ -34,12 +34,21 @@ class FileLoader
 
   constructor: (@_options_={}) ->
     # this big cache for all our files, work on size and so on
-    @_file_cache_ = LRU maxAge: MAX_AGE # LRU max : 1000, maxAge: MAX_AGE, length : (n) -> n.content.length
+    @_file_cache_ = LRU max : 1000, maxAge: MAX_AGE
 
   ###
   This method try to get file content from hash or give up and read it from disk
   ###
   getFileContent : (rejectOnInvalidFilenameType (filename, cb) ->
+    @getFileWithMeta filename, (err, data) ->
+      return cb err if err
+      cb null, data.content
+    )
+
+  ###
+  This method, get all - content and meta for filename
+  ###
+  getFileWithMeta : (rejectOnInvalidFilenameType (filename, cb) ->
 
     # first step - see to _file_cache_ or just load all
     unless @_file_cache_.has filename
@@ -48,7 +57,7 @@ class FileLoader
         return cb err if err
         # save all to cache
         @_file_cache_.set filename, data
-        return cb null, data.content
+        return cb null, data
     # or if file in cache - try to use it, with multi-level validation
     else
       console.log "cache exist #{filename}"
@@ -59,7 +68,7 @@ class FileLoader
         # if file not changed - just return it
         if cached_file.meta.mtime is meta.mtime
           console.log 'mtime hit'
-          return cb null, cached_file.content
+          return cb null, cached_file
         # or try to compare digests
         else
           @readFileDigest filename, (err, digest) =>
@@ -70,15 +79,15 @@ class FileLoader
               # update meta part
               cached_file.meta = meta
               @_file_cache_.set filename, cached_file
-              return cb null, cached_file.content
+              return cb null, cached_file
             # ok, all go wrong - just re-read file content
             else
               @readFile filename, (err, content) =>
                 return cb err if err
                 # update all file data
-                @_file_cache_.set filename, {meta, digest, content}
-                return cb null, content
-
+                new_file = {meta, digest, content}
+                @_file_cache_.set filename, new_file
+                return cb null, new_file
     )
 
   ###

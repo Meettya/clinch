@@ -6,6 +6,7 @@ _ = require 'lodash'
 # all our classes here
 Packer          = require './packer'
 Gatherer        = require './gatherer'
+FileLoader      = require './file_loader'
 FileProcessor   = require './file_processor'
 BundleProcessor = require './bundle_processor'
 
@@ -16,6 +17,7 @@ class DIContainer
   constructor : ->
     @_packer_           = null
     @_gatherer_         = null
+    @_file_loader_      = null
     @_file_processor_   = null
     @_bundle_processor_ = null
 
@@ -78,10 +80,12 @@ class DIContainer
     settings = @_component_settings_[up_name]
 
     switch up_name
+      when 'FILELOADER'
+        @_file_loader_ or= new FileLoader settings
       when 'FILEPROCESSOR'
-        @_file_processor_ or= new FileProcessor settings
+        @_file_processor_ or= new FileProcessor @getComponent('FileLoader'), settings
       when 'GATHERER'
-        @_gatherer_ or= new Gatherer @getComponent('FileProcessor'), settings
+        @_gatherer_ or= new Gatherer @getComponent('FileLoader'), @getComponent('FileProcessor'), settings
       when 'BUNDLEPROCESSOR'
         @_bundle_processor_ or= new BundleProcessor @getComponent('Gatherer'), settings
       when 'PACKER'
@@ -98,6 +102,7 @@ class DIContainer
   _flushComponentsChache : ->
     @_packer_           = null
     @_gatherer_         = null
+    @_file_loader_      = null
     @_file_processor_   = null
     @_bundle_processor_ = null
 
@@ -122,6 +127,7 @@ class DIContainer
   _initComponentSetting : ->
     PACKER          : {}
     GATHERER        : {}
+    FILELOADER      : {}
     FILEPROCESSOR   : {}
     BUNDLEPROCESSOR : {}
 
