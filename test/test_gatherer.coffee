@@ -41,6 +41,7 @@ describe 'Gatherer:', ->
     it 'should build pack for filename', (done) ->
       res_fn = (err, data) ->
         expect(err).to.be.null
+        # console.log data
         expect(_.keys data.source_code).to.have.length 4
         done()
       g_obj.buildModulePack fixturesFile, g_conf, res_fn

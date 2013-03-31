@@ -53,19 +53,19 @@ class FileProcessor
         digest = data.digest
         # will check by digest only
         unless @_compiled_cache_.has digest
-          console.log 'FileProcessor cache miss'
+          #console.log 'FileProcessor cache miss'
           content = data.content
           @_compilers_[file_ext] @_stripBOM(content), filename, (err, result, must_be_parsed) =>
             return cb err if err
             # TODO! add show_filename to settings and it works here
             res = "\n// #{filename} \n" + result
             @_compiled_cache_.set digest, { must_be_parsed, compiled_data : res }
-            cb null, res, must_be_parsed
+            cb null, res, must_be_parsed, {digest}
         else
-          console.log 'FileProcessor cache hit'
+          #console.log 'FileProcessor cache hit'
 
           res = @_compiled_cache_.get digest
-          cb null, res.compiled_data, res.must_be_parsed
+          cb null, res.compiled_data, res.must_be_parsed, {digest}
     else
       cb null, false
   
