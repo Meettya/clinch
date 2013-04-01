@@ -8,8 +8,6 @@ _ = @_ ? require 'lodash'
 
 lib_path = GLOBAL?.lib_path || ''
 
-FileProcessor = require "#{lib_path}file_processor"
-
 fixtureRoot     = __dirname   + "/fixtures"
 fixtures        = fixtureRoot + "/default"
 fixturesCoffee  = fixtures    + "/summator.coffee"
@@ -19,13 +17,20 @@ fixturesMd      = fixtures    + "/readme.md"
 fixturesErr     = fixtures    + "/unexistanse.js"
 #TODO! add eco test
 
+# change to DIContainer
+DIContainer = require "#{lib_path}di_container"
 
 describe 'FileProcessor:', ->
 
   fp_obj = null
 
   beforeEach ->
-    fp_obj = new FileProcessor()
+    ###
+    YES, I know it will be correctly to create object with mock etc.
+    but it SHOULD work right this and now I don't care about it at all
+    ###
+    registry_obj = new DIContainer()
+    fp_obj = registry_obj.getComponent 'FileProcessor'
     
   describe 'loadFile() *async*', ->
 
@@ -72,21 +77,13 @@ describe 'FileProcessor:', ->
         done()
       fp_obj.loadFile fixturesErr, res_fn
 
-  describe 'getFileDigest() *async*', ->
-
-    it 'should calculate digest by file content', (done) ->
-      res_fn = (err, data) ->
-        expect(err).to.be.null
-        expect(data).to.not.be.null
-        expect(data).to.not.be.undefined
-        data.should.to.be.a 'number'
-        # console.log data
-        done()
-      fp_obj.getFileDigest fixturesCoffee, res_fn
-
   describe 'getSupportedFileExtentions()', ->
 
     it 'should return array of supported file extentions', ->
       res = fp_obj.getSupportedFileExtentions()
       expect(res).not.to.be.empty
 
+  describe 'resetCaches()', ->
+
+    it 'should drop cache and return null', ->
+      expect(fp_obj.resetCaches()).to.be.null

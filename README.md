@@ -1,9 +1,10 @@
+[![Dependency Status](https://gemnasium.com/Meettya/clinch.png)](https://gemnasium.com/Meettya/clinch)
 
 # clinch
 
 YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhead and big app by module replacement, node-environment emulations and multi-exports.
 
-## what supported?
+## what in a box?
 
  - `.js`      - just put it to bundle as is
  - `.json`    - wrap in `module.exports` as node do it on `require('file.json')`
@@ -15,9 +16,9 @@ YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhea
 
 This possibility almost exists - **clinch** from 0.2.5 have API for third party processors, but template engine must support template-to-function precompilation.
 
-For example, **Jade** have it, but for **Handlebars** I can't find it. If you know some way to use it - please, advise me.
-
 More info and example - below at description of method `registerProcessor()`
+
+For additional example - see [using Handelbars](https://github.com/Meettya/clinch/wiki/Handlebars-template-engine-support) - yap, now [Hadlebars](http://handlebarsjs.com/) supported as add-on.
 
 ### More about .jade
 
@@ -105,6 +106,7 @@ And in browser function may be accessed in this way
 This method allow to register any file content processor, which will be used to process files with `file_extention`.
 
 `file_extention` - file extension to proceed
+
 `fn` - processor function
 
 Example:

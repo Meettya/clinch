@@ -9,12 +9,14 @@ vm = require 'vm'
 fixtureRoot  = __dirname + "/fixtures"
 fixturesJade = fixtureRoot + '/jade_powered'
 fixturesEcon = fixtureRoot + '/econ_powered'
+fixturesHandlebars = fixtureRoot + '/handlebars_powered'
 fixturesWebShims = fixtureRoot + '/web_modules'
 
 Clinch = require "../"
 
 # for third party processor check
 Eco = require 'eco'
+Handlebars = require 'handlebars'
 
 describe 'Clinch app itself:', ->
 
@@ -125,6 +127,50 @@ describe 'Clinch app itself:', ->
 
     it 'should throw error if processor not a Function', ->
       expect(-> clinch_obj.registerProcessor '.foo' , 'bar' ).to.throw TypeError
+
+    it 'should support Handlebars precompilation', (done) ->
+
+      res_expected = """
+                      <div class="message"><p>Hello Bender!!!</p></div>
+                      """
+
+
+       # looks strange, but its just <script src='./runtime.js'></script> analog
+      handlebars_runtime_file = "#{__dirname}/../node_modules/handlebars/dist/handlebars.runtime.js"
+      handlebars_runtime = fs.readFileSync handlebars_runtime_file, 'utf8'
+      vm.runInNewContext handlebars_runtime, handlebars_sandbox = {}
+
+      ###
+      so, we are should to stub 'fs' and 'handlebars'
+      looks little ugly, but its fee for untouched sources, 
+      think about it as taxes - nobody like it, but every should to pay
+      ###
+      package_config = 
+        bundle : 
+          HandlebarsPowered : fixturesHandlebars
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # console.log code
+
+        # this is browser emulation
+        vm.runInNewContext code, handlebars_sandbox
+        {HandlebarsPowered} = handlebars_sandbox.my_package
+        
+        handlebars_obj = new HandlebarsPowered()
+        res = handlebars_obj.renderData name : 'Bender'
+        res.should.to.be.equal res_expected
+
+        done()
+
+      # add .handlebars processor
+      clinch_obj.registerProcessor '.handlebars', (data, filename, cb) ->
+        content = Handlebars.precompile data
+        cb null, "module.exports = #{content}"
+
+      # here we are build our package, its what you need for browser
+      clinch_obj.buldPackage 'my_package', package_config, res_fn   
 
 
   describe 'constructor options', ->

@@ -2,16 +2,16 @@
 This class compile and load files
 ###
 
-fs      = require 'fs'
 path    = require 'path'
 _       = require 'lodash'
-
-XXHash  = require 'xxhash' # ultra-mega-super fast hasher
 
 # our add-on parsers
 CoffeeScript  = require 'coffee-script'
 Eco           = require 'eco'
 Jade          = require 'jade'
+
+# for compiled cache
+LRU     = require 'lru-cache'
 
 ###
 Checker method decorator
@@ -27,11 +27,15 @@ rejectOnInvalidFilenameType = (methodBody) ->
 
 class FileProcessor
 
-  HASH_SALT = 0xCAFEBABE # not sure what it is but looks its work :)
-
   CS_BARE = yes # use bare to compile without a top-level function wrapper
 
-  constructor: (@_options_={}) ->
+  # this is cache max_age, huge because we are have brutal invalidator now
+  MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
+
+  constructor: (@_file_loader_, @_options_={}) ->
+    # this big cache for all our files, work on size and so on
+    @_compiled_cache_ = LRU max : 1000, maxAge: MAX_AGE
+
     @_compilers_ = @_getAsyncCompilers @_getJadeSettings @_options_.jade
     # and add third party compilers
     _.assign @_compilers_, @_options_.third_party_compilers
@@ -43,30 +47,28 @@ class FileProcessor
 
     file_ext = path.extname filename
     if @_compilers_[file_ext]?
-      fs.readFile filename, 'utf8', (err, data) =>
+      @_file_loader_.getFileWithMeta filename, (err, data) =>
         return cb err if err
-        @_compilers_[file_ext] @_stripBOM(data), filename, (err, result, must_be_parsed) ->
-          return cb err if err
-          # TODO! add show_filename to settings and it works here
-          res = "\n// #{filename} \n" + result
-          cb null, res, must_be_parsed
+
+        digest = data.digest
+        # will check by digest only
+        unless @_compiled_cache_.has digest
+          #console.log 'FileProcessor cache miss'
+          content = data.content
+          @_compilers_[file_ext] @_stripBOM(content), filename, (err, result, must_be_parsed) =>
+            return cb err if err
+            # TODO! add show_filename to settings and it works here
+            res = "\n// #{filename} \n" + result
+            @_compiled_cache_.set digest, { must_be_parsed, compiled_data : res }
+            cb null, res, must_be_parsed, {digest}
+        else
+          #console.log 'FileProcessor cache hit'
+
+          res = @_compiled_cache_.get digest
+          cb null, res.compiled_data, res.must_be_parsed, {digest}
     else
       cb null, false
   
-    )
-
-  ###
-  This method generate digest for file content
-  ###
-  getFileDigest : (rejectOnInvalidFilenameType (filename, cb) ->
-    
-    hasher = new XXHash HASH_SALT
-
-    stream = fs.createReadStream filename
-    stream.on 'data',   (data)  -> hasher.update data
-    stream.on 'error',  (err)   -> cb err
-    stream.on 'end',            -> cb null, hasher.digest()
-
     )
 
   ###
@@ -74,6 +76,13 @@ class FileProcessor
   ###
   getSupportedFileExtentions : ->
     _.keys @_compilers_
+
+  ###
+  This method reset all caches
+  ###
+  resetCaches : ->
+    @_compiled_cache_.reset()
+    null
 
   ###
   This method from node.js lib/module

@@ -19,9 +19,6 @@ async   = require 'async'
 detective = require 'detective'
 
 # for cache
-#TODO may be change to LRU later
-AsyncCache = require 'async-cache'
-
 LRU     = require 'lru-cache'
 
 # for debug purposes 
@@ -40,8 +37,6 @@ class Gatherer
     # NB! addExtensions need list, but getSupportedFileExtentions return array, so...
     @_pathfinder_.addExtensions @_file_processor_.getSupportedFileExtentions()...
 
-    # its heavy cache with file content
-    @_loader_cache_ = @_buildLoaderCache()
     # and its light cache with parsing results (search for require)
     @_require_cache_ = LRU max : 1000, maxAge: MAX_AGE
 
@@ -49,7 +44,6 @@ class Gatherer
   This method reset all caches
   ###
   resetCaches : ->
-    @_loader_cache_.reset()
     @_require_cache_.reset()
     null
 
@@ -110,37 +104,21 @@ class Gatherer
           return queue_cb() # <---- YES! we are jamping out the train
 
         # get all data and meta than go to next step
-         @_getFromCacheWithValidation real_file_name, (err, data) ->
+        @_file_processor_.loadFile real_file_name, (err, content, may_have_reqire, {digest}) ->
           return waterfall_cb err if err
-          waterfall_cb null, data.digest, data.content, {path_name, real_file_name}
+          waterfall_cb null, {digest, content, may_have_reqire, path_name, real_file_name}
 
       # 3. save data and, if it real code, search for requires in it
-      (digest, content, {real_file_name, path_name}, waterfall_cb) =>
-        [data, may_have_reqire] = content
-
+      ({digest, content, may_have_reqire, path_name, real_file_name}, waterfall_cb) =>
         # just ave all to result obj
-        @_fileDataSaver {digest, data, real_file_name, pack_cache}
+        @_fileDataSaver {digest, content, real_file_name, pack_cache}
 
         # and add new files to queue if it have `requires`
-        @_findRequiresAndAddToQueue {may_have_reqire, data, real_file_name, path_name, pack_cache}
+        @_findRequiresAndAddToQueue {digest, may_have_reqire, content, real_file_name, path_name, pack_cache}
 
         # all done
         waterfall_cb()
       ], (err) => queue_cb err # this is the end of waterfall
-
-  ###
-  This internal method for loaders cache, to slow get it from disk
-  YES, it will be needed to implement cache invalidator :(
-  ###
-  _buildLoaderCache : () ->
-    new AsyncCache
-      # options passed directly to the internal lru cache
-      max: 100
-      maxAge: MAX_AGE
-      # method to load a thing if it's not in the cache.
-      # key must be unique in the context of this cache.
-      load : (key, cb) =>
-        @_getFileDataAndMeta key, cb
 
 
   ###
@@ -155,33 +133,6 @@ class Gatherer
       first_filter
 
   ###
-  This method get data and meta from cache with cache validation
-  At now try to use re-calculated file hash
-  ###
-  _getFromCacheWithValidation : (real_file_name, meth_cb) ->
-    # just get current data and all data from cache, and compare caches
-    async.parallel
-
-      current_digest : (parallel_cb) =>
-        @_file_processor_.getFileDigest real_file_name, parallel_cb
-
-      all_data : (parallel_cb) =>
-        @_loader_cache_.get real_file_name, parallel_cb
-
-    , (err, data) =>
-      return meth_cb err if err
-
-      # ok, now compare current file digest and cached
-      if data.current_digest is data.all_data.digest
-        # just return if all ok
-        meth_cb null, data.all_data
-      else
-        # console.log 'data.current_digest and data.all_data.digest missmatch, ', data.current_digest, data.all_data.digest
-        # or reset all caches and re-read data
-        @resetCaches()
-        @_loader_cache_.get real_file_name, meth_cb
-
-  ###
   This method searching for requires, its just stub.
   later I re-write it to class
   to substitute detective with my own logic and acorn
@@ -192,19 +143,19 @@ class Gatherer
   This method find requires in files, if they need it and 
   add to queue new files for recurse working
   ###
-  _findRequiresAndAddToQueue : ({may_have_reqire, data, real_file_name, path_name, pack_cache}) =>
+  _findRequiresAndAddToQueue : ({digest, may_have_reqire, content, real_file_name, path_name, pack_cache}) =>
     # and add new files to queue if it have `requires`
     if may_have_reqire is yes and @_isFilesMustBeProcessed pack_cache.requireless, path_name
 
       # try to get all by cache
-      childrens = unless @_require_cache_.has real_file_name
+      childrens = unless @_require_cache_.has digest
         #console.log 'cache miss', real_file_name
-        res = @_findRequiresItself data
-        @_require_cache_.set real_file_name, res
+        res = @_findRequiresItself content
+        @_require_cache_.set digest, res
         res
       else
         #console.log 'cache hit', real_file_name
-        @_require_cache_.get real_file_name
+        @_require_cache_.get digest
 
       for child in childrens
 
@@ -217,21 +168,6 @@ class Gatherer
 
         null
     null
-
-  ###
-  This method get content and meta for filename
-  ###
-  _getFileDataAndMeta : ( real_file_name, step_cb ) ->
-
-    # get content and digest, it simplest do it parallel
-    async.parallel
-      # 2.1 get file digest 
-      digest : (parallel_cb) =>
-        @_file_processor_.getFileDigest real_file_name, parallel_cb
-      # 2.2 get file content and its (content) properties
-      content : (parallel_cb) =>
-        @_file_processor_.loadFile real_file_name, parallel_cb
-      , step_cb # and parallel and, send all to next step
 
   ###
   This part-method handle save to tree
@@ -265,9 +201,9 @@ class Gatherer
   This method save data
   void return
   ###
-  _fileDataSaver : ({digest, data, real_file_name, pack_cache}) ->
+  _fileDataSaver : ({digest, content, real_file_name, pack_cache}) ->
     pack_cache.names_map[real_file_name] = digest
-    pack_cache.source_code[real_file_name] ?= data
+    pack_cache.source_code[real_file_name] ?= content
     null
 
   ###

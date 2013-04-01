@@ -1,3 +1,11 @@
+## 0.2.9 / 2013/03-17 06:45 PM
+
+  - Re-compile to js (sorry, I forgot) and link to it
+
+## 0.2.7 / 2013/03-17 02:00 PM
+
+  - Add Handlebars example, update docs, add test
+
 ## 0.2.5 / 2013/03-16 10:00 PM
 
   - Add registerProcessor() method for custom file processors
