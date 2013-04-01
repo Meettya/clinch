@@ -11,7 +11,7 @@ class Clinch
   constructor: (@_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
-    @_dic_obj_ = new DIContainer()
+    @_di_cont_obj_ = new DIContainer()
     @_configureComponents()
     
   ###
@@ -19,17 +19,18 @@ class Clinch
   actually its just proxy all to packer
   ###
   buldPackage : (package_name, package_config, main_cb) ->
-    packer = @_dic_obj_.getComponent 'Packer'
+    packer = @_di_cont_obj_.getComponent 'Packer'
     packer.buldPackage package_name, package_config, main_cb
 
   ###
   This method force flush cache
   ###
   flushCache : ->
-    gatherer = @_dic_obj_.getComponent 'Gatherer'
-    gatherer.resetCaches()
-
-
+    for component_name in ['FileLoader', 'FileProcessor','Gatherer']
+      @_di_cont_obj_.getComponent(component_name).resetCaches()
+      null
+    null
+    
   ###
   This method add third party file processor to Clinch
   ###
@@ -43,7 +44,7 @@ class Clinch
     processor_obj = {}
     processor_obj[file_extention] = processor_fn
 
-    @_dic_obj_.addComponentsSettings 'FileProcessor' , 'third_party_compilers', processor_obj
+    @_di_cont_obj_.addComponentsSettings 'FileProcessor' , 'third_party_compilers', processor_obj
 
   ###
   This internal method used to configure components in DiC
@@ -60,7 +61,7 @@ class Clinch
       compileDebug : off
     ###
     if jade = @_options_.jade
-      @_dic_obj_.setComponentsSettings FileProcessor : {jade, log}
+      @_di_cont_obj_.setComponentsSettings FileProcessor : {jade, log}
 
     ###
     set packer settings
@@ -71,7 +72,7 @@ class Clinch
     for setting_name in ['strict', 'inject']
       if @_options_[setting_name]?
         packer_settings[setting_name] = @_options_[setting_name]
-    @_dic_obj_.setComponentsSettings Packer : packer_settings
+    @_di_cont_obj_.setComponentsSettings Packer : packer_settings
 
     null
 

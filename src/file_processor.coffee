@@ -78,6 +78,13 @@ class FileProcessor
     _.keys @_compilers_
 
   ###
+  This method reset all caches
+  ###
+  resetCaches : ->
+    @_compiled_cache_.reset()
+    null
+
+  ###
   This method from node.js lib/module
   // Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
   // because the buffer-to-string conversion in `fs.readFileSync()`

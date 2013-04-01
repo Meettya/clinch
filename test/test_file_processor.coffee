@@ -83,3 +83,7 @@ describe 'FileProcessor:', ->
       res = fp_obj.getSupportedFileExtentions()
       expect(res).not.to.be.empty
 
+  describe 'resetCaches()', ->
+
+    it 'should drop cache and return null', ->
+      expect(fp_obj.resetCaches()).to.be.null

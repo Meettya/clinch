@@ -93,3 +93,8 @@ describe 'FileLoader:', ->
         fl_obj.getFileContent fixturesCoffee, res_fn2
 
       fl_obj.getFileContent fixturesCoffee, res_fn1
+
+  describe 'resetCaches()', ->
+
+    it 'should drop cache and return null', ->
+      expect(fl_obj.resetCaches()).to.be.null

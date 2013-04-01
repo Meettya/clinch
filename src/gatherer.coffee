@@ -114,7 +114,7 @@ class Gatherer
         @_fileDataSaver {digest, content, real_file_name, pack_cache}
 
         # and add new files to queue if it have `requires`
-        @_findRequiresAndAddToQueue {may_have_reqire, content, real_file_name, path_name, pack_cache}
+        @_findRequiresAndAddToQueue {digest, may_have_reqire, content, real_file_name, path_name, pack_cache}
 
         # all done
         waterfall_cb()
@@ -143,19 +143,19 @@ class Gatherer
   This method find requires in files, if they need it and 
   add to queue new files for recurse working
   ###
-  _findRequiresAndAddToQueue : ({may_have_reqire, content, real_file_name, path_name, pack_cache}) =>
+  _findRequiresAndAddToQueue : ({digest, may_have_reqire, content, real_file_name, path_name, pack_cache}) =>
     # and add new files to queue if it have `requires`
     if may_have_reqire is yes and @_isFilesMustBeProcessed pack_cache.requireless, path_name
 
       # try to get all by cache
-      childrens = unless @_require_cache_.has real_file_name
+      childrens = unless @_require_cache_.has digest
         #console.log 'cache miss', real_file_name
         res = @_findRequiresItself content
-        @_require_cache_.set real_file_name, res
+        @_require_cache_.set digest, res
         res
       else
         #console.log 'cache hit', real_file_name
-        @_require_cache_.get real_file_name
+        @_require_cache_.get digest
 
       for child in childrens
 

@@ -35,6 +35,16 @@ class FileLoader
   constructor: (@_options_={}) ->
     # this big cache for all our files, work on size and so on
     @_file_cache_ = LRU max : 1000, maxAge: MAX_AGE
+    # what is it? hm, its ESP for node. in some cases its too speed and async
+    @_file_in_process_ = {}
+
+  ###
+  This method reset all caches
+  ###
+  resetCaches : ->
+    @_file_cache_.reset()
+    @_file_in_process_ = {}
+    null
 
   ###
   This method try to get file content from hash or give up and read it from disk
@@ -49,18 +59,31 @@ class FileLoader
   This method, get all - content and meta for filename
   ###
   getFileWithMeta : (rejectOnInvalidFilenameType (filename, cb) ->
-
+        
     # first step - see to _file_cache_ or just load all
     unless @_file_cache_.has filename
-      #console.log "cache miss #{filename}"
-      @_loadAllFileData filename, (err, data) =>
-        return cb err if err
-        # save all to cache
-        @_file_cache_.set filename, data
-        return cb null, data
+
+      # if someone already processed this file - just come later
+      if @_file_in_process_[filename]
+        # console.log "is file processed #{filename}"
+        lazy_fn = => @getFileWithMeta filename, cb
+        # why not `process.nextTick`? - `setTimeout` more lazy and here its good :)
+        setTimeout lazy_fn, 0
+      else
+        # set processed flag
+        @_file_in_process_[filename] = true
+        # console.log "cache miss #{filename}"
+        @_loadAllFileData filename, (err, data) =>
+          # unset process flag
+          @_file_in_process_[filename] = false
+
+          return cb err if err
+          # save all to cache
+          @_file_cache_.set filename, data
+          return cb null, data
     # or if file in cache - try to use it, with multi-level validation
     else
-      #console.log "cache exist #{filename}"
+      # console.log "cache exist #{filename}"
       cached_file = @_file_cache_.get filename
       # first step - compare meta
       @readFileMeta filename, (err, meta) =>
@@ -134,6 +157,5 @@ class FileLoader
     stream.on 'end',            -> cb null, hasher.digest()
 
     )
-
 
 module.exports = FileLoader
