@@ -129,6 +129,13 @@ And in module code:
 
 This method will force flush packer cache. As usually **clinch** flush cache if files changed, but for some rare cases its available to force it.
 
+### getPackageFilesList()
+
+    packer.getPackageFilesList package_config, cb
+
+This method will return an Array of all files, used in package building process.
+May be used for custom `watch` implementation or in other cases
+
 ## Settings
 
 ### clinch_options

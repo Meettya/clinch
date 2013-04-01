@@ -31,7 +31,17 @@ class Clinch
       @_di_cont_obj_.getComponent(component_name).resetCaches()
       null
     null
-    
+  
+  ###
+  This method may return list of all files, used in package
+  may be used for `watch` functionality on those files
+  ###
+  getPackageFilesList : (package_config, main_cb) ->
+    bundler = @_di_cont_obj_.getComponent 'BundleProcessor'
+    bundler.buldRawPackageData package_config, (err, raw_data) ->
+      return main_cb err if err
+      main_cb null, _.keys bundler.joinBundleSets(raw_data).names_map
+
   ###
   This method add third party file processor to Clinch
   ###

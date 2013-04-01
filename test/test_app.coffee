@@ -12,7 +12,10 @@ fixturesEcon = fixtureRoot + '/econ_powered'
 fixturesHandlebars = fixtureRoot + '/handlebars_powered'
 fixturesWebShims = fixtureRoot + '/web_modules'
 
-Clinch = require "../"
+lib_path = GLOBAL?.lib_path || ''
+
+# change to app, for test
+Clinch = require "#{lib_path}app"
 
 # for third party processor check
 Eco = require 'eco'
@@ -79,6 +82,25 @@ describe 'Clinch app itself:', ->
     it 'should drop cache and return null', ->
       expect(clinch_obj.flushCache()).to.be.null
 
+  describe 'getPackageFilesList()', ->
+
+    it 'should return list of all files, used in package', (done) ->
+
+      package_config = 
+        bundle : 
+          JadePowered : fixturesJade
+        replacement :
+          fs : fixturesWebShims + '/noops'
+          jade : fixturesWebShims + '/noops'
+
+      res_fn = (err, files) ->
+        expect(err).to.be.null
+        # console.log files
+        files.should.to.have.length 3
+
+        done()
+
+      clinch_obj.getPackageFilesList package_config, res_fn  
 
   describe 'registerProcessor()', ->
 
