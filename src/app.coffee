@@ -23,7 +23,8 @@ class Clinch
     packer.buldPackage package_name, package_config, main_cb
 
   ###
-  This method force flush cache
+  This method force flush all caches
+  yes, we are have three different caches
   ###
   flushCache : ->
     for component_name in ['FileLoader', 'FileProcessor','Gatherer']
