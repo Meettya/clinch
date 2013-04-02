@@ -43,6 +43,7 @@ describe 'Packer:', ->
           substractor : fixturesSingle
  
       res_fn = (err, code) ->
+        # console.log code
         expect(err).to.be.null
         # oh, its better than eval :)
         vm.runInNewContext code, sandbox = {}

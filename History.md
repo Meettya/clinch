@@ -1,3 +1,10 @@
+## 0.3.1 / 2013/04-02 03:00 AM
+
+  - Refactor cache logic, now its drop only changed files
+  - Add clinch version as comment in result bandle
+  - Change some dependencies versions to new one
+  - Add getPackageFilesList() method
+
 ## 0.2.9 / 2013/03-17 06:45 PM
 
   - Re-compile to js (sorry, I forgot) and link to it
