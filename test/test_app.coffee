@@ -256,3 +256,23 @@ describe 'Clinch app itself:', ->
         done()
 
       clinch_obj.buldPackage 'my_package', package_config, res_fn  
+
+    it 'should supress injection on "inject : off" and without package name', (done) ->
+
+      clinch_obj = new Clinch
+
+      package_config = 
+        inject : off
+        bundle : 
+          JadePowered : fixturesJade
+        replacement :
+          fs : fixturesWebShims + '/noops'
+          jade : fixturesWebShims + '/noops'
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        vm.runInNewContext code, jade_sandbox = {}
+        jade_sandbox.should.not.to.contain.keys 'JadePowered'
+        done()
+
+      clinch_obj.buldPackage package_config, res_fn  

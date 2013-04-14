@@ -1,3 +1,11 @@
+## 0.3.5 / 2013/04-14 10:30 PM
+
+  - Add 'inject' & 'strict' settings to package config
+  - API changed (but old worked) - now 'package_name' part of package config, see `#buldPackage()` docs
+  - Realized new feature - without 'buldPackage()' clinch now will work with bundle members - depended on 'inject' inject it to global or make local vars
+  - Refactor code
+  - Add Plato status
+
 ## 0.3.1 / 2013/04-02 03:00 AM
 
   - Refactor cache logic, now its drop only changed files
