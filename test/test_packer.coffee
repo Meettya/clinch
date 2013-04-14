@@ -41,6 +41,7 @@ describe 'Packer:', ->
       package_config = 
         bundle : 
           substractor : fixturesSingle
+        package_name : 'my_package'
  
       res_fn = (err, code) ->
         # console.log code
@@ -52,7 +53,7 @@ describe 'Packer:', ->
         (substractor 10, 2).should.to.be.equal 8
         done()
 
-      p_obj.buldPackage 'my_package', package_config, res_fn
+      p_obj.buldPackage package_config, res_fn
 
 
     it 'should build pack for npm-like module without \'require\'', (done) ->
@@ -60,6 +61,7 @@ describe 'Packer:', ->
       package_config = 
         bundle : 
           summator : fixturesNpm
+        package_name : 'my_package'
 
       res_fn = (err, code) ->
         expect(err).to.be.null
@@ -70,7 +72,7 @@ describe 'Packer:', ->
         (summator 10, 2).should.to.be.equal 12
         done()
 
-      p_obj.buldPackage 'my_package', package_config, res_fn
+      p_obj.buldPackage package_config, res_fn
 
 
     it 'should build pack for file with deep dependencies', (done) ->
@@ -81,6 +83,7 @@ describe 'Packer:', ->
         requireless : [
           'lodash'
         ]        
+        package_name : 'my_package'
 
       res_fn = (err, code) ->
         expect(err).to.be.null
@@ -98,11 +101,12 @@ describe 'Packer:', ->
         (obj.lowest 5,8,9,3,6).should.to.equal 3
         done()
 
-      p_obj.buldPackage 'my_package', package_config, res_fn
+      p_obj.buldPackage package_config, res_fn
 
 
     it 'should build pack, resolving ALL childrens', (done) ->
       package_config = 
+        package_name : 'my_package'
         bundle : 
           summator : fixturesTwoChild 
         requireless : [
@@ -122,10 +126,11 @@ describe 'Packer:', ->
         (substractor.substractor 2, 3).should.to.equal -1
         done()
 
-      p_obj.buldPackage 'my_package', package_config, res_fn
+      p_obj.buldPackage package_config, res_fn
 
     it 'should build pack with real npm modules', (done) ->
       package_config = 
+        package_name : 'my_package'
         bundle : 
           main : fixturesPrinter 
         requireless : [
@@ -145,11 +150,12 @@ describe 'Packer:', ->
           should.to.equal 'Saturday, June 9th, 2007, 12:00:00 AM'
         done()
 
-      p_obj.buldPackage 'my_package', package_config, res_fn
+      p_obj.buldPackage package_config, res_fn
 
     it 'should build pack with replacement and environment (*hard work*)', (done) ->
         
       package_config = 
+        package_name : 'my_package'
         bundle : 
           substractor : fixturesSingle
           summator : fixturesNpm
@@ -176,11 +182,12 @@ describe 'Packer:', ->
         (magic_summator 10, 5).should.to.be.equal 25
         done()
 
-      p_obj.buldPackage 'my_package', package_config, res_fn
+      p_obj.buldPackage package_config, res_fn
 
     it 'should build pack for modules, which use node.js core modules', (done) ->
 
       package_config = 
+        package_name : 'my_package'
         bundle : 
           cored : fixturesWithCore
         replacement :
@@ -200,11 +207,30 @@ describe 'Packer:', ->
         
         done()
 
-      p_obj.buldPackage 'my_package', package_config, res_fn
+      p_obj.buldPackage package_config, res_fn
 
 
+    it 'should inject all bundle members to global without "package_name"', (done) ->
 
+      package_config = 
+        bundle : 
+          substractor : fixturesSingle
+          summator : fixturesNpm
+ 
+      res_fn = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
 
+        # its just awful naming, sorry for that
+        {substractor} = sandbox.substractor
+        {summator} = sandbox.summator
 
+        (summator 10, 2).should.to.be.equal 12
+        (substractor 10, 2).should.to.be.equal 8
+        done()
+
+      p_obj.buldPackage package_config, res_fn
 
 

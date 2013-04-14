@@ -18,9 +18,9 @@ class Clinch
   This method create browser package with given configuration
   actually its just proxy all to packer
   ###
-  buldPackage : (package_name, package_config, main_cb) ->
+  buldPackage : (in_settings..., main_cb) ->
     packer = @_di_cont_obj_.getComponent 'Packer'
-    packer.buldPackage package_name, package_config, main_cb
+    packer.buldPackage @_composePackageSettings(in_settings), main_cb
 
   ###
   This method force flush all caches
@@ -86,6 +86,21 @@ class Clinch
     @_di_cont_obj_.setComponentsSettings Packer : packer_settings
 
     null
+
+  ###
+  This internal method to compose bundle settings from package_name, package_config
+  backward compatibility and new feature in one place
+  ###
+  _composePackageSettings : (in_settings) ->
+    # we are may have one ore two keys, and first one may be omitted, 
+    # to get second one in any case we are should reverse arguments
+    in_settings.reverse()
+    [ package_config, package_name ] = in_settings
+
+    if package_name? and not package_config.package_name?
+      package_config.package_name = package_name
+
+    package_config
 
 
 module.exports = Clinch

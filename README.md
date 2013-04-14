@@ -91,9 +91,11 @@ And in browser function may be accessed in this way
 
 ### buldPackage()
 
+    packer.buldPackage package_config, cb
+    # or old form, will be deprecated in new version
     packer.buldPackage package_name, package_config, cb
 
-`package_name` - root bundle package name (like `$` for jQuery), remember about name collisions.
+`package_name` - root bundle package name (like `$` for jQuery), remember about name collisions, may be omitted. If name omitted `clinch` will search in package settings, if `package_name` omitted there too - inject all bundle members to global OR, if `inject : off` in package settings - make all bundle members local for bundle (it may be usefully in case of widgets with self-detection). Will be deprecated in new versions, use `package_config.package_name`
 
 `package_config` - package settings
 
@@ -139,11 +141,6 @@ May be used for custom `watch` implementation or in other cases
 ## Settings
 
 ### clinch_options
-
-    ###
-    From v 2.0.3 Clinch support some settings
-    ###
-
     log : off     # will add verbose output, but now not realized yet
     strict : on   # knob for 'use strict;' in bundle header
     inject : on   # if changed to 'off' - bundle will not to inject 'package_name' to global
@@ -157,6 +154,14 @@ May be used for custom `watch` implementation or in other cases
       compileDebug : off
 
 ### package_config
+    ###
+    May be omitted. If omitted - inject all bundle members to global OR, if `inject : off` in package settings - make all bundle members local for bundle (it may be usefully in case of widgets with self-detection)
+    ###
+    package_name : 'bundle_pack_name'
+
+    # bundle settings
+    strict : on   # bundle knob for 'use strict;' in bundle header
+    inject : on   # if changed to 'off' - bundle will not to inject 'package_name' to global
 
     ###
     At least one key must be exists
