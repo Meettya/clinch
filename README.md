@@ -34,9 +34,10 @@ Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be u
     Clinch = require 'clinch'
     packer = new Clinch()
     pack_config = 
+      package_name : 'my_package'
       bundle : 
         main : "#{__dirname}/hello_world"
-    packer.buldPackage 'my_package', pack_config, (err, data) ->
+    packer.buldPackage pack_config, (err, data) ->
       if err
         console.log 'Builder, err: ', err
       else
@@ -95,7 +96,7 @@ And in browser function may be accessed in this way
     # or old form, will be deprecated in new version
     packer.buldPackage package_name, package_config, cb
 
-`package_name` - root bundle package name (like `$` for jQuery), remember about name collisions, may be omitted. If name omitted `clinch` will search in package settings, if `package_name` omitted there too - inject all bundle members to global OR, if `inject : off` in package settings - make all bundle members local for bundle (it may be usefully in case of widgets with self-detection). Will be deprecated in new versions, use `package_config.package_name`
+`package_name` - root bundle package name (like `$` for jQuery), remember about name collisions, may be omitted. Will be deprecated in new versions, use `package_config.package_name`
 
 `package_config` - package settings
 
