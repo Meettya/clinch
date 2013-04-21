@@ -1,3 +1,7 @@
+## 0.3.7
+
+  - Fix 'sources' indent
+
 ## 0.3.5 / 2013/04-14 10:30 PM
 
   - Add 'inject' & 'strict' settings to package config
