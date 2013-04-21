@@ -42,7 +42,7 @@ class Packer
     # set header
     result = @_getHeader env_header, package_config.strict, package_code.dependencies_tree
     # add sources
-    result += @_getSource package_code.source_code
+    result += "\n" + @_getSource package_code.source_code
     # add environment body
     result += env_body
     # add bundle export
