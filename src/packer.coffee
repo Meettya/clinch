@@ -201,18 +201,14 @@ class Packer
 
       """
     else
-      """
-        var #{@_clinch_runtime_file_content_}
-      """
+      "\nvar #{@_clinch_runtime_file_content_}\n"
 
   ###
   This is short version, MUST be used with runtime js lib
   ###
   _requireResolver: ->
     prefix = if @_settings_.runtime then 'this.' else ''
-    """
-      require = #{prefix}clinch_runtime.require_builder(dependencies, sources);
-    """
+    "\nrequire = #{prefix}clinch_runtime.require_builder(dependencies, sources);"
 
   ###
   This is footer of code wrapper

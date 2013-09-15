@@ -31,7 +31,7 @@ describe 'Clinch with runtime lib:', ->
 
   describe 'buldPackage()', ->
 
-    it 'should build package for runtime version', (done) ->
+    it 'should build package with runtime version', (done) ->
 
       # looks strange, but its just <script src='./clinch_runtime.js'></script> analog
       clinch_runtime_file = "#{__dirname}/../clinch_runtime.js"
@@ -177,3 +177,29 @@ describe 'Clinch with runtime lib:', ->
 
       clinch_obj.buldPackage package_config, res_fn
 
+    it 'should build package with minified runtime version', (done) ->
+
+      # looks strange, but its just <script src='./clinch_runtime.js'></script> analog
+      clinch_runtime_file = "#{__dirname}/../clinch_runtime.min.js"
+      clinch_runtime = fs.readFileSync clinch_runtime_file, 'utf8'
+      vm.runInNewContext clinch_runtime, clinch_sandbox = {}
+  
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          Runtimed : fixtureSimply
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # this is browser emulation
+        vm.runInNewContext code, clinch_sandbox
+        {Runtimed} = clinch_sandbox.my_package
+        
+        {substractor} = Runtimed
+        res = substractor 20, 5
+        res.should.to.be.equal 15
+        
+        done()
+
+      clinch_obj.buldPackage package_config, res_fn  
