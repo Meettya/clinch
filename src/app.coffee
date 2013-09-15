@@ -27,7 +27,7 @@ class Clinch
   yes, we are have three different caches
   ###
   flushCache : ->
-    for component_name in ['FileLoader', 'FileProcessor','Gatherer']
+    for component_name in ['FileLoader', 'FileProcessor', 'Gatherer']
       @_di_cont_obj_.getComponent(component_name).resetCaches()
       null
     null
@@ -76,11 +76,12 @@ class Clinch
 
     ###
     set packer settings
-    strict : on
-    inject : on
+    strict  : on
+    inject  : on
+    runtime : off
     ###
     packer_settings = {log}
-    for setting_name in ['strict', 'inject']
+    for setting_name in ['strict', 'inject', 'runtime']
       if @_options_[setting_name]?
         packer_settings[setting_name] = @_options_[setting_name]
     @_di_cont_obj_.setComponentsSettings Packer : packer_settings
