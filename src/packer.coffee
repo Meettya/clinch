@@ -91,7 +91,7 @@ class Packer
     for own name, code of source_obj
       result += if source_index++ is 0 then "" else ",\n"
       result += JSON.stringify name
-      result += ": function(exports, module, require) {#{code}}"
+      result += ": function(exports, module, require) {#{code}\n}"
     result += "};\n"
 
   ###

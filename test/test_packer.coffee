@@ -25,6 +25,7 @@ fixturesTwoChild = fixtureRoot + '/two_children'
 fixturesPrinter = fixtureRoot + '/with_printf'
 fixturesReplacer = fixtureRoot + '/replacer'
 fixturesWithCore = fixtureRoot + '/with_core'
+fixturesWebShims = fixtureRoot + '/web_modules'
 
 describe 'Packer:', ->
 
@@ -233,4 +234,25 @@ describe 'Packer:', ->
 
       p_obj.buldPackage package_config, res_fn
 
+    it 'should build package with empty file (only comment)', (done) ->
+
+      package_config = 
+        bundle : 
+          summator : fixturesNpm
+        replacement :
+          'util' : fixturesWebShims + '/nothing'
+ 
+      res_fn = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        # its just awful naming, sorry for that
+        {summator} = sandbox.summator
+
+        (summator 10, 2).should.to.be.equal 12
+        done()
+
+      p_obj.buldPackage package_config, res_fn
 

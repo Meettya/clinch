@@ -1,3 +1,7 @@
+## 0.3.9 / 2013-09-19 12:20 AM
+
+  - Fix [#4 issue](https://github.com/Meettya/clinch/issues/4)
+
 ## 0.3.7 / 2013-09-18 12:48 AM
 
   - Fix 'sources' indent
