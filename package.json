@@ -37,7 +37,9 @@
     "dateformat": "*",
     "handlebars": "*",
     "colors": "*",
-    "sprintf-js": "0.0.7"
+    "sprintf-js": "*",
+    "walkdir": "*",
+    "fs-extra": "*"
   },
   "engines": {
     "node": ">=0.8.0"

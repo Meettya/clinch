@@ -21,5 +21,5 @@ for own key, value of paths
 commands = require path.join paths.cake_dep, 'command'
 
 task 'build', 'build coffee to js', build = (cb) ->
-  commands.build_coffee cb, paths.src_dir, paths.lib_dir, /\.coffee$/
+  commands.build_coffee paths.src_dir, paths.lib_dir, cb
 
