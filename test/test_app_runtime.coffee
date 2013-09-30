@@ -101,7 +101,10 @@ describe 'Clinch with runtime lib:', ->
        # looks strange, but its just <script src='./runtime.js'></script> analog
       jade_runtime_file = "#{__dirname}/../node_modules/jade/runtime.js"
       jade_runtime = fs.readFileSync jade_runtime_file, 'utf8'
-      vm.runInNewContext jade_runtime, jade_sandbox = {}
+
+      vm.runInNewContext jade_runtime, jade_sandbox = window : {}
+      # looks starnge, but its ok for browser
+      jade_sandbox.jade = jade_sandbox.window.jade
 
       clinch_runtime_file = "#{__dirname}/../clinch_runtime.js"
       clinch_runtime = fs.readFileSync clinch_runtime_file, 'utf8'
