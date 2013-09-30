@@ -1,6 +1,13 @@
-## 0.3.7
+## 0.3.9 / 2013-09-19 12:20 AM
+
+  - Fix [#4 issue](https://github.com/Meettya/clinch/issues/4)
+
+## 0.3.7 / 2013-09-18 12:48 AM
 
   - Fix 'sources' indent
+  - Fix test for current version of modules for [#3 issue](https://github.com/Meettya/clinch/issues/3)
+  - Add shinkwrap files
+  - Re-build lib with new Coffee-script
 
 ## 0.3.5 / 2013-04-14 10:30 PM
 

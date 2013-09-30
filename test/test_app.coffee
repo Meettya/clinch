@@ -44,7 +44,10 @@ describe 'Clinch app itself:', ->
        # looks strange, but its just <script src='./runtime.js'></script> analog
       jade_runtime_file = "#{__dirname}/../node_modules/jade/runtime.js"
       jade_runtime = fs.readFileSync jade_runtime_file, 'utf8'
-      vm.runInNewContext jade_runtime, jade_sandbox = {}
+
+      vm.runInNewContext jade_runtime, jade_sandbox = window : {}
+      # looks starnge, but its ok for browser
+      jade_sandbox.jade = jade_sandbox.window.jade
 
       ###
       so, we are should to stub 'fs' and 'jade'
@@ -65,6 +68,7 @@ describe 'Clinch app itself:', ->
 
         # this is browser emulation
         vm.runInNewContext code, jade_sandbox
+        
         {JadePowered} = jade_sandbox.my_package
         
         jade_obj = new JadePowered()

@@ -3,7 +3,7 @@ This module is example for full concept
 Pointless, but funny
 ###
 
-{sprintf} = require 'sprintf'
+{sprintf} = require 'sprintf-js'
 dateFormat = require 'dateformat'
 
 class Printer
