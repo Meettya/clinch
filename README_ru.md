@@ -288,4 +288,5 @@
 ## Благодарности
 
 [Shuvalov Anton](https://github.com/shuvalov-anton)
+
 [Simakov Konstantin](https://github.com/GigabyteTheOne)
