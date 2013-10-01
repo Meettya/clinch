@@ -58,6 +58,24 @@ describe 'Clinch with runtime lib:', ->
 
       clinch_obj.buldPackage package_config, res_fn  
 
+    # oh, I chitting a litle, but its correct detection :)
+    it 'should build package with runtime version ("on" in package options)', (done) ->
+
+      clinch_obj = new Clinch strict : off, jade : pretty : off
+
+      package_config = 
+        package_name : 'my_package'
+        runtime : on
+        bundle : 
+          Runtimed : fixtureSimply
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        expect(-> vm.runInNewContext code, clinch_sandbox = {} ).to.throw /Resolve clinch runtime library/
+        done()
+
+      clinch_obj.buldPackage package_config, res_fn
+
     it 'should throw error if runtime library not loaded', (done) ->
 
       package_config = 

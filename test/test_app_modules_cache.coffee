@@ -23,7 +23,7 @@ describe 'Clinch and its modules cache:', ->
 
     beforeEach ->
 
-      clinch_obj = new Clinch strict : off, runtime : on
+      clinch_obj = new Clinch runtime : on
 
     it 'should build cached package', (done) ->
 
@@ -55,11 +55,9 @@ describe 'Clinch and its modules cache:', ->
 
   describe 'buldPackage() with modules cache off', ->
 
-    beforeEach ->
+    it 'should not build cached package ("off" in clinch options)', (done) ->
 
-      clinch_obj = new Clinch strict : off, runtime : on, cache_modules : off
-
-    it 'should not build cached package', (done) ->
+      clinch_obj = new Clinch runtime : on, cache_modules : off
 
       # looks strange, but its just <script src='./clinch_runtime.js'></script> analog
       clinch_runtime_file = "#{__dirname}/../clinch_runtime.js"
@@ -85,4 +83,4 @@ describe 'Clinch and its modules cache:', ->
   
         done()
 
-      clinch_obj.buldPackage package_config, res_fn  
+      clinch_obj.buldPackage package_config, res_fn
