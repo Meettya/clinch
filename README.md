@@ -142,9 +142,11 @@ May be used for custom `watch` implementation or in other cases
 ## Settings
 
 ### clinch_options
-    log : off     # will add verbose output, but now not realized yet
-    strict : on   # knob for 'use strict;' in bundle header
-    inject : on   # if changed to 'off' - bundle will not to inject 'package_name' to global
+    log           : off  # will add verbose output, but now not realized yet
+    strict        : on   # knob for 'use strict;' in bundle header
+    inject        : on   # if changed to 'off' - bundle will not to inject 'package_name' to global
+    runtime       : off  # use internal boilerplate code, or as external file
+    cache_modules : on   # by default all resolved by 'require' file will be cached, if you have some problem - turn cache off and notice me
 
     ###
     this settings will be applied to jade.compile() function
@@ -163,6 +165,9 @@ May be used for custom `watch` implementation or in other cases
     # bundle settings
     strict : on   # bundle knob for 'use strict;' in bundle header
     inject : on   # if changed to 'off' - bundle will not to inject 'package_name' to global
+    runtime       : off  # use internal boilerplate code, or as external file
+    cache_modules : on   # by default all resolved by 'require' file will be cached, if you have some problem - turn cache off and notice me
+
 
     ###
     At least one key must be exists
@@ -224,3 +229,8 @@ Also **clinch** will be used to browser-pack [TinyData](http://meettya.github.co
 ## See also
 
 Its exists README_ru version of documentation, with more information.
+
+## Acknowledgement
+
+[Shuvalov Anton](https://github.com/shuvalov-anton)
+[Simakov Konstantin](https://github.com/GigabyteTheOne)

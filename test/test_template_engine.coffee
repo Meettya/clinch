@@ -11,7 +11,8 @@ util = require 'util'
 
 lib_path = GLOBAL?.lib_path || ''
 
-Clinch = require "../"
+# change to app, for test
+Clinch = require "#{lib_path}app"
 
 fixtureRoot  = __dirname + "/fixtures"
 fixturesJade = fixtureRoot + '/jade_powered'

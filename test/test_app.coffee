@@ -11,6 +11,8 @@ fixturesJade = fixtureRoot + '/jade_powered'
 fixturesEcon = fixtureRoot + '/econ_powered'
 fixturesHandlebars = fixtureRoot + '/handlebars_powered'
 fixturesWebShims = fixtureRoot + '/web_modules'
+fixtureDefault = fixtureRoot + '/default'
+fixturesUniqueGeneratorParent = fixtureDefault + '/unique_generator_parent'
 
 lib_path = GLOBAL?.lib_path || ''
 
@@ -279,4 +281,48 @@ describe 'Clinch app itself:', ->
         jade_sandbox.should.not.to.contain.keys 'JadePowered'
         done()
 
-      clinch_obj.buldPackage package_config, res_fn  
+      clinch_obj.buldPackage package_config, res_fn
+
+    it 'should supress build cached package on "cache_modules : off"', (done) ->
+
+      clinch_obj = new Clinch
+  
+      package_config = 
+        package_name : 'my_package'
+        cache_modules : off
+        bundle : 
+          Runtimed : fixturesUniqueGeneratorParent
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # this is browser emulation
+        vm.runInNewContext code, clinch_sandbox = {}
+        {Runtimed} = clinch_sandbox.my_package
+        
+        {generator} = Runtimed
+        {generator2} = Runtimed
+
+        expect(generator).to.not.deep.equal generator2
+  
+        done()
+
+      clinch_obj.buldPackage package_config, res_fn
+
+    # oh, I chitting a litle, but its correct detection :)
+    it 'should build package with runtime version on "runtime : on"', (done) ->
+
+      clinch_obj = new Clinch
+
+      package_config = 
+        package_name : 'my_package'
+        runtime : on
+        bundle : 
+          Runtimed : fixturesUniqueGeneratorParent
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        expect(-> vm.runInNewContext code, clinch_sandbox = {} ).to.throw /Resolve clinch runtime library/
+        done()
+
+      clinch_obj.buldPackage package_config, res_fn

@@ -1,3 +1,8 @@
+## 0.4.1 / 2013-10-01 11:00 PM
+ - Add 'runtime' library - now boilerplate code may be resolved by external file.
+ - Add modules cache - to cover [#5 issue](https://github.com/Meettya/clinch/issues/5)
+ - Add both things to documentation
+
 ## 0.3.9 / 2013-09-19 12:20 AM
 
   - Fix [#4 issue](https://github.com/Meettya/clinch/issues/4)
