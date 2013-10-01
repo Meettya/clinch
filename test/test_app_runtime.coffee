@@ -67,29 +67,10 @@ describe 'Clinch with runtime lib:', ->
         
       res_fn = (err, code) ->
         expect(err).to.be.null
-        expect(-> vm.runInNewContext code, clinch_sandbox = {} ).to.throw 'Resolve clinch runtime library first!'
+        expect(-> vm.runInNewContext code, clinch_sandbox = {} ).to.throw /Resolve clinch runtime library/
         done()
 
       clinch_obj.buldPackage package_config, res_fn
-
-    it 'should throw error if runtime library version mismatched', (done) ->
-
-      package_config = 
-        package_name : 'my_package'
-        bundle : 
-          Runtimed : fixtureSimply
-      
-      clinch_sandbox = 
-        clinch_runtime :
-          version : 0
-
-      res_fn = (err, code) ->
-        expect(err).to.be.null
-        expect(-> vm.runInNewContext code, clinch_sandbox ).to.throw /^Runtime\slibrary\sversion\smissmatch/
-        done()
-
-      clinch_obj.buldPackage package_config, res_fn
-
 
     it 'should build difficult package', (done) ->
 

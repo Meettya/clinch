@@ -8,4 +8,5 @@
   - Replace detective with self-writhed class on acorn
   - Add jade support - done
   - Add more tests - in process
-  - Add 'runtime' package option, to replace boilerplate code to runtime lib - in process
+  - Add 'runtime' package option, to replace boilerplate code to runtime lib - done
+  - Add modules cache to prevent re-creating prototypes on every call - done

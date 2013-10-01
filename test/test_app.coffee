@@ -64,7 +64,7 @@ describe 'Clinch app itself:', ->
       res_fn = (err, code) ->
         expect(err).to.be.null
 
-        #console.log code
+        # console.log code
 
         # this is browser emulation
         vm.runInNewContext code, jade_sandbox
