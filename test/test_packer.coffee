@@ -237,22 +237,54 @@ describe 'Packer:', ->
     it 'should build package with empty file (only comment)', (done) ->
 
       package_config = 
+        package_name : 'my_package'
         bundle : 
           summator : fixturesNpm
         replacement :
           'util' : fixturesWebShims + '/nothing'
  
       res_fn = (err, code) ->
-        # console.log code
+        #console.log code
         expect(err).to.be.null
         # oh, its better than eval :)
         vm.runInNewContext code, sandbox = {}
 
         # its just awful naming, sorry for that
-        {summator} = sandbox.summator
+        {summator} = sandbox.my_package.summator
 
         (summator 10, 2).should.to.be.equal 12
         done()
 
       p_obj.buldPackage package_config, res_fn
+
+    it 'should build pack with replacement as function (*noop*)', (done) ->
+        
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          main  : fixturesTwoChild
+        replacement :
+          './power' : -> if test? then test else {}
+ 
+      res_fn = (err, code) ->
+        console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        # its just awful naming, sorry for that
+        {summator, summator_pow} = sandbox.my_package.main.summator
+        # this should work
+        (summator 10, 2).should.to.be.equal 12
+        # but not this
+        expect(-> summator_pow 10, 2).to.throw /has no method 'pow'/
+
+        done()
+
+      p_obj.buldPackage package_config, res_fn
+
+    # TODO need test with normal and function in replacement at onr time!
+
+
+
 

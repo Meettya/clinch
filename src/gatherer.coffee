@@ -28,7 +28,7 @@ class Gatherer
   # this is cache max_age, huge because we are have brutal invalidator now
   MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
 
-  constructor: (@_file_processor_, @_options_={}) ->
+  constructor: (@_digest_calculator_, @_file_processor_, @_options_={}) ->
     @_pathfinder_ = new Resolver()
     # NB! addExtensions need list, but getSupportedFileExtentions return array, so...
     @_pathfinder_.addExtensions @_file_processor_.getSupportedFileExtentions()...
@@ -42,6 +42,31 @@ class Gatherer
   resetCaches : ->
     @_require_cache_.reset()
     null
+
+  ###
+  This is 'lite' version of packer - it buld pack from function
+  used in replacement as function type
+  ###
+  buildFunctionPack : (raw_code, main_cb) ->
+
+    result = 
+      dependencies_tree : {}
+      names_map         : {}
+      source_code       : {}
+
+    # now we are have some troubles with names_map - 
+    # I think we are should use dump digest -> digest map
+    # looks ugly, but for consistency its good
+    digest = @_digest_calculator_.calculateDataDigest raw_code
+
+    digest_polindrome = {}
+    digest_polindrome[digest] = digest
+
+    result.dependencies_tree['.'] = digest_polindrome
+    result.names_map              = digest_polindrome
+    result.source_code[digest]    = "\nmodule.exports = (" + raw_code?.toString() + "\n)()\n"
+    
+    main_cb null, result
 
   ###
   This is Async version of packer

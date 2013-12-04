@@ -39,30 +39,55 @@ class BundleProcessor
   ###
   buldRawPackageData : ( package_config, method_cb) ->
 
-    {liberal_gatherer, strict_gatherer} = @_buildGatherers package_config
+    {liberal_gatherer, strict_gatherer, function_gatherer} = @_buildGatherers package_config
+    [file_based_replacement, function_based_replacement]   = @_bundleSeparator package_config.replacement
+
 
     async.parallel
       bundle : (par_cb) =>  
         @_compileBundleSet strict_gatherer, package_config.bundle, par_cb
       environment : (par_cb) =>
         @_compileBundleSet strict_gatherer, package_config.environment, par_cb
-      replacement : (par_cb) =>
-        @_compileBundleSet liberal_gatherer, package_config.replacement, par_cb
+      file_replacement : (par_cb) =>
+        @_compileBundleSet liberal_gatherer, file_based_replacement, par_cb
+      function_replacement : (par_cb) =>
+        @_compileBundleSet function_gatherer, function_based_replacement, par_cb
 
       , (err, data) ->
         return method_cb err if err
         method_cb null, data
-  
+
+  ###
+  This method separate bundle to two part - file based and function based
+  ###
+  _bundleSeparator: (bundle_obj) ->
+
+    [file_based_bundle, function_based_bundle] = [{},{}]
+    for name, value of bundle_obj
+      if _.isString value
+        file_based_bundle[name] = value
+      else if _.isFunction value
+        function_based_bundle[name] = value
+      else
+        method_cb throw Error """
+                              unknown type of dependencies (not String or Function)
+                              |#{name}| = |#{value}|
+                              """
+
+    [file_based_bundle, function_based_bundle]
+
   ###
   This method replace filtered dependencies in raw data to 'replacement' content 
   Yes, sync - nothing async here
   ###
   replaceDependenciesInRawPackageData : (package_data) ->
+    replacement = [].concat package_data.file_replacement, package_data.function_replacement
+
     # if no 'replacement' - just return untoched
-    unless package_data.replacement.length
+    unless replacement.length
       return package_data
 
-    replacement_dict = _.reduce package_data.replacement, (memo, val) ->
+    replacement_dict = _.reduce replacement, (memo, val) ->
       [memo[val.package_name]] = _.values val.dependencies_tree['.']
       memo
     , {}
@@ -167,6 +192,8 @@ class BundleProcessor
       @_gatherer_.buildModulePack name, {filters : liberal_filter, requireless : requireless_filter},cb
     strict_gatherer   : (name, cb) =>
       @_gatherer_.buildModulePack name, {filters : strict_filter, requireless : requireless_filter},cb
+    function_gatherer : (name, cb) =>
+      @_gatherer_.buildFunctionPack name, cb
 
 
 module.exports = BundleProcessor

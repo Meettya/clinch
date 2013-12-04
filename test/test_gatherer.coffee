@@ -140,3 +140,22 @@ describe 'Gatherer:', ->
     it 'should drop cache and return null', ->
       expect(g_obj.resetCaches()).to.be.null
 
+  describe 'buildFunctionPack()', ->
+    it 'should create pack for function', (done) ->
+      data_in = ->
+
+      res_fn = (err, data) ->
+        expect(err).to.be.null
+
+        expect(data).to.not.be.null
+        expect(data).to.not.be.undefined
+        data.should.to.be.a 'object'
+        
+        done()
+
+      g_obj.buildFunctionPack data_in, res_fn
+
+
+
+
+
