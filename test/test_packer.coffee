@@ -265,6 +265,7 @@ describe 'Packer:', ->
         package_name : 'my_package'
  
       res_fn = (err, code) ->
+        # console.log err
         expect(err).to.be.an 'object'
         expect(code).to.be.undefined
 

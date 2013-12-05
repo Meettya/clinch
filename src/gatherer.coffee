@@ -153,6 +153,7 @@ class Gatherer
         [err, res] = @_findRequiresItself content
         # just die fast
         if err?
+          err.fileName = real_file_name
           return waterfall_cb err
         else 
           @_require_cache_.set digest, res
