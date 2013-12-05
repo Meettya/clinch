@@ -110,10 +110,7 @@ class Gatherer
         @_fileDataSaver {digest, content, real_file_name, pack_cache}
 
         # and add new files to queue if it have `requires`
-        @_findRequiresAndAddToQueue {digest, may_have_reqire, content, real_file_name, path_name, pack_cache}
-
-        # all done
-        waterfall_cb()
+        @_findRequiresAndAddToQueue {digest, may_have_reqire, content, real_file_name, path_name, pack_cache, waterfall_cb}
       ], (err) => queue_cb err # this is the end of waterfall
 
 
@@ -134,24 +131,35 @@ class Gatherer
   to substitute detective with my own logic and acorn
   ###
   _findRequiresItself : (data) ->
-    detective data
+    result = []
+    try
+      result = detective data
+    catch error
+      return [error]
+
+    [null, result]
+    
   ###
   This method find requires in files, if they need it and 
   add to queue new files for recurse working
   ###
-  _findRequiresAndAddToQueue : ({digest, may_have_reqire, content, real_file_name, path_name, pack_cache}) =>
+  _findRequiresAndAddToQueue : ({digest, may_have_reqire, content, real_file_name, path_name, pack_cache, waterfall_cb}) =>
     # and add new files to queue if it have `requires`
     if may_have_reqire is yes and @_isFilesMustBeProcessed pack_cache.requireless, path_name
 
       # try to get all by cache
-      childrens = unless @_require_cache_.has digest
+      unless @_require_cache_.has digest
         #console.log 'cache miss', real_file_name
-        res = @_findRequiresItself content
-        @_require_cache_.set digest, res
-        res
+        [err, res] = @_findRequiresItself content
+        # just die fast
+        if err?
+          return waterfall_cb err
+        else 
+          @_require_cache_.set digest, res
+          childrens = res
       else
         #console.log 'cache hit', real_file_name
-        @_require_cache_.get digest
+        childrens = @_require_cache_.get digest
 
       for child in childrens
 
@@ -163,7 +171,8 @@ class Gatherer
             pack_cache.err = err
 
         null
-    null
+
+    waterfall_cb()
 
   ###
   This part-method handle save to tree

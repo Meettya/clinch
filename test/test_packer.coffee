@@ -26,6 +26,7 @@ fixturesPrinter = fixtureRoot + '/with_printf'
 fixturesReplacer = fixtureRoot + '/replacer'
 fixturesWithCore = fixtureRoot + '/with_core'
 fixturesWebShims = fixtureRoot + '/web_modules'
+fixturesFaled = fixtureRoot + "/with_syntax_error"
 
 describe 'Packer:', ->
 
@@ -256,3 +257,17 @@ describe 'Packer:', ->
 
       p_obj.buldPackage package_config, res_fn
 
+    it 'should return error on file with syntax error', (done) ->
+
+      package_config = 
+        bundle : 
+          faled : fixturesFaled
+        package_name : 'my_package'
+ 
+      res_fn = (err, code) ->
+        expect(err).to.be.an 'object'
+        expect(code).to.be.undefined
+
+        done()
+
+      p_obj.buldPackage package_config, res_fn
