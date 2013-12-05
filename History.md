@@ -1,4 +1,10 @@
+## 0.4.3 / 2013-12-06 12:30 AM
+
+ - Fix & test for [#9 issue](https://github.com/Meettya/clinch/issues/9)
+ - Update nmp modules
+
 ## 0.4.1 / 2013-10-01 11:00 PM
+
  - Add 'runtime' library - now boilerplate code may be resolved by external file.
  - Add modules cache - to cover [#5 issue](https://github.com/Meettya/clinch/issues/5)
  - Add both things to documentation
