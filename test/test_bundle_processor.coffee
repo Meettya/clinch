@@ -48,7 +48,7 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
         'lodash'
       ]
     
-  describe 'buldRawPackageData()', ->
+  describe 'buildRawPackageData()', ->
 
     it 'should build pack', (done) ->
       
@@ -59,7 +59,7 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
         done()
 
-      bp_obj.buldRawPackageData package_config, res_fn
+      bp_obj.buildRawPackageData package_config, res_fn
 
 
   describe 'replaceDependenciesInRawPackageData()', ->
@@ -76,7 +76,7 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
         done()
 
-      bp_obj.buldRawPackageData package_config, res_fn
+      bp_obj.buildRawPackageData package_config, res_fn
 
 
   describe 'joinBundleSets()', ->
@@ -94,7 +94,7 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
         done()
 
-      bp_obj.buldRawPackageData package_config, res_fn
+      bp_obj.buildRawPackageData package_config, res_fn
 
 
   describe 'changePathsToHashesInJoinedSet()', ->
@@ -112,7 +112,7 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
         done()
 
-      bp_obj.buldRawPackageData package_config, res_fn
+      bp_obj.buildRawPackageData package_config, res_fn
 
   describe 'buildAll()', ->
 

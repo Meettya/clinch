@@ -76,4 +76,4 @@ describe 'Clinch and template engines:', ->
         done()
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buldPackage 'my_package', package_config, res_fn
+      clinch_obj.buildPackage 'my_package', package_config, res_fn

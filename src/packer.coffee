@@ -33,7 +33,7 @@ class Packer
   ###
   This method create browser package with given configuration
   ###
-  buldPackage : (package_config, main_cb) ->
+  buildPackage : (package_config, main_cb) ->
 
     @_readSupportFiles (err, files_data) =>
       return main_cb err if err

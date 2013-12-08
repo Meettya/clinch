@@ -1,5 +1,9 @@
 ## 0.4.3 / 2013-12-06 12:30 AM
 
+ - Fix & test for [#11 issue](https://github.com/Meettya/clinch/issues/11)
+
+## 0.4.3 / 2013-12-06 12:30 AM
+
  - Fix & test for [#9 issue](https://github.com/Meettya/clinch/issues/9)
  - Update nmp modules
 
@@ -23,8 +27,8 @@
 ## 0.3.5 / 2013-04-14 10:30 PM
 
   - Add 'inject' & 'strict' settings to package config
-  - API changed (but old worked) - now 'package_name' part of package config, see `#buldPackage()` docs
-  - Realized new feature - without 'buldPackage()' clinch now will work with bundle members - depended on 'inject' inject it to global or make local vars
+  - API changed (but old worked) - now 'package_name' part of package config, see `#buildPackage()` docs
+  - Realized new feature - without 'buildPackage()' clinch now will work with bundle members - depended on 'inject' inject it to global or make local vars
   - Refactor code
   - Add Plato status
 

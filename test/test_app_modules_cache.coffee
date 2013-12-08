@@ -19,7 +19,7 @@ describe 'Clinch and its modules cache:', ->
 
   clinch_obj = package_config = null
 
-  describe 'buldPackage() with modules cache on (by default)', ->
+  describe 'buildPackage() with modules cache on (by default)', ->
 
     beforeEach ->
 
@@ -51,9 +51,9 @@ describe 'Clinch and its modules cache:', ->
   
         done()
 
-      clinch_obj.buldPackage package_config, res_fn  
+      clinch_obj.buildPackage package_config, res_fn  
 
-  describe 'buldPackage() with modules cache off', ->
+  describe 'buildPackage() with modules cache off', ->
 
     it 'should not build cached package ("off" in clinch options)', (done) ->
 
@@ -83,4 +83,4 @@ describe 'Clinch and its modules cache:', ->
   
         done()
 
-      clinch_obj.buldPackage package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn

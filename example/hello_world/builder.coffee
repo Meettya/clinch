@@ -16,7 +16,7 @@ pack_config =
 
 packer = new Clinch()
 
-packer.buldPackage 'my_package', pack_config, (err, data) ->
+packer.buildPackage 'my_package', pack_config, (err, data) ->
   if err
     console.log 'Builder, err: ', err
   else

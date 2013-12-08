@@ -18,9 +18,17 @@ class Clinch
   This method create browser package with given configuration
   actually its just proxy all to packer
   ###
-  buldPackage : (in_settings..., main_cb) ->
+  buildPackage : (in_settings..., main_cb) ->
     packer = @_di_cont_obj_.getComponent 'Packer'
-    packer.buldPackage @_composePackageSettings(in_settings), main_cb
+    packer.buildPackage @_composePackageSettings(in_settings), main_cb
+
+  ###
+  Silly mistype, will be deprecated soon
+  ###
+  buldPackage : ->
+    if @_do_logging_
+      console.log "'clinch.buldPackage' is now called 'clinch.buildPackage' (sorry for mistype)"
+    @buildPackage arguments...
 
   ###
   This method force flush all caches
@@ -38,7 +46,7 @@ class Clinch
   ###
   getPackageFilesList : (package_config, main_cb) ->
     bundler = @_di_cont_obj_.getComponent 'BundleProcessor'
-    bundler.buldRawPackageData package_config, (err, raw_data) ->
+    bundler.buildRawPackageData package_config, (err, raw_data) ->
       return main_cb err if err
       main_cb null, _.keys bundler.joinBundleSets(raw_data).names_map
 
@@ -48,7 +56,7 @@ class Clinch
   registerProcessor : (file_extention, processor_fn) ->
     # some naive checks
     unless _.isString file_extention
-      throw TypeError "file extention must be a String but get |#{file_extention}|"
+      throw TypeError "file extension must be a String but get |#{file_extention}|"
     unless _.isFunction processor_fn
       throw TypeError "processor must be a Function but get |#{processor_fn}|"
 

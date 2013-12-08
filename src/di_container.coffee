@@ -51,7 +51,7 @@ class DIContainer
     last_path_idx = path.length - 1
 
     deep_walker = (accumulator, step_val, idx) ->
-      # ensure deep bulder may use object
+      # ensure deep builder may use object
       unless accumulator[step_val]
         accumulator[step_val] = {}
 

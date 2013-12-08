@@ -37,7 +37,7 @@ Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be u
       package_name : 'my_package'
       bundle : 
         main : "#{__dirname}/hello_world"
-    packer.buldPackage pack_config, (err, data) ->
+    packer.buildPackage pack_config, (err, data) ->
       if err
         console.log 'Builder, err: ', err
       else
@@ -90,11 +90,11 @@ And in browser function may be accessed in this way
 `clinch_options` - Clinch settings
 
 
-### buldPackage()
+### buildPackage()
 
-    packer.buldPackage package_config, cb
+    packer.buildPackage package_config, cb
     # or old form, will be deprecated in new version
-    packer.buldPackage package_name, package_config, cb
+    packer.buildPackage package_name, package_config, cb
 
 `package_name` - root bundle package name (like `$` for jQuery), remember about name collisions, may be omitted. Will be deprecated in new versions, use `package_config.package_name`
 

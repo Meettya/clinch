@@ -24,7 +24,7 @@ class BundleProcessor
   ###
   buildAll : ( package_config, method_cb) ->
 
-    @buldRawPackageData package_config, (err, code) =>
+    @buildRawPackageData package_config, (err, code) =>
       return method_cb err if err
       method_cb null, @changePathsToHashesInJoinedSet @joinBundleSets @replaceDependenciesInRawPackageData code
 
@@ -32,12 +32,12 @@ class BundleProcessor
   ###
   BENCHMARK IMPROVE!!!
   On simply test data I got about 97% of time in this method and 3% at all other
-  So, to speed up all process we are need to cache THIS part - buldRawPackageData
+  So, to speed up all process we are need to cache THIS part - buildRawPackageData
   ###
   ###
   This method will build raw package data
   ###
-  buldRawPackageData : ( package_config, method_cb) ->
+  buildRawPackageData : ( package_config, method_cb) ->
 
     {liberal_gatherer, strict_gatherer} = @_buildGatherers package_config
 

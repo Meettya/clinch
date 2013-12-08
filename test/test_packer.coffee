@@ -36,7 +36,7 @@ describe 'Packer:', ->
     registry_obj = new DIContainer()
     p_obj = registry_obj.getComponent 'Packer'
     
-  describe 'buldPackage()', ->
+  describe 'buildPackage()', ->
 
     it 'should build pack for filename without \'require\'', (done) ->
 
@@ -55,7 +55,7 @@ describe 'Packer:', ->
         (substractor 10, 2).should.to.be.equal 8
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
 
     it 'should build pack for npm-like module without \'require\'', (done) ->
@@ -74,7 +74,7 @@ describe 'Packer:', ->
         (summator 10, 2).should.to.be.equal 12
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
 
     it 'should build pack for file with deep dependencies', (done) ->
@@ -103,7 +103,7 @@ describe 'Packer:', ->
         (obj.lowest 5,8,9,3,6).should.to.equal 3
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
 
     it 'should build pack, resolving ALL childrens', (done) ->
@@ -128,7 +128,7 @@ describe 'Packer:', ->
         (substractor.substractor 2, 3).should.to.equal -1
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
     it 'should build pack with real npm modules', (done) ->
       package_config = 
@@ -152,7 +152,7 @@ describe 'Packer:', ->
           should.to.equal 'Saturday, June 9th, 2007, 12:00:00 AM'
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
     it 'should build pack with replacement and environment (*hard work*)', (done) ->
         
@@ -184,7 +184,7 @@ describe 'Packer:', ->
         (magic_summator 10, 5).should.to.be.equal 25
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
     it 'should build pack for modules, which use node.js core modules', (done) ->
 
@@ -209,7 +209,7 @@ describe 'Packer:', ->
         
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
 
     it 'should inject all bundle members to global without "package_name"', (done) ->
@@ -233,7 +233,7 @@ describe 'Packer:', ->
         (substractor 10, 2).should.to.be.equal 8
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
     it 'should build package with empty file (only comment)', (done) ->
 
@@ -255,7 +255,7 @@ describe 'Packer:', ->
         (summator 10, 2).should.to.be.equal 12
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn
 
     it 'should return error on file with syntax error', (done) ->
 
@@ -271,4 +271,4 @@ describe 'Packer:', ->
 
         done()
 
-      p_obj.buldPackage package_config, res_fn
+      p_obj.buildPackage package_config, res_fn

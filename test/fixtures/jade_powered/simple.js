@@ -8,6 +8,6 @@ package_config =
   bundle : 
     main : "#{__dirname}/filename"
 
-packer.buldPackage 'my_package', package_config, (err, data) ->
+packer.buildPackage 'my_package', package_config, (err, data) ->
   fs.writeFile "#{__dirname}/result.js", data, 'utf8', (err) ->
     console.log 'Bundle saved!'

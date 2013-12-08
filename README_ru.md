@@ -40,7 +40,7 @@
     pack_config = 
       bundle : 
         main : "#{__dirname}/hello_world"
-    packer.buldPackage 'my_package', pack_config, (err, data) ->
+    packer.buildPackage 'my_package', pack_config, (err, data) ->
       if err
         console.log 'Builder, err: ', err
       else
@@ -135,11 +135,11 @@
 
 `clinch_options` - настройки для Clinch
 
-### buldPackage()
+### buildPackage()
 
-    packer.buldPackage package_config, cb
+    packer.buildPackage package_config, cb
     # or old form, will be deprecated in new version
-    packer.buldPackage package_name, package_config, cb
+    packer.buildPackage package_name, package_config, cb
 
 `package_name` - имя глобального объекта пакета, который станет корнем для всего содержимого бандла в браузере, как `$` в jQuery, коллизии имен пакетов на вашей совести. В будущих версиях будет исключена из API, используйте `package_config.package_name`
 

@@ -13,6 +13,7 @@ fixturesHandlebars = fixtureRoot + '/handlebars_powered'
 fixturesWebShims = fixtureRoot + '/web_modules'
 fixtureDefault = fixtureRoot + '/default'
 fixturesUniqueGeneratorParent = fixtureDefault + '/unique_generator_parent'
+fixturesSingle = fixtureDefault + '/substractor'
 
 lib_path = GLOBAL?.lib_path || ''
 
@@ -34,7 +35,7 @@ describe 'Clinch app itself:', ->
 
     clinch_obj = new Clinch {jade, strict : off}
 
-  describe 'buldPackage()', ->
+  describe 'buildPackage()', ->
 
     it 'should build package', (done) ->
 
@@ -80,8 +81,28 @@ describe 'Clinch app itself:', ->
         done()
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buldPackage 'my_package', package_config, res_fn     
+      clinch_obj.buildPackage 'my_package', package_config, res_fn     
 
+  describe 'buldPackage()', ->
+
+    it 'should build package (mistype, but must be supported)', (done) ->
+
+      package_config = 
+        bundle : 
+          substractor : fixturesSingle
+        package_name : 'my_package'
+ 
+      res_fn = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        {substractor} = sandbox.my_package.substractor
+        (substractor 10, 2).should.to.be.equal 8
+        done()
+
+      clinch_obj.buildPackage package_config, res_fn
 
   describe 'flushCache()', ->
 
@@ -147,7 +168,7 @@ describe 'Clinch app itself:', ->
         cb null, "module.exports = function(){return 'Dummy'};"
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buldPackage 'my_package', package_config, res_fn    
+      clinch_obj.buildPackage 'my_package', package_config, res_fn    
 
 
     it 'should throw error if file extention not a String', ->
@@ -198,7 +219,7 @@ describe 'Clinch app itself:', ->
         cb null, "module.exports = #{content}"
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buldPackage 'my_package', package_config, res_fn   
+      clinch_obj.buildPackage 'my_package', package_config, res_fn   
 
 
   describe 'constructor options', ->
@@ -220,7 +241,7 @@ describe 'Clinch app itself:', ->
         jade_sandbox.should.not.to.contain.keys 'my_package'
         done()
 
-      clinch_obj.buldPackage 'my_package', package_config, res_fn  
+      clinch_obj.buildPackage 'my_package', package_config, res_fn  
 
   describe 'package options', ->
 
@@ -241,7 +262,7 @@ describe 'Clinch app itself:', ->
         expect(/'use strict';/.test code).to.be.false
         done()
 
-      clinch_obj.buldPackage 'my_package', package_config, res_fn 
+      clinch_obj.buildPackage 'my_package', package_config, res_fn 
 
     it 'should supress injection on "inject : off" ', (done) ->
 
@@ -261,7 +282,7 @@ describe 'Clinch app itself:', ->
         jade_sandbox.should.not.to.contain.keys 'my_package'
         done()
 
-      clinch_obj.buldPackage 'my_package', package_config, res_fn  
+      clinch_obj.buildPackage 'my_package', package_config, res_fn  
 
     it 'should supress injection on "inject : off" and without package name', (done) ->
 
@@ -281,7 +302,7 @@ describe 'Clinch app itself:', ->
         jade_sandbox.should.not.to.contain.keys 'JadePowered'
         done()
 
-      clinch_obj.buldPackage package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn
 
     it 'should supress build cached package on "cache_modules : off"', (done) ->
 
@@ -307,7 +328,7 @@ describe 'Clinch app itself:', ->
   
         done()
 
-      clinch_obj.buldPackage package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn
 
     # oh, I chitting a litle, but its correct detection :)
     it 'should build package with runtime version on "runtime : on"', (done) ->
@@ -325,4 +346,4 @@ describe 'Clinch app itself:', ->
         expect(-> vm.runInNewContext code, clinch_sandbox = {} ).to.throw /Resolve clinch runtime library/
         done()
 
-      clinch_obj.buldPackage package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn

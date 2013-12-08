@@ -29,7 +29,7 @@ describe 'Clinch with runtime lib:', ->
 
     clinch_obj = new Clinch strict : off, runtime : on, jade : pretty : off
 
-  describe 'buldPackage()', ->
+  describe 'buildPackage()', ->
 
     it 'should build package with runtime version', (done) ->
 
@@ -56,7 +56,7 @@ describe 'Clinch with runtime lib:', ->
         
         done()
 
-      clinch_obj.buldPackage package_config, res_fn  
+      clinch_obj.buildPackage package_config, res_fn  
 
     # oh, I chitting a litle, but its correct detection :)
     it 'should build package with runtime version ("on" in package options)', (done) ->
@@ -74,7 +74,7 @@ describe 'Clinch with runtime lib:', ->
         expect(-> vm.runInNewContext code, clinch_sandbox = {} ).to.throw /Resolve clinch runtime library/
         done()
 
-      clinch_obj.buldPackage package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn
 
     it 'should throw error if runtime library not loaded', (done) ->
 
@@ -88,7 +88,7 @@ describe 'Clinch with runtime lib:', ->
         expect(-> vm.runInNewContext code, clinch_sandbox = {} ).to.throw /Resolve clinch runtime library/
         done()
 
-      clinch_obj.buldPackage package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn
 
     it 'should build difficult package', (done) ->
 
@@ -138,7 +138,7 @@ describe 'Clinch with runtime lib:', ->
         done()
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buldPackage package_config, res_fn   
+      clinch_obj.buildPackage package_config, res_fn   
 
     it 'should build pack with replacement and environment (*hard work*)', (done) ->
 
@@ -177,7 +177,7 @@ describe 'Clinch with runtime lib:', ->
         (magic_summator 10, 5).should.to.be.equal 25
         done()
 
-      clinch_obj.buldPackage package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn
 
     it 'should build package with minified runtime version', (done) ->
 
@@ -204,4 +204,4 @@ describe 'Clinch with runtime lib:', ->
         
         done()
 
-      clinch_obj.buldPackage package_config, res_fn  
+      clinch_obj.buildPackage package_config, res_fn  

@@ -23,7 +23,7 @@ package_config =
     jade : fixturesWebShims + '/noops'
 
 
-packer.buldPackage 'my_package', package_config, (err, data) ->
+packer.buildPackage 'my_package', package_config, (err, data) ->
   if err
     console.log 'Builder, err: ', err
   else
