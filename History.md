@@ -1,4 +1,4 @@
-## 0.4.5 / 2013-12-06 12:30 AM
+## 0.4.5 / 2013-12-09 03:10 AM
 
  - Fix & test & docs for [#11 issue](https://github.com/Meettya/clinch/issues/11)
 
