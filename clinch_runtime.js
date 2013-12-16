@@ -6,7 +6,7 @@ clinch_runtime_v2 = (function(exports){
  * MIT Licensed
  */
 
-  var name_resolver_builder, internal_require_builder, _this = this;
+  var name_resolver_builder, internal_require_builder;
 
   name_resolver_builder = function(dependencies){
     return function(parent, name) {
@@ -21,7 +21,7 @@ clinch_runtime_v2 = (function(exports){
   };
 
   internal_require_builder = function(sources, name_resolver, modules_cache){
-    var require, resolve_code;
+    var require, resolve_code, _this = this;
 
     require = function (name, parent) {
       var module_source, resolved_name;
@@ -58,7 +58,7 @@ clinch_runtime_v2 = (function(exports){
 
   // not require itself but builder
   exports.require_builder = function(dependencies, sources, modules_cache){
-    return internal_require_builder(sources, name_resolver_builder(dependencies), modules_cache);
+    return internal_require_builder.call(this, sources, name_resolver_builder(dependencies), modules_cache);
   };
 
   return exports;
