@@ -11,4 +11,4 @@
   - Add 'runtime' package option, to replace boilerplate code to runtime lib - done
   - Add modules cache to prevent re-creating prototypes on every call - done
   - Add 'clinch require start/end' statimen support to speed up require parsing (with RegExp, not detective)
-  - Add travis-ci - done
+  - Add travis-ci  - done
