@@ -1,4 +1,5 @@
 [![Dependency Status](https://gemnasium.com/Meettya/clinch.png)](https://gemnasium.com/Meettya/clinch)
+[![Build Status](https://travis-ci.org/Meettya/clinch.png?branch=master)](https://travis-ci.org/Meettya/clinch)
 
 # clinch
 
