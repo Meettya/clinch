@@ -11,6 +11,7 @@ fixturesWebShims = fixtureRoot + '/web_modules'
 fixtureDefault = fixtureRoot + '/default'
 fixtureSimply = fixtureDefault + '/substractor'
 fixturesJade = fixtureRoot + '/jade_powered'
+fixturesLodashUser = fixtureDefault + '/lodash_user'
 
 fixturesNpm  = fixtureRoot + "/node_modules/summator"
 fixturesTwoChild = fixtureRoot + '/two_children'
@@ -201,6 +202,46 @@ describe 'Clinch with runtime lib:', ->
         {substractor} = Runtimed
         res = substractor 20, 5
         res.should.to.be.equal 15
+        
+        done()
+
+      clinch_obj.buildPackage package_config, res_fn  
+
+    it 'should not lose "this" in packages with built-in version', (done) ->
+
+      clinch_obj = new Clinch strict : off, runtime : off, jade : pretty : off
+
+      # CANT test with runtime, because http://nodejs.org/api/vm.html#vm_caveats
+      # Furthermore, the `this` expression within the global scope of the context evaluates to the empty object ({}) instead of to your sandbox.
+
+      # looks strange, but its just <script src='./clinch_runtime.js'></script> analog
+      ###
+      clinch_runtime_file = "#{__dirname}/../clinch_runtime.min.js"
+      clinch_runtime = fs.readFileSync clinch_runtime_file, 'utf8'
+      vm.runInNewContext clinch_runtime, clinch_sandbox = {}
+      ###
+  
+      lodash_runtime_file = "#{__dirname}/../node_modules/lodash/lodash.js"
+      lodash_runtime = fs.readFileSync lodash_runtime_file, 'utf8'
+      vm.runInNewContext lodash_runtime, clinch_sandbox = {}
+
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          Runtimed : fixturesLodashUser
+        replacement : 
+          lodash : fixturesWebShims + '/lodash'
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # this is browser emulation
+        vm.runInNewContext code, clinch_sandbox
+        {Runtimed} = clinch_sandbox.my_package
+
+        {get_first} = Runtimed
+        res = get_first()
+        res.should.to.be.equal 1
         
         done()
 

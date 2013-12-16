@@ -1,3 +1,7 @@
+## 0.4.7 / 2013-12-16 11:30 PM
+
+ - Fix & test for [#13 issue](https://github.com/Meettya/clinch/issues/13)
+
 ## 0.4.5 / 2013-12-09 03:10 AM
 
  - Fix & test & docs for [#11 issue](https://github.com/Meettya/clinch/issues/11)

@@ -214,7 +214,7 @@ class Packer
   _requireResolver: (isCached = @_settings_.cache_modules, isRuntimed = @_settings_.runtime) ->
     prefix = if isRuntimed then 'this.' else ''
     modules_cache_string = if isCached then ', modules_cache' else ''
-    "\nrequire = #{prefix}clinch_runtime_v#{RUNTIME_TARGET_VERSION}.require_builder(dependencies, sources#{modules_cache_string});"
+    "\nrequire = #{prefix}clinch_runtime_v#{RUNTIME_TARGET_VERSION}.require_builder.call(this, dependencies, sources#{modules_cache_string});"
 
   ###
   This is footer of code wrapper
