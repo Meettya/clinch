@@ -1,3 +1,9 @@
+## 0.4.9 / 2013-12-21 09:00 PM
+
+ - Fix & test for [#15 issue](https://github.com/Meettya/clinch/issues/15)
+ - Add 'replacement as function' code & test & docs
+ - Refactor some code
+
 ## 0.4.7 / 2013-12-16 11:30 PM
 
  - Fix & test for [#13 issue](https://github.com/Meettya/clinch/issues/13)
