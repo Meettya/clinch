@@ -222,7 +222,7 @@ This class pack all together with layout
       }
       header = "/* this is environment vars */\nvar " + names.join(', ') + ';';
       body = _.reduce(names, function(memo, val) {
-        return memo += "" + val + " = require(" + paths[val] + ");\n";
+        return memo += "" + val + " = require(\"" + paths[val] + "\");\n";
       }, '');
       return [header, body];
     };
@@ -292,7 +292,7 @@ This class pack all together with layout
         _results = [];
         for (_i = 0, _len = bundle_list.length; _i < _len; _i++) {
           bundle_name = bundle_list[_i];
-          _results.push("" + member_prefix + bundle_name + " " + delimiter + " require(" + members[bundle_name] + ")");
+          _results.push("" + member_prefix + bundle_name + " " + delimiter + " require(\"" + members[bundle_name] + "\")");
         }
         return _results;
       })();
@@ -371,7 +371,7 @@ This class pack all together with layout
       }
       prefix = isRuntimed ? 'this.' : '';
       modules_cache_string = isCached ? ', modules_cache' : '';
-      return "\nrequire = " + prefix + "clinch_runtime_v" + RUNTIME_TARGET_VERSION + ".require_builder(dependencies, sources" + modules_cache_string + ");";
+      return "\nrequire = " + prefix + "clinch_runtime_v" + RUNTIME_TARGET_VERSION + ".require_builder.call(this, dependencies, sources" + modules_cache_string + ");";
     };
 
     /*

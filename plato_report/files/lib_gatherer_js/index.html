@@ -45,11 +45,11 @@
   <div class="row">
     <div class="span6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
-      <p class="stat">63.29</p>
+      <p class="stat">62.98</p>
     </div>
     <div class="span6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
-      <p class="stat">286</p>
+      <p class="stat">307</p>
     </div>
   </div>
   <div class="row historical">
@@ -63,11 +63,11 @@
   <div class="row">
     <div class="span6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
-      <p class="stat">63.13</p>
+      <p class="stat">70.05</p>
     </div>
     <div class="span6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
-      <p class="stat">2.49</p>
+      <p class="stat">2.72</p>
     </div>
   </div>
 </div>
@@ -101,7 +101,7 @@ This class build whole codebase for path
 
 
 (function() {
-  var Gatherer, LRU, Resolver, async, detective, fs, path, util, _,
+  var Gatherer, LRU, Resolver, async, detective, fs, path, _,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __slice = [].slice;
 
@@ -117,8 +117,6 @@ This class build whole codebase for path
 
   LRU = require('lru-cache');
 
-  util = require('util');
-
   Resolver = require('async-resolve');
 
   Gatherer = (function() {
@@ -126,8 +124,9 @@ This class build whole codebase for path
 
     MAX_AGE = 1000 * 60 * 60 * 10;
 
-    function Gatherer(_file_processor_, _options_) {
+    function Gatherer(_digest_calculator_, _file_processor_, _options_) {
       var _ref;
+      this._digest_calculator_ = _digest_calculator_;
       this._file_processor_ = _file_processor_;
       this._options_ = _options_ != null ? _options_ : {};
       this._dependenciesTreeSaver = __bind(this._dependenciesTreeSaver, this);
@@ -149,6 +148,28 @@ This class build whole codebase for path
     Gatherer.prototype.resetCaches = function() {
       this._require_cache_.reset();
       return null;
+    };
+
+    /*
+    This is 'lite' version of packer - it buld pack from function
+    used in replacement as function type
+    */
+
+
+    Gatherer.prototype.buildFunctionPack = function(raw_code, main_cb) {
+      var digest, digest_polindrome, result;
+      result = {
+        dependencies_tree: {},
+        names_map: {},
+        source_code: {}
+      };
+      digest = this._digest_calculator_.calculateDataDigest(raw_code);
+      digest_polindrome = {};
+      digest_polindrome[digest] = digest;
+      result.dependencies_tree['.'] = digest_polindrome;
+      result.names_map = digest_polindrome;
+      result.source_code[digest] = "\nmodule.exports = (" + (raw_code != null ? raw_code.toString() : void 0) + "\n)()\n";
+      return main_cb(null, result);
     };
 
     /*
