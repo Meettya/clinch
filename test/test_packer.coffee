@@ -300,5 +300,36 @@ describe 'Packer:', ->
 
       p_obj.buildPackage package_config, res_fn
 
-    # TODO need test with normal and function in replacement at onr time!
+    it 'should build pack with replacements as functon and as file (at one time)', (done) ->
+        
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          substractor : fixturesSingle
+          summator : fixturesNpm
+        environment : 
+          printer : fixturesTwoChild
+        replacement :
+          './power' : fixturesReplacer
+          lodash    : -> @_
 
+      lodash_runtime_file = "#{__dirname}/../node_modules/lodash/lodash.js"
+      lodash_runtime = fs.readFileSync lodash_runtime_file, 'utf8'
+      vm.runInNewContext lodash_runtime, sandbox = {}
+
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox
+
+        # now we are got this back
+        # yes, I know, it just stupid naming
+        {substractor} = sandbox.my_package.substractor
+        {summator,magic_summator} = sandbox.my_package.summator
+
+        (substractor 10, 2).should.to.be.equal 8
+        (summator 10, 5).should.to.be.equal 15
+        (magic_summator 10, 5).should.to.be.equal 25
+        done()
+
+      p_obj.buildPackage package_config, res_fn
