@@ -4,22 +4,24 @@ This is DI Container for Clinch - its make available DI and simplify configurati
 _ = require 'lodash'
 
 # all our classes here
-Packer          = require './packer'
-Gatherer        = require './gatherer'
-FileLoader      = require './file_loader'
-FileProcessor   = require './file_processor'
-BundleProcessor = require './bundle_processor'
+Packer            = require './packer'
+Gatherer          = require './gatherer'
+FileLoader        = require './file_loader'
+FileProcessor     = require './file_processor'
+BundleProcessor   = require './bundle_processor'
+DigestCalculator  = require './digest_calculator'
 
 # for debug
 # util = require 'util'
 
 class DIContainer
   constructor : ->
-    @_packer_           = null
-    @_gatherer_         = null
-    @_file_loader_      = null
-    @_file_processor_   = null
-    @_bundle_processor_ = null
+    @_packer_             = null
+    @_gatherer_           = null
+    @_file_loader_        = null
+    @_file_processor_     = null
+    @_bundle_processor_   = null
+    @_digest_calculator_  = null
 
     @_component_settings_ = @_initComponentSetting()
 
@@ -80,12 +82,14 @@ class DIContainer
     settings = @_component_settings_[up_name]
 
     switch up_name
+      when 'DIGESTCALCULATOR'
+        @_digest_calculator_ or= new DigestCalculator settings
       when 'FILELOADER'
-        @_file_loader_ or= new FileLoader settings
+        @_file_loader_ or= new FileLoader @getComponent('DigestCalculator'), settings
       when 'FILEPROCESSOR'
         @_file_processor_ or= new FileProcessor @getComponent('FileLoader'), settings
       when 'GATHERER'
-        @_gatherer_ or= new Gatherer @getComponent('FileProcessor'), settings
+        @_gatherer_ or= new Gatherer @getComponent('DigestCalculator'), @getComponent('FileProcessor'), settings
       when 'BUNDLEPROCESSOR'
         @_bundle_processor_ or= new BundleProcessor @getComponent('Gatherer'), settings
       when 'PACKER'
@@ -100,11 +104,12 @@ class DIContainer
   YES, its copy-paste, but we are MUST to declare all object properties in constructor
   ###
   _flushComponentsChache : ->
-    @_packer_           = null
-    @_gatherer_         = null
-    @_file_loader_      = null
-    @_file_processor_   = null
-    @_bundle_processor_ = null
+    @_packer_             = null
+    @_gatherer_           = null
+    @_file_loader_        = null
+    @_file_processor_     = null
+    @_bundle_processor_   = null
+    @_digest_calculator_  = null
 
     null
 
@@ -125,10 +130,11 @@ class DIContainer
   Internal initor to reduce constructor
   ###
   _initComponentSetting : ->
-    PACKER          : {}
-    GATHERER        : {}
-    FILELOADER      : {}
-    FILEPROCESSOR   : {}
-    BUNDLEPROCESSOR : {}
+    PACKER            : {}
+    GATHERER          : {}
+    FILELOADER        : {}
+    FILEPROCESSOR     : {}
+    BUNDLEPROCESSOR   : {}
+    DIGESTCALCULATOR  : {}
 
 module.exports = DIContainer

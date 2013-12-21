@@ -7,32 +7,16 @@ path    = require 'path'
 _       = require 'lodash'
 async   = require 'async'
 
-XXHash  = require 'xxhash' # ultra-mega-super fast hasher
-
 LRU     = require 'lru-cache'
 
-
-###
-Checker method decorator
-###
-rejectOnInvalidFilenameType = (methodBody) ->
-  (filename, cb) ->
-    unless _.isString filename
-      return cb TypeError """
-                must be called with filename as String, but got:
-                |filename| = |#{filename}|
-                """
-    methodBody.call @, filename, cb
-
+{rejectOnInvalidFilenameType} = require './checkers'
 
 class FileLoader
-
-  HASH_SALT = 0xCAFEBABE # not sure what it is but looks its work :)
 
   # this is cache max_age, huge because we are have brutal invalidator now
   MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
 
-  constructor: (@_options_={}) ->
+  constructor: (@_digest_calculator_, @_options_={}) ->
     # this big cache for all our files, work on size and so on
     @_file_cache_ = LRU max : 1000, maxAge: MAX_AGE
     # what is it? hm, its ESP for node. in some cases its too speed and async
@@ -94,7 +78,7 @@ class FileLoader
           return cb null, cached_file
         # or try to compare digests
         else
-          @readFileDigest filename, (err, digest) =>
+          @_digest_calculator_.readFileDigest filename, (err, digest) =>
             return cb err if err
             # if file not changed - just return it
             if cached_file.digest is digest
@@ -121,7 +105,7 @@ class FileLoader
       meta : (parallel_cb) =>
         @readFileMeta filename, parallel_cb
       digest : (parallel_cb) =>
-        @readFileDigest filename, parallel_cb
+        @_digest_calculator_.readFileDigest filename, parallel_cb
       content : (parallel_cb) =>
         @readFile filename, parallel_cb
       , step_cb # and parallel and, send all to next step
@@ -142,20 +126,6 @@ class FileLoader
     fs.stat filename, (err, stats) ->
       return cb err if err
       cb null, mtime : +stats.mtime
-    )
-
-  ###
-  This method generate digest for file content
-  ###
-  readFileDigest : (rejectOnInvalidFilenameType (filename, cb) ->
-    
-    hasher = new XXHash HASH_SALT
-
-    stream = fs.createReadStream filename
-    stream.on 'data',   (data)  -> hasher.update data
-    stream.on 'error',  (err)   -> cb err
-    stream.on 'end',            -> cb null, hasher.digest()
-
     )
 
 module.exports = FileLoader
