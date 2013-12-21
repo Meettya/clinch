@@ -28,7 +28,7 @@
     "jade": "*",
     "async": "*",
     "detective": "*",
-    "xxhash": "*",
+    "shorthash": "*",
     "lru-cache": "*"
   },
   "devDependencies": {

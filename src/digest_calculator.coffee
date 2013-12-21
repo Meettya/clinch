@@ -1,16 +1,17 @@
 ###
 This method will calculate digests
 ###
-_       = require 'lodash'
-fs      = require 'fs'
-
-XXHash  = require 'xxhash' # ultra-mega-super fast hasher
+_         = require 'lodash'
+fs        = require 'fs'
+crypto    = require 'crypto'    # standart module
+shorthash = require 'shorthash' # to shorten our hex hashes
 
 {rejectOnInvalidFilenameType} = require './checkers'
 
 class DigestCalculator
 
-  HASH_SALT = 0xCAFEBABE # not sure what it is but looks its work :)
+  HASH_TYPE   = 'md5'
+  DIGEST_TYPE = 'hex'
 
   constructor: (@_options_={}) ->
 
@@ -19,12 +20,12 @@ class DigestCalculator
   ###
   readFileDigest : (rejectOnInvalidFilenameType (filename, cb) ->
     
-    hasher = new XXHash HASH_SALT
+    hasher = crypto.createHash HASH_TYPE
 
     stream = fs.createReadStream filename
     stream.on 'data',   (data)  -> hasher.update data
     stream.on 'error',  (err)   -> cb err
-    stream.on 'end',            -> cb null, hasher.digest()
+    stream.on 'end',            -> cb null, shorthash.unique hasher.digest DIGEST_TYPE
 
     )
 
@@ -33,15 +34,12 @@ class DigestCalculator
   ###
   calculateDataDigest : (in_data) ->
 
-    hasher = new XXHash HASH_SALT
+    hasher = crypto.createHash HASH_TYPE
 
-    worked_data = if _.isString in_data
-      new Buffer in_data
-    else
-      new Buffer in_data?.toString()
+    unless _.isString in_data
+      in_data = in_data?.toString()
 
-    hasher.update worked_data
-    hasher.digest()
-
+    hasher.update in_data, 'utf8'
+    shorthash.unique hasher.digest DIGEST_TYPE
 
 module.exports = DigestCalculator

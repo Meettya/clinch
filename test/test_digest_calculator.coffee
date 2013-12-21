@@ -28,7 +28,7 @@ describe 'DigestCalculator:', ->
         expect(err).to.be.null
         expect(data).to.not.be.null
         expect(data).to.not.be.undefined
-        data.should.to.be.a 'number'
+        data.should.to.be.a 'string'
         # console.log data
         done()
       test_obj.readFileDigest fixturesCoffee, res_fn
@@ -41,7 +41,7 @@ describe 'DigestCalculator:', ->
 
       expect(res).to.not.be.null
       expect(res).to.not.be.undefined
-      res.should.to.be.a 'number'
+      res.should.to.be.a 'string'
 
     it 'should calculate digest for data as function', ->
       in_data = -> {}
@@ -49,7 +49,7 @@ describe 'DigestCalculator:', ->
 
       expect(res).to.not.be.null
       expect(res).to.not.be.undefined
-      res.should.to.be.a 'number'
+      res.should.to.be.a 'string'
 
     it 'should calculate digest for data as object', ->
       in_data = { 'a' : 'c', d : -> 'foo' }
@@ -57,4 +57,4 @@ describe 'DigestCalculator:', ->
 
       expect(res).to.not.be.null
       expect(res).to.not.be.undefined
-      res.should.to.be.a 'number'
+      res.should.to.be.a 'string'

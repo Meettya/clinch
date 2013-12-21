@@ -107,7 +107,7 @@ class Packer
     header  = "/* this is environment vars */\nvar " + names.join(', ') + ';'
     
     body    = _.reduce names, (memo, val) ->
-      memo += "#{val} = require(#{paths[val]});\n"
+      memo += "#{val} = require(\"#{paths[val]}\");\n"
     , ''
 
     [ header, body ]
@@ -170,7 +170,7 @@ class Packer
 
     members = for bundle_name in bundle_list
       """
-      #{member_prefix}#{bundle_name} #{delimiter} require(#{members[bundle_name]})
+      #{member_prefix}#{bundle_name} #{delimiter} require("#{members[bundle_name]}")
       """
     
     members.join ",\n"
