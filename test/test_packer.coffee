@@ -238,19 +238,20 @@ describe 'Packer:', ->
     it 'should build package with empty file (only comment)', (done) ->
 
       package_config = 
+        package_name : 'my_package'
         bundle : 
           summator : fixturesNpm
         replacement :
           'util' : fixturesWebShims + '/nothing'
  
       res_fn = (err, code) ->
-        # console.log code
+        #console.log code
         expect(err).to.be.null
         # oh, its better than eval :)
         vm.runInNewContext code, sandbox = {}
 
         # its just awful naming, sorry for that
-        {summator} = sandbox.summator
+        {summator} = sandbox.my_package.summator
 
         (summator 10, 2).should.to.be.equal 12
         done()
@@ -269,6 +270,66 @@ describe 'Packer:', ->
         expect(err).to.be.an 'object'
         expect(code).to.be.undefined
 
+        done()
+
+      p_obj.buildPackage package_config, res_fn
+
+    it 'should build pack with replacement as function (*noop*)', (done) ->
+        
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          main  : fixturesTwoChild
+        replacement :
+          './power' : -> if test? then test else {}
+ 
+      res_fn = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        # its just awful naming, sorry for that
+        {summator, summator_pow} = sandbox.my_package.main.summator
+        # this should work
+        (summator 10, 2).should.to.be.equal 12
+        # but not this
+        expect(-> summator_pow 10, 2).to.throw /has no method 'pow'/
+
+        done()
+
+      p_obj.buildPackage package_config, res_fn
+
+    it 'should build pack with replacements as functon and as file (at one time)', (done) ->
+        
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          substractor : fixturesSingle
+          summator : fixturesNpm
+        environment : 
+          printer : fixturesTwoChild
+        replacement :
+          './power' : fixturesReplacer
+          lodash    : -> @_
+
+      lodash_runtime_file = "#{__dirname}/../node_modules/lodash/lodash.js"
+      lodash_runtime = fs.readFileSync lodash_runtime_file, 'utf8'
+      vm.runInNewContext lodash_runtime, sandbox = {}
+
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox
+
+        # now we are got this back
+        # yes, I know, it just stupid naming
+        {substractor} = sandbox.my_package.substractor
+        {summator,magic_summator} = sandbox.my_package.summator
+
+        (substractor 10, 2).should.to.be.equal 8
+        (summator 10, 5).should.to.be.equal 15
+        (magic_summator 10, 5).should.to.be.equal 25
         done()
 
       p_obj.buildPackage package_config, res_fn

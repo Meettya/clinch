@@ -8,7 +8,8 @@ _ = @_ ? require 'lodash'
 
 lib_path = GLOBAL?.lib_path || ''
 
-FileLoader = require "#{lib_path}file_loader"
+# change to DIContainer
+DIContainer = require "#{lib_path}di_container"
 
 fixtureRoot     = __dirname   + "/fixtures"
 fixtures        = fixtureRoot + "/default"
@@ -24,7 +25,12 @@ describe 'FileLoader:', ->
   fl_obj = null
 
   beforeEach ->
-    fl_obj = new FileLoader
+    ###
+    YES, I know it will be correctly to create object with mock etc.
+    but it SHOULD work right this and now I don't care about it at all
+    ###
+    registry_obj = new DIContainer()
+    fl_obj = registry_obj.getComponent 'FileLoader'
     
   describe 'readFile() *async*', ->
 
@@ -50,18 +56,6 @@ describe 'FileLoader:', ->
         # console.log data
         done()
       fl_obj.readFileMeta fixturesCoffee, res_fn
-
-  describe 'readFileDigest() *async*', ->
-
-    it 'should calculate digest by file content', (done) ->
-      res_fn = (err, data) ->
-        expect(err).to.be.null
-        expect(data).to.not.be.null
-        expect(data).to.not.be.undefined
-        data.should.to.be.a 'number'
-        # console.log data
-        done()
-      fl_obj.readFileDigest fixturesCoffee, res_fn
 
   describe 'getFileContent() *async*', ->
 
@@ -98,3 +92,4 @@ describe 'FileLoader:', ->
 
     it 'should drop cache and return null', ->
       expect(fl_obj.resetCaches()).to.be.null
+

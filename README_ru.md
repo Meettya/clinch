@@ -36,11 +36,12 @@
 
     #!/usr/bin/env coffee
     Clinch = require 'clinch'
-    packer = new Clinch()
+    packer = new Clinch runtime : on
     pack_config = 
+      package_name : 'my_package'
       bundle : 
         main : "#{__dirname}/hello_world"
-    packer.buildPackage 'my_package', pack_config, (err, data) ->
+    packer.buildPackage pack_config, (err, data) ->
       if err
         console.log 'Builder, err: ', err
       else
@@ -57,25 +58,35 @@
 Даст нам в `data` примерно такие данные
 
     (function() {
-        'use strict';
-        
-    <... skip clinch header ...>
+      'use strict';
+      
+      var dependencies, sources, require, modules_cache = {};
+      dependencies = {};
 
-        dependencies = {};
-        sources = {
-    "2377150448": function(exports, module, require) {
+      sources = {
+    "JPGt0": function(exports, module, require) {
     // /Users/meettya/github/clinch/example/hello_world/hello_world.coffee 
     /*
     This is 'Hello World!' example
     */
+
     module.exports = {
       hello_world: function() {
         return 'Hello World!';
       }
     };
+
     }};
+    if(this.clinch_runtime_v2 == null) {
+      throw Error("Resolve clinch runtime library version |2| first!");
+    }
+
+    require = this.clinch_runtime_v2.require_builder.call(this, dependencies, sources, modules_cache);
+
+    /* bundle export */
     this.my_package = {
-    "main": require(2377150448)};
+      main : require("JPGt0")
+    };
     }).call(this);
 
 И в браузере функция будет доступна вот так
@@ -119,7 +130,7 @@
 
 ### runtime aka external lib
 
-ДА! У нас есть возможность выделить заменить boilerplate-часть бандла ссылкой на внешнюю библиотеку (идет в комплекте, полный файл и минифицированная версия). При использовании более одного бандла профит очевиден. Рекомендую к использванию.
+ДА! У нас есть возможность выделить boilerplate-часть бандла ссылкой на внешнюю библиотеку (идет в комплекте, полный файл и минифицированная версия). При использовании более одного бандла профит очевиден. Рекомендую к использванию.
 
 ### code coverage
 
@@ -233,6 +244,7 @@
     ###
     replacement :
       util : './node_modules/js-util'
+      lodash : -> @_  # да, можно использовать функцию, а не файл - ( this указывает на ГЛОБАЛЬНЫЙ скоп )
 
     ###
     Ветка requireless может быть использована для ускорения сборки пакета

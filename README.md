@@ -1,4 +1,5 @@
 [![Dependency Status](https://gemnasium.com/Meettya/clinch.png)](https://gemnasium.com/Meettya/clinch)
+[![Build Status](https://travis-ci.org/Meettya/clinch.png?branch=master)](https://travis-ci.org/Meettya/clinch)
 
 # clinch
 
@@ -32,7 +33,7 @@ Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be u
 
     #!/usr/bin/env coffee
     Clinch = require 'clinch'
-    packer = new Clinch()
+    packer = new Clinch runtime : on
     pack_config = 
       package_name : 'my_package'
       bundle : 
@@ -54,25 +55,35 @@ Content of `./hellow_world`
 Now `data` contain something like this
 
     (function() {
-        'use strict';
-        
-    <... skip clinch header ...>
+      'use strict';
+      
+      var dependencies, sources, require, modules_cache = {};
+      dependencies = {};
 
-        dependencies = {};
-        sources = {
-    "2377150448": function(exports, module, require) {
+      sources = {
+    "JPGt0": function(exports, module, require) {
     // /Users/meettya/github/clinch/example/hello_world/hello_world.coffee 
     /*
     This is 'Hello World!' example
     */
+
     module.exports = {
       hello_world: function() {
         return 'Hello World!';
       }
     };
+
     }};
+    if(this.clinch_runtime_v2 == null) {
+      throw Error("Resolve clinch runtime library version |2| first!");
+    }
+
+    require = this.clinch_runtime_v2.require_builder.call(this, dependencies, sources, modules_cache);
+
+    /* bundle export */
     this.my_package = {
-    "main": require(2377150448)};
+      main : require("JPGt0")
+    };
     }).call(this);
 
 And in browser function may be accessed in this way
@@ -201,6 +212,7 @@ May be used for custom `watch` implementation or in other cases
     ###
     replacement :
       util : './node_modules/js-util'
+      lodash : -> @_  # yes, its allowed to use function instead of file (`this` will be pointed to global scoop)
 
     ###
     this is list of modules, which is not be placed in bungle
