@@ -98,7 +98,7 @@ class FileProcessor
   ###
   _getJadeSettings : (options = {})->
     # looks strange, but all ok - main options, user, add-on
-    _.defaults {client: on}, options, pretty: on, self: on, compileDebug: off
+    _.defaults options, pretty: on, self: on, compileDebug: off
 
   ###
   This is Async compilers list.
@@ -121,7 +121,7 @@ class FileProcessor
       cb null, "module.exports = #{content}"
 
     '.jade'   : (data, filename, cb) ->
-      content = Jade.compile data, _.assign jade_settings, {filename}
+      content = Jade.compileClient data, _.assign jade_settings, {filename}
       cb null, "module.exports = #{content}"
 
 

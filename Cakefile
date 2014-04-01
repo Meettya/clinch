@@ -1,6 +1,7 @@
 ###
 New Cakefile with good organization
 ###
+require 'coffee-script/register'
 
 path  = require 'path'
 fs    = require 'fs'

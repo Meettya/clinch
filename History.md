@@ -1,3 +1,8 @@
+## 0.5.1 / 2014-04-01 07:00 PM
+
+ - Move to CoffeeScript 1.7.x
+ - Update all nmp modules to latest
+
 ## 0.4.9 / 2013-12-21 09:00 PM
 
  - Fix & test for [#15 issue](https://github.com/Meettya/clinch/issues/15)
