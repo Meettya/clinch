@@ -1,3 +1,7 @@
+## 0.5.5 / 2014-04-04 12:00 AM
+
+ - Update all nmp modules to latest (again)
+
 ## 0.5.3 / 2014-04-01 12:00 AM
 
  - Fix & test for [#18 issue](https://github.com/Meettya/clinch/issues/18)

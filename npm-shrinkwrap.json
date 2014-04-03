@@ -1,28 +1,7 @@
 {
   "name": "clinch",
-  "version": "0.4.9",
+  "version": "0.5.5",
   "dependencies": {
-    "async": {
-      "version": "0.6.2",
-      "from": "async@*"
-    },
-    "async-resolve": {
-      "version": "0.2.7",
-      "from": "async-resolve@*",
-      "dependencies": {
-        "async-cache": {
-          "version": "0.1.5",
-          "from": "async-cache@*",
-          "resolved": "https://registry.npmjs.org/async-cache/-/async-cache-0.1.5.tgz",
-          "dependencies": {
-            "lru-cache": {
-              "version": "2.3.1",
-              "from": "lru-cache@~2.3"
-            }
-          }
-        }
-      }
-    },
     "coffee-script": {
       "version": "1.7.1",
       "from": "coffee-script@*",
@@ -33,46 +12,24 @@
         }
       }
     },
-    "detective": {
-      "version": "3.1.0",
-      "from": "detective@*",
-      "resolved": "https://registry.npmjs.org/detective/-/detective-3.1.0.tgz",
+    "lodash": {
+      "version": "2.4.1",
+      "from": "lodash@*"
+    },
+    "async-resolve": {
+      "version": "0.3.1",
+      "from": "async-resolve@*",
       "dependencies": {
-        "escodegen": {
-          "version": "1.1.0",
-          "from": "escodegen@~1.1.0",
-          "resolved": "https://registry.npmjs.org/escodegen/-/escodegen-1.1.0.tgz",
+        "async-cache": {
+          "version": "0.1.5",
+          "from": "https://registry.npmjs.org/async-cache/-/async-cache-0.1.5.tgz",
+          "resolved": "https://registry.npmjs.org/async-cache/-/async-cache-0.1.5.tgz",
           "dependencies": {
-            "esprima": {
-              "version": "1.0.4",
-              "from": "esprima@~1.0.4"
-            },
-            "estraverse": {
-              "version": "1.5.0",
-              "from": "estraverse@~1.5.0",
-              "resolved": "https://registry.npmjs.org/estraverse/-/estraverse-1.5.0.tgz"
-            },
-            "esutils": {
-              "version": "1.0.0",
-              "from": "esutils@~1.0.0",
-              "resolved": "https://registry.npmjs.org/esutils/-/esutils-1.0.0.tgz"
-            },
-            "source-map": {
-              "version": "0.1.33",
-              "from": "source-map@~0.1.30",
-              "dependencies": {
-                "amdefine": {
-                  "version": "0.1.0",
-                  "from": "amdefine@>=0.0.4"
-                }
-              }
+            "lru-cache": {
+              "version": "2.3.1",
+              "from": "lru-cache@2.3.1"
             }
           }
-        },
-        "esprima-fb": {
-          "version": "3001.1.0-dev-harmony-fb",
-          "from": "esprima-fb@3001.1.0-dev-harmony-fb",
-          "resolved": "https://registry.npmjs.org/esprima-fb/-/esprima-fb-3001.0001.0000-dev-harmony-fb.tgz"
         }
       }
     },
@@ -265,17 +222,56 @@
         }
       }
     },
-    "lodash": {
-      "version": "2.4.1",
-      "from": "lodash@*"
+    "async": {
+      "version": "0.6.2",
+      "from": "async@*"
     },
-    "lru-cache": {
-      "version": "2.5.0",
-      "from": "lru-cache@*"
+    "detective": {
+      "version": "3.1.0",
+      "from": "detective@*",
+      "dependencies": {
+        "escodegen": {
+          "version": "1.1.0",
+          "from": "escodegen@~1.1.0",
+          "dependencies": {
+            "esprima": {
+              "version": "1.0.4",
+              "from": "esprima@~1.0.4"
+            },
+            "estraverse": {
+              "version": "1.5.0",
+              "from": "estraverse@~1.5.0"
+            },
+            "esutils": {
+              "version": "1.0.0",
+              "from": "esutils@~1.0.0"
+            },
+            "source-map": {
+              "version": "0.1.33",
+              "from": "source-map@~0.1.30",
+              "dependencies": {
+                "amdefine": {
+                  "version": "0.1.0",
+                  "from": "amdefine@>=0.0.4"
+                }
+              }
+            }
+          }
+        },
+        "esprima-fb": {
+          "version": "3001.1.0-dev-harmony-fb",
+          "from": "esprima-fb@3001.1.0-dev-harmony-fb",
+          "resolved": "https://registry.npmjs.org/esprima-fb/-/esprima-fb-3001.0001.0000-dev-harmony-fb.tgz"
+        }
+      }
     },
     "shorthash": {
       "version": "0.0.2",
       "from": "shorthash@*"
+    },
+    "lru-cache": {
+      "version": "2.5.0",
+      "from": "lru-cache@*"
     }
   }
 }
