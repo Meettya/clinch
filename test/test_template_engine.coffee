@@ -109,6 +109,7 @@ describe 'Clinch and template engines:', ->
     it 'should display the window objects', ->
       global.window.should.exist
       global.document.should.exist
+      
 
     it 'should work in node (as `coffee`)', ->
       ReactPowered = require "#{fixturesReact}/component.coffee"
