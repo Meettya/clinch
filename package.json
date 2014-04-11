@@ -29,7 +29,8 @@
     "async": "*",
     "detective": "*",
     "shorthash": "*",
-    "lru-cache": "*"
+    "lru-cache": "*",
+    "react": "*"
   },
   "devDependencies": {
     "chai": "*",
@@ -39,7 +40,9 @@
     "colors": "*",
     "sprintf-js": "*",
     "walkdir": "*",
-    "fs-extra": "*"
+    "fs-extra": "*",
+    "jsdom": "*",
+    "node-jsx": "*"
   },
   "engines": {
     "node": ">=0.8.0"

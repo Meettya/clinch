@@ -11,14 +11,21 @@ util = require 'util'
 
 lib_path = GLOBAL?.lib_path || ''
 
+require('node-jsx').install extension: '.jsx'
+
+jsdom = require 'jsdom'
+
 # change to app, for test
 Clinch = require "#{lib_path}app"
 
 fixtureRoot  = __dirname + "/fixtures"
 fixturesJade = fixtureRoot + '/jade_powered'
+fixturesReact = fixtureRoot + '/react_powered'
 fixturesWebShims = fixtureRoot + '/web_modules'
 
 JadePowered = require "#{fixturesJade}"
+
+React = ReactTestUtils = document = window = null
 
 describe 'Clinch and template engines:', ->
 
@@ -77,3 +84,39 @@ describe 'Clinch and template engines:', ->
 
       # here we are build our package, its what you need for browser
       clinch_obj.buildPackage 'my_package', package_config, res_fn
+
+  describe 'react:', ->
+
+    react_expected = """
+                    \n<div class="message">
+                      <p>Hello Bender!!!</p>
+                    </div>
+                    """
+
+    beforeEach ->
+      global.window     = jsdom.jsdom().createWindow '<html><body></body></html>'
+      global.document   = global.window.document
+      global.navigator  = global.window.navigator
+
+      React  = require "react/addons"
+      ReactTestUtils = React.addons.TestUtils
+
+    afterEach ->
+      delete global.window
+      delete global.document
+      delete global.navigator
+
+    it 'should display the window objects', ->
+      global.window.should.exist
+      global.document.should.exist
+
+    it 'should work in node (as `coffee`)', ->
+      ReactPowered = require "#{fixturesReact}/component.coffee"
+      greater = ReactTestUtils.renderIntoDocument ReactPowered name : 'Bender'
+      expect(greater.refs.p.props.children).to.be.equal "Hello Bender!!!" 
+
+    it 'should work in node (as `jsx`)', ->
+      ReactPowered = require "#{fixturesReact}/component.jsx"
+      greater = ReactTestUtils.renderIntoDocument ReactPowered name : 'Bender'
+      expect(greater.refs.p.props.children).to.be.eql ["Hello ", "Bender", "!!!"]
+
