@@ -6,4 +6,4 @@
 --growl
 --ui bdd
 --slow 300
---globals my_package
+--globals my_package,window,document,navigator,React

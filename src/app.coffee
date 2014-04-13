@@ -83,6 +83,14 @@ class Clinch
       @_di_cont_obj_.setComponentsSettings FileProcessor : {jade, log}
 
     ###
+    set React compiller settings
+    react = 
+      harmony: off
+    ###
+    if react = @_options_.react
+      @_di_cont_obj_.addComponentsSettings 'FileProcessor', 'react', react
+
+    ###
     set packer settings, default setting are
     
     strict        : on

@@ -63,6 +63,7 @@ describe 'Clinch and template engines:', ->
       think about it as taxes - nobody like it, but every should to pay
       ###
       package_config = 
+        package_name : 'my_package'
         bundle : 
           JadePowered : fixturesJade
         replacement :
@@ -83,7 +84,7 @@ describe 'Clinch and template engines:', ->
         done()
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buildPackage 'my_package', package_config, res_fn
+      clinch_obj.buildPackage package_config, res_fn
 
   describe 'react:', ->
 
@@ -101,6 +102,8 @@ describe 'Clinch and template engines:', ->
       React  = require "react/addons"
       ReactTestUtils = React.addons.TestUtils
 
+      global.react = React
+
     afterEach ->
       delete global.window
       delete global.document
@@ -109,7 +112,6 @@ describe 'Clinch and template engines:', ->
     it 'should display the window objects', ->
       global.window.should.exist
       global.document.should.exist
-      
 
     it 'should work in node (as `coffee`)', ->
       ReactPowered = require "#{fixturesReact}/component.coffee"
@@ -121,3 +123,77 @@ describe 'Clinch and template engines:', ->
       greater = ReactTestUtils.renderIntoDocument ReactPowered name : 'Bender'
       expect(greater.refs.p.props.children).to.be.eql ["Hello ", "Bender", "!!!"]
 
+    it 'should work in browser (emulation) (as `.coffee`)', (done) ->
+
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          ReactPowered : "#{fixturesReact}/component.coffee"
+        replacement :
+          react : fixturesWebShims + '/react'
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # this is browser emulation
+        vm.runInNewContext code, react_sandbox = global
+
+        {ReactPowered} = react_sandbox.my_package
+
+        greater = ReactTestUtils.renderIntoDocument ReactPowered name : 'Bender'
+        expect(greater.refs.p.props.children).to.be.eql "Hello Bender!!!"
+
+        done()
+
+      # here we are build our package, its what you need for browser
+      clinch_obj.buildPackage package_config, res_fn
+
+    it 'should work in browser (emulation) (as `.jsx`)', (done) ->
+
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          ReactPowered : "#{fixturesReact}/component.jsx"
+        replacement :
+          react : fixturesWebShims + '/react'
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # this is browser emulation
+        vm.runInNewContext code, react_sandbox = global
+
+        {ReactPowered} = react_sandbox.my_package
+
+        greater = ReactTestUtils.renderIntoDocument ReactPowered name : 'Bender'
+        expect(greater.refs.p.props.children).to.be.eql ["Hello ", "Bender", "!!!"]
+
+        done()
+
+      # here we are build our package, its what you need for browser
+      clinch_obj.buildPackage package_config, res_fn
+
+    it 'should work in browser (emulation) (as `.csbx`)', (done) ->
+
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          ReactPowered : "#{fixturesReact}/component.csbx"
+        replacement :
+          react : fixturesWebShims + '/react'
+        
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+
+        # this is browser emulation
+        vm.runInNewContext code, react_sandbox = global
+
+        {ReactPowered} = react_sandbox.my_package
+
+        greater = ReactTestUtils.renderIntoDocument ReactPowered name : 'Bender'
+        expect(greater.refs.p.props.children).to.be.eql ["Hello ", "Bender", "!!!"]
+
+        done()
+
+      # here we are build our package, its what you need for browser
+      clinch_obj.buildPackage package_config, res_fn

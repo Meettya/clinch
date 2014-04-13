@@ -1,0 +1,10 @@
+`/** @jsx React.DOM */`
+
+React = require 'react'
+
+module.exports = React.createClass
+  render: ->
+    `<div className="message">
+        <p ref="p">Hello {this.props.name}!!!</p>
+      </div>
+    `
