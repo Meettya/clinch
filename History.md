@@ -1,3 +1,7 @@
+## 0.5.7 / 2014-04-13 04:00 PM
+
+ - Add React support - `.jsx` and `.csbx` (Coffee&React)
+
 ## 0.5.5 / 2014-04-04 12:00 AM
 
  - Update all nmp modules to latest (again)
