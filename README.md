@@ -12,6 +12,8 @@ YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhea
  - `.coffee`  - compile to JavaScript
  - `.eco`     - precompile to JavaScript function
  - `.jade`    - precompile it in [client-mode](https://github.com/visionmedia/jade#a4) way
+ - `.jsx`     - compile [React '.jsx'](http://facebook.github.io/react/index.html) to JavaScript
+ - `.csbx`     - compile '.jsx' on Coffee with backticks to JavaScript (yes, we do it)
 
 ## what about my custom template engine?
 
@@ -24,6 +26,16 @@ For additional example - see [using Handelbars](https://github.com/Meettya/clinc
 ### More about .jade
 
 Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be used wia `require()`. More information at './test', also examples was placed in wiki [jade template engine](https://github.com/Meettya/clinch/wiki/Jade-template-engine-support). In browser should be pre-loaded Jade's `runtime.js`.
+
+### More about React (.jsx, .csbx)
+
+Created by clinch file can be requested via the `require ()`, as is done in the tests. For use in the browser requires the connect of the React, its runtime-transfom tool not needed, everything will be prepared and packed.
+
+React was added to the kernel and will be mandatory to be supported, it's a phenomenal tool for writing maintainable code.
+
+Unfortunately while combining the best of two worlds - CoffeeScrip and jsx by React implemented "in place" - used trick with the backticks, which allow you to insert in CoffeScript js code that are not parsed them . This is the reason for such an extension of selected files - "Coffee Script with Backticks eXt" - `.csb`
+
+As soon as the normal method to combine both of these tools - I 'll do it ASAP, most likely with the file extension is `.csx`
 
 ## installation
 
@@ -166,6 +178,12 @@ May be used for custom `watch` implementation or in other cases
       pretty : on
       self : on
       compileDebug : off
+
+    ###
+    this settings will be applied to React compiler
+    ###
+    react :
+      harmony : off
 
 ### package_config
     ###

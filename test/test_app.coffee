@@ -243,6 +243,14 @@ describe 'Clinch app itself:', ->
 
       clinch_obj.buildPackage 'my_package', package_config, res_fn  
 
+    it 'should set "react : { harmony : on }" ', ->
+
+      settings = react : harmony : on
+
+      clinch_obj = new Clinch settings
+
+      clinch_obj._di_cont_obj_._component_settings_.FILEPROCESSOR.should.to.be.eql settings
+
   describe 'package options', ->
 
     it 'should supress "use strict" on "strict : off" ', (done) ->

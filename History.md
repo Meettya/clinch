@@ -1,3 +1,21 @@
+## 0.5.7 / 2014-04-13 04:00 PM
+
+ - Add React support - `.jsx` and `.csbx` (Coffee&React)
+
+## 0.5.5 / 2014-04-04 12:00 AM
+
+ - Update all nmp modules to latest (again)
+
+## 0.5.3 / 2014-04-01 12:00 AM
+
+ - Fix & test for [#18 issue](https://github.com/Meettya/clinch/issues/18)
+ - Rebuild lib with CS 1.7.1
+
+## 0.5.1 / 2014-04-01 07:00 PM
+
+ - Move to CoffeeScript 1.7.x
+ - Update all nmp modules to latest
+
 ## 0.4.9 / 2013-12-21 09:00 PM
 
  - Fix & test for [#15 issue](https://github.com/Meettya/clinch/issues/15)

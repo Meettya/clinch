@@ -47,7 +47,7 @@ clinch_runtime_v2 = (function(exports){
 
     resolve_code = function (module_source, resolved_name) {
       var exports, module, _ref;
-      module_source.call(_this,exports = {}, module = {}, function(mod_name) {
+      module_source.call(_this,exports = {}, module = {exports : exports}, function(mod_name) {
         return require(mod_name, resolved_name);
       });
       return (_ref = module.exports) != null ? _ref : exports;
