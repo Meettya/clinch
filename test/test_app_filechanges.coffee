@@ -67,6 +67,8 @@ describe 'Clinch support file changes:', ->
 
   it 'should re-build package if file changes', (done) ->
 
+    @timeout 2000
+
     package_config = 
       bundle : 
         substractor : tempfixturesSingle

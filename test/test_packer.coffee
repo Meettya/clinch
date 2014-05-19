@@ -169,21 +169,9 @@ describe 'Packer:', ->
           'lodash'
         ]
 
-      res2_fn = (err, code) ->
-
-        console.timeEnd 'build_hard2'
-        done()
-
       res_fn = (err, code) ->
         expect(err).to.be.null
 
-        console.timeEnd 'build_hard'
-
-        console.time 'build_hard2'
-
-        p_obj.buildPackage package_config, res2_fn
-
-        ###
         # oh, its better than eval :)
         vm.runInNewContext code, sandbox = {}
 
@@ -195,10 +183,8 @@ describe 'Packer:', ->
         (substractor 10, 2).should.to.be.equal 8
         (summator 10, 5).should.to.be.equal 15
         (magic_summator 10, 5).should.to.be.equal 25
-        ###
 
-
-      console.time 'build_hard'
+        done()
 
       p_obj.buildPackage package_config, res_fn
 
