@@ -74,7 +74,7 @@ class FileLoader
         return cb err if err
         # if file not changed - just return it
         if cached_file.meta.mtime is meta.mtime
-          #console.log 'mtime hit'
+          # console.log 'mtime hit'
           return cb null, cached_file
         # or try to compare digests
         else
@@ -82,7 +82,7 @@ class FileLoader
             return cb err if err
             # if file not changed - just return it
             if cached_file.digest is digest
-              #console.log 'digest hit'
+              # console.log 'digest hit'
               # update meta part
               cached_file.meta = meta
               @_file_cache_.set filename, cached_file

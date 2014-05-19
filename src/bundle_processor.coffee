@@ -22,9 +22,33 @@ class BundleProcessor
   ###
   buildAll : ( package_config, method_cb) ->
 
+    #first = (+new Date)
+    #console.log first, 'before buildAll'
+
     @buildRawPackageData package_config, (err, code) =>
+
+      #second = +new Date
+
+      #console.log (second - first),'after buildRawPackageData'
+
       return method_cb err if err
-      method_cb null, @changePathsToHashesInJoinedSet @joinBundleSets @replaceDependenciesInRawPackageData code
+
+      res = @replaceDependenciesInRawPackageData code
+
+      #second = +new Date
+      #console.log  (second - first),'after replaceDependenciesInRawPackageData'
+
+      res = @joinBundleSets res
+
+      #second = +new Date
+      #console.log  (second - first),'after joinBundleSets'
+
+      res = @changePathsToHashesInJoinedSet res
+      
+      #second = +new Date
+      #console.log  (second - first),'after joinBundleSets'
+
+      method_cb null, res
 
 
   ###
