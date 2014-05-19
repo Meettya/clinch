@@ -45,9 +45,10 @@
     "fs-extra": "*",
     "jsdom": "*",
     "node-jsx": "*",
-    "react": "*"
+    "react": "*",
+    "temp":"*"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=0.10.0"
   }
 }

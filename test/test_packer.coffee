@@ -171,6 +171,7 @@ describe 'Packer:', ->
 
       res_fn = (err, code) ->
         expect(err).to.be.null
+
         # oh, its better than eval :)
         vm.runInNewContext code, sandbox = {}
 
@@ -182,9 +183,11 @@ describe 'Packer:', ->
         (substractor 10, 2).should.to.be.equal 8
         (summator 10, 5).should.to.be.equal 15
         (magic_summator 10, 5).should.to.be.equal 25
+
         done()
 
       p_obj.buildPackage package_config, res_fn
+
 
     it 'should build pack for modules, which use node.js core modules', (done) ->
 

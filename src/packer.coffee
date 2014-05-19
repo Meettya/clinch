@@ -35,13 +35,23 @@ class Packer
   ###
   buildPackage : (package_config, main_cb) ->
 
-    @_readSupportFiles (err, files_data) =>
-      return main_cb err if err
-      [ @_clinch_verison_, @_clinch_runtime_file_content_ ] = files_data
-      # so, we are ready, go ahead
+    builder_fn = (main_cb) =>
       @_bundle_processor_.buildAll package_config, (err, package_code) =>
         return main_cb err if err
+        
         main_cb null, @_assemblePackage package_code, package_config
+
+    # HACK dont want to do constructor async
+    unless @_clinch_verison_ and @_clinch_runtime_file_content_
+
+      @_readSupportFiles (err, files_data) =>
+        return main_cb err if err
+        [ @_clinch_verison_, @_clinch_runtime_file_content_ ] = files_data
+        # so, we are ready, go ahead
+        builder_fn main_cb
+    else
+      builder_fn main_cb
+
 
   ###
   This methos read support files in async manner

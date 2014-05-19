@@ -11,6 +11,8 @@ path    = require 'path'
 _       = require 'lodash'
 async   = require 'async'
 
+util    = require 'util'
+
 # temporary its here
 detective     = require 'detective'
 # for cache
@@ -30,6 +32,9 @@ class Gatherer
 
     # and its light cache with parsing results (search for require)
     @_require_cache_ = LRU max : 1000, maxAge: MAX_AGE
+
+    # its experimental cache to speedup next builds
+    @_hard_cache_ = LRU max : 1000, maxAge: MAX_AGE
 
   ###
   This method reset all caches
@@ -64,11 +69,55 @@ class Gatherer
     main_cb null, result
 
   ###
+  This is fast file tester
+  ###
+  _checkCachedFiles: (names_map, cb) =>
+    # work vector
+    vec = _.keys names_map
+
+    some_fn = (file, acb) =>
+      @_digest_calculator_.readFileDigest file, (err, res) =>
+        # if something go wrong - return `true` mean `no`
+        return acb true if err?
+        return acb res isnt names_map[file]
+
+    async.some vec, some_fn, (result) ->
+      cb null, !result
+
+  ###
+  This is fast file checker
+  ###
+  _hardCacheProbe: ( path_name, options, step_cache_name, cb ) =>
+    # try to use hard cache 
+    if @_hard_cache_.has step_cache_name
+      probably_res = @_hard_cache_.get step_cache_name
+      @_checkCachedFiles probably_res.names_map, (err, res) =>
+        return cb err if err?
+        if res
+          cb null, probably_res 
+        else
+          cb null, null
+    else
+      cb null, null
+
+  ###
   This is Async version of packer
   ###
-  buildModulePack : (path_name, options={}, main_cb) ->
-   
-    #console.log 'buildModulePack options', options
+  buildModulePack : (path_name, options={}, main_cb) =>
+
+    step_cache_name = @_digest_calculator_.calculateDataDigest path_name + util.inspect options
+
+    @_hardCacheProbe path_name, options, step_cache_name, (err, res) =>
+      return main_cb err if err?
+      return main_cb null, res if res
+
+      @_buildModulePack path_name, options, step_cache_name, main_cb
+
+  ###
+  internal method
+  ###
+  _buildModulePack : (path_name, options, step_cache_name, main_cb) =>
+
     # then fill up chache for async logic
     pack_cache = 
       dependencies_tree : {}
@@ -89,10 +138,20 @@ class Gatherer
 
     load_queue.drain = =>
       unless pack_cache.err
-        main_cb null, 
+
+        res =           
           dependencies_tree : pack_cache.dependencies_tree
           names_map : pack_cache.names_map
           source_code : pack_cache.source_code
+
+        # save ALL result for next step
+        @_hard_cache_.set step_cache_name, _.cloneDeep res
+
+        #console.log 'names_map'
+        #console.log res['names_map']
+
+        main_cb null, res
+
       else
         main_cb pack_cache.err
 
@@ -108,20 +167,30 @@ class Gatherer
   ###
   _queueFn : ({path_name, parent, pack_cache}, queue_cb) =>
 
+    #console.time "all #{parent} #{path_name}"
+
     # "- Run, Fores, run!!!""
     async.waterfall [
       # 1.resolve real filename
       (waterfall_cb) =>
-        @_pathfinder_.resolveAbsolutePath path_name, path.dirname(parent), waterfall_cb
+        #console.time "res #{parent} #{path_name}"
+        @_pathfinder_.resolveAbsolutePath path_name, path.dirname(parent), (err, data) ->
+          #console.timeEnd "res #{parent} #{path_name}"
+          waterfall_cb err, data
       # 2. load source and compile it to js + get some meta data
       (real_file_name, waterfall_cb) =>
+        
         # save all to tree, if some data exists - its return false
         unless @_dependenciesTreeSaver {path_name, parent, real_file_name, pack_cache}
           return queue_cb() # <---- YES! we are jamping out the train
 
         # get all data and meta than go to next step
+        #console.time "load #{parent} #{path_name}"
         @_file_processor_.loadFile real_file_name, (err, content, may_have_reqire, {digest}) ->
           return waterfall_cb err if err
+          #console.timeEnd "load #{parent} #{path_name}"
+          #console.log real_file_name
+          #console.log digest
           waterfall_cb null, {digest, content, may_have_reqire, path_name, real_file_name}
 
       # 3. save data and, if it real code, search for requires in it
@@ -131,7 +200,9 @@ class Gatherer
 
         # and add new files to queue if it have `requires`
         @_findRequiresAndAddToQueue {digest, may_have_reqire, content, real_file_name, path_name, pack_cache, waterfall_cb}
-      ], (err) => queue_cb err # this is the end of waterfall
+      ], (err) => 
+        #console.timeEnd "all #{parent} #{path_name}"
+        queue_cb err # this is the end of waterfall
 
 
   ###
@@ -169,7 +240,7 @@ class Gatherer
 
       # try to get all by cache
       unless @_require_cache_.has digest
-        #console.log 'cache miss', real_file_name
+        #console.log 'Requires cache miss', real_file_name
         [err, res] = @_findRequiresItself content
         # just die fast
         if err?
@@ -179,7 +250,7 @@ class Gatherer
           @_require_cache_.set digest, res
           childrens = res
       else
-        #console.log 'cache hit', real_file_name
+        #console.log 'Requires cache hit', real_file_name
         childrens = @_require_cache_.get digest
 
       for child in childrens
