@@ -12,7 +12,7 @@ async = require 'async'
 
 fs = require 'fs'
 
-fixtureRoot  = __dirname + "/fixtures"
+fixtureRoot  = __dirname + '/../test' + "/fixtures"
 fixtures     = fixtureRoot + "/default"
 fixturesFile = fixtures + "/summator"
 fixturesNpm  = fixtureRoot + "/node_modules/summator"
@@ -59,7 +59,7 @@ idx = 0
 save_fn = (data, acb) ->
   fs.writeFile "data_#{idx++}.js", data, encoding :'utf8', acb
 
-async.timesSeries 2, step_fn, (err, res) ->
+async.timesSeries 10, step_fn, (err, res) ->
 
   console.log "is result same -", _.isEqual res[0], res[1]
 
@@ -70,8 +70,8 @@ async.timesSeries 2, step_fn, (err, res) ->
     async.each res, save_fn, (err) ->
       return console.log err if err?
       console.log 'all_saved!'
-
   ###
+  
 
   console.log "\ndone steps #{res.length}"
   console.timeEnd 'general'
