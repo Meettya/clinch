@@ -109,7 +109,8 @@ class Gatherer
 
     @_hardCacheProbe path_name, options, step_cache_name, (err, res) =>
       return main_cb err if err?
-      return main_cb null, res if res
+      # TODO @meettya checkout who changes data end fix it
+      return main_cb null, _.cloneDeep(res) if res
 
       @_buildModulePack path_name, options, step_cache_name, main_cb
 
@@ -145,6 +146,7 @@ class Gatherer
           source_code : pack_cache.source_code
 
         # save ALL result for next step
+        # TODO @meettya checkout who changes data end fix it again
         @_hard_cache_.set step_cache_name, _.cloneDeep res
 
         #console.log 'names_map'
