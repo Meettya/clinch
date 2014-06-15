@@ -13,3 +13,4 @@
   - Add 'clinch require start/end' statimen support to speed up require parsing (with RegExp, not detective)
   - Add travis-ci  - done
   - Add React support - done
+  - Add more agressive cache - done
