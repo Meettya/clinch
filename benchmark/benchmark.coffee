@@ -1,3 +1,5 @@
+#!/usr/bin/env coffee
+
 ###
 Test suite for node AND browser in one file
 So, we are need some data from global
