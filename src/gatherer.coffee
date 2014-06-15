@@ -25,6 +25,12 @@ class Gatherer
   # this is cache max_age, huge because we are have brutal invalidator now
   MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
 
+  # its root parent for module
+  ROOT_PARENT = '.'
+
+  # Async queue concurrency
+  QUEUE_CONCURRENCY = 20
+
   constructor: (@_digest_calculator_, @_file_processor_, @_options_={}) ->
     @_pathfinder_ = new Resolver()
     # NB! addExtensions need list, but getSupportedFileExtentions return array, so...
@@ -33,8 +39,8 @@ class Gatherer
     # and its light cache with parsing results (search for require)
     @_require_cache_ = LRU max : 1000, maxAge: MAX_AGE
 
-    # its experimental cache to speedup next builds
-    @_hard_cache_ = LRU max : 1000, maxAge: MAX_AGE
+    # this is cache for pre-ready results
+    @_hard_cache_ = LRU max : 100, maxAge: MAX_AGE
 
   ###
   This method reset all caches
@@ -62,62 +68,93 @@ class Gatherer
     digest_polindrome = {}
     digest_polindrome[digest] = digest
 
-    result.dependencies_tree['.'] = digest_polindrome
+    result.dependencies_tree[ROOT_PARENT] = digest_polindrome
     result.names_map              = digest_polindrome
     result.source_code[digest]    = "\nmodule.exports = (" + raw_code?.toString() + "\n)()\n"
     
     main_cb null, result
 
   ###
-  This is fast file tester
-  ###
-  _checkCachedFiles: (names_map, cb) =>
-    # work vector
-    vec = _.keys names_map
-
-    some_fn = (file, acb) =>
-      @_digest_calculator_.readFileDigest file, (err, res) =>
-        # if something go wrong - return `true` mean `no`
-        return acb true if err?
-        return acb res isnt names_map[file]
-
-    async.some vec, some_fn, (result) ->
-      cb null, !result
-
-  ###
-  This is fast file checker
-  ###
-  _hardCacheProbe: ( path_name, options, step_cache_name, cb ) =>
-    # try to use hard cache 
-    if @_hard_cache_.has step_cache_name
-      probably_res = @_hard_cache_.get step_cache_name
-      @_checkCachedFiles probably_res.names_map, (err, res) =>
-        return cb err if err?
-        if res
-          cb null, probably_res 
-        else
-          cb null, null
-    else
-      cb null, null
-
-  ###
   This is Async version of packer
+
+  TODO @meetya add some request blocker (if builder called in sequence)
   ###
   buildModulePack : (path_name, options={}, main_cb) =>
 
     step_cache_name = @_digest_calculator_.calculateDataDigest path_name + util.inspect options
 
-    @_hardCacheProbe path_name, options, step_cache_name, (err, res) =>
+    # in any case result will be same :)
+    done_cb = (err, data) =>
       return main_cb err if err?
-      # TODO @meettya checkout who changes data end fix it
-      return main_cb null, _.cloneDeep(res) if res
+      @_hard_cache_.set step_cache_name, data
+      main_cb null, data 
 
-      @_buildModulePack path_name, options, step_cache_name, main_cb
+    unless @_hard_cache_.has step_cache_name
+      @_buildModulePack path_name, options, step_cache_name, done_cb
+    else 
+      @_verifyAndBuildModulePack options, step_cache_name, done_cb
+
+  ###
+  This is verified rebuilder step
+  ###
+  _verifyAndBuildModulePack: (options, step_cache_name, main_cb) =>
+    probably_res = @_hard_cache_.get step_cache_name
+
+    # check out changed files fist
+    @_getChangedFiles probably_res.names_map, (err, changed_list) =>
+      # nothing changed
+      unless changed_list.length
+        main_cb null, probably_res
+      else
+        @_reBuildModulePack changed_list, step_cache_name, options, (err, new_data) =>
+          return main_cb err if err
+
+          # just update our pre-res
+          for changed_data in new_data
+            for member_key, member_value of changed_data
+              _.assign probably_res[member_key], member_value
+
+          main_cb null, probably_res 
+
+  ###
+  This is module pack rebuilder - in case something changed
+  ###
+  _reBuildModulePack: (changed_list, step_cache_name, options, main_cb) =>
+    console.log 'something changed!!!'
+    console.log changed_list
+
+    map_fn = (item, acb) =>
+      @_buildModulePack item, options, step_cache_name, (err, data) =>
+        return acb err if err?
+        # unnided in sub-request
+        delete data.dependencies_tree[ROOT_PARENT] if data?.dependencies_tree?[ROOT_PARENT]?
+        acb null, data
+
+    async.map changed_list, map_fn, main_cb
+
+
+  ###
+  This is fast file tester - return changed files list
+  ###
+  _getChangedFiles: (names_map, cb) =>
+    # work vector
+    vec = _.keys names_map
+
+    some_fn = (file, acb) =>
+      @_digest_calculator_.readFileDigest file, (err, res) =>
+        # if something go wrong - return false to re-read data
+        return acb false if err?
+        return acb res is names_map[file]
+
+    async.reject vec, some_fn, (results) ->
+      cb null, results
 
   ###
   internal method
   ###
   _buildModulePack : (path_name, options, step_cache_name, main_cb) =>
+
+    # console.time '_buildModulePack'
 
     # then fill up chache for async logic
     pack_cache = 
@@ -127,6 +164,7 @@ class Gatherer
       err : null
       filters : []
       requireless : []
+      step_cache_name : step_cache_name
 
     # add filters
     if options.filters?
@@ -135,9 +173,12 @@ class Gatherer
     if options.requireless?
       pack_cache.requireless = @_forceFilterToArray options.requireless
 
-    pack_cache.queue_obj = load_queue = async.queue @_queueFn, 50 # by now for ensure all ok
+    pack_cache.queue_obj = load_queue = async.queue @_queueFn, QUEUE_CONCURRENCY
 
     load_queue.drain = =>
+
+      # console.timeEnd '_buildModulePack'
+
       unless pack_cache.err
 
         res =           
@@ -145,24 +186,13 @@ class Gatherer
           names_map : pack_cache.names_map
           source_code : pack_cache.source_code
 
-        # save ALL result for next step
-        # TODO @meettya checkout who changes data end fix it again
-        @_hard_cache_.set step_cache_name, _.cloneDeep res
-
-        #console.log 'names_map'
-        #console.log res['names_map']
-
         main_cb null, res
 
       else
         main_cb pack_cache.err
 
-    load_queue.push 
-      path_name : path_name
-      parent    : '.'
-      pack_cache : pack_cache
-      , (err) ->
-        pack_cache.err = err
+    load_queue.push {path_name, parent : ROOT_PARENT, pack_cache}, (err) -> pack_cache.err = err
+
   ###
   Oh!
   Many things here, but its price of async code
@@ -231,6 +261,14 @@ class Gatherer
       return [error]
 
     [null, result]
+
+  ###
+  Build composite digest for files
+
+  its needed because some file may have different requires list by use differtent settings
+  ###
+  _getCompositeDigest: (step_cache_name, digest) ->
+    "#{step_cache_name}_#{digest}"
     
   ###
   This method find requires in files, if they need it and 
@@ -240,8 +278,11 @@ class Gatherer
     # and add new files to queue if it have `requires`
     if may_have_reqire is yes and @_isFilesMustBeProcessed pack_cache.requireless, path_name
 
+      composite_digest = @_getCompositeDigest pack_cache.step_cache_name, digest
+      # console.log 'composite_digest', composite_digest
+
       # try to get all by cache
-      unless @_require_cache_.has digest
+      unless @_require_cache_.has composite_digest
         #console.log 'Requires cache miss', real_file_name
         [err, res] = @_findRequiresItself content
         # just die fast
@@ -249,11 +290,11 @@ class Gatherer
           err.fileName = real_file_name
           return waterfall_cb err
         else 
-          @_require_cache_.set digest, res
+          @_require_cache_.set composite_digest, res
           childrens = res
       else
         #console.log 'Requires cache hit', real_file_name
-        childrens = @_require_cache_.get digest
+        childrens = @_require_cache_.get composite_digest
 
       for child in childrens
 

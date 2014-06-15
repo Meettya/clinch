@@ -140,7 +140,6 @@ class BundleProcessor
 
     reduce_fn = (memo, val) ->
       [memo.members[val.package_name]] = _.values val.dependencies_tree['.']
-      delete val.dependencies_tree['.']
 
       for key in ['source_code', 'dependencies_tree', 'names_map']
         memo[key] = _.extend memo[key], val[key]
@@ -150,6 +149,9 @@ class BundleProcessor
       result_obj["#{step}_list"] = _.map step_data, (val) -> val.package_name
 
       _.reduce step_data, reduce_fn, result_obj
+
+    # instead of touch original object - whipe out in result
+    delete result_obj.dependencies_tree['.']
 
     result_obj                  
 
