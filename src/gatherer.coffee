@@ -87,7 +87,8 @@ class Gatherer
     done_cb = (err, data) =>
       return main_cb err if err?
       @_hard_cache_.set step_cache_name, data
-      main_cb null, data 
+      # HACK @meettya somewhere ELSE changed 'replace' list - find out and fix properly - its quickfix only!!!
+      main_cb null, _.cloneDeep data
 
     unless @_hard_cache_.has step_cache_name
       @_buildModulePack path_name, options, step_cache_name, done_cb
