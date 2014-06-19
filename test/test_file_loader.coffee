@@ -88,6 +88,57 @@ describe 'FileLoader:', ->
 
       fl_obj.getFileContent fixturesCoffee, res_fn1
 
+  describe 'getFileWithMeta() *async*', ->
+
+    it 'should get file from disk on empty cache', (done) ->
+      res_fn = (err, data) ->
+        expect(err).to.be.null
+        expect(data).to.not.be.null
+        expect(data).to.not.be.undefined
+        data.should.to.be.a 'object'
+        data.should.to.have.keys ['meta', 'digest', 'content']
+        #console.log data
+        done()
+      fl_obj.getFileWithMeta fixturesCoffee, res_fn
+
+    it 'should get file from cache', (done) ->
+      res_fn2 = (err, data) ->
+        expect(err).to.be.null
+        expect(data).to.not.be.null
+        expect(data).to.not.be.undefined
+        data.should.to.be.a 'object'
+        data.should.to.have.keys ['meta', 'digest', 'content']
+        #console.log data
+        done()
+
+      res_fn1 = (err, data) ->
+        expect(err).to.be.null
+        expect(data).to.not.be.null
+        expect(data).to.not.be.undefined
+        data.should.to.be.a 'object'
+        data.should.to.have.keys ['meta', 'digest', 'content']
+        #console.log data
+        fl_obj.getFileWithMeta fixturesCoffee, res_fn2
+
+      fl_obj.getFileWithMeta fixturesCoffee, res_fn1
+
+    it 'should use queue for some request in one time', (done) ->
+     
+      cicle_numbers = 10000
+
+      all_done = (err, data) ->
+        expect(err).to.be.null
+        expect(data).to.not.be.null
+        expect(data).to.not.be.undefined
+        data.should.to.be.a 'object'
+        data.should.to.have.keys ['meta', 'digest', 'content']
+        #console.log data
+        done()
+
+      one_done = _.after cicle_numbers, all_done
+
+      _.times cicle_numbers, -> fl_obj.getFileWithMeta fixturesCoffee, one_done
+
   describe 'resetCaches()', ->
 
     it 'should drop cache and return null', ->
