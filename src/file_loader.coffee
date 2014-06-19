@@ -10,8 +10,9 @@ async   = require 'async'
 LRU     = require 'lru-cache'
 
 {rejectOnInvalidFilenameType} = require './checkers'
+{queueSomeRequest}            =  require './queuficator'
 
-class FileLoader
+module.exports = class FileLoader
 
   # this is cache max_age, huge because we are have brutal invalidator now
   MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
@@ -19,15 +20,12 @@ class FileLoader
   constructor: (@_digest_calculator_, @_options_={}) ->
     # this big cache for all our files, work on size and so on
     @_file_cache_ = LRU max : 1000, maxAge: MAX_AGE
-    # what is it? hm, its ESP for node. in some cases its too speed and async
-    @_file_in_process_ = {}
 
   ###
   This method reset all caches
   ###
   resetCaches : ->
     @_file_cache_.reset()
-    @_file_in_process_ = {}
     null
 
   ###
@@ -42,29 +40,17 @@ class FileLoader
   ###
   This method, get all - content and meta for filename
   ###
-  getFileWithMeta : (rejectOnInvalidFilenameType (filename, cb) ->
+  getFileWithMeta : (rejectOnInvalidFilenameType queueSomeRequest (filename, cb) ->
         
     # first step - see to _file_cache_ or just load all
     unless @_file_cache_.has filename
 
-      # if someone already processed this file - just come later
-      if @_file_in_process_[filename]
-        # console.log "is file processed #{filename}"
-        lazy_fn = => @getFileWithMeta filename, cb
-        # why not `process.nextTick`? - `setTimeout` more lazy and here its good :)
-        setTimeout lazy_fn, 0
-      else
-        # set processed flag
-        @_file_in_process_[filename] = true
-        # console.log "cache miss #{filename}"
-        @_loadAllFileData filename, (err, data) =>
-          # unset process flag
-          @_file_in_process_[filename] = false
+      @_loadAllFileData filename, (err, data) =>
+        return cb err if err
+        # save all to cache
+        @_file_cache_.set filename, data
+        return cb null, data
 
-          return cb err if err
-          # save all to cache
-          @_file_cache_.set filename, data
-          return cb null, data
     # or if file in cache - try to use it, with multi-level validation
     else
       # console.log "cache exist #{filename}"
@@ -127,5 +113,3 @@ class FileLoader
       return cb err if err
       cb null, mtime : +stats.mtime
     )
-
-module.exports = FileLoader
