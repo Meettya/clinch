@@ -31,7 +31,7 @@ module.exports = class Gatherer
   # Async queue concurrency
   QUEUE_CONCURRENCY = 20
 
-  constructor: (@_digest_calculator_, @_file_processor_, @_options_={}) ->
+  constructor: (@_digest_calculator_, @_file_processor_, @_file_loader_, @_options_={}) ->
     @_pathfinder_ = new Resolver()
     # NB! addExtensions need list, but getSupportedFileExtentions return array, so...
     @_pathfinder_.addExtensions @_file_processor_.getSupportedFileExtentions()...
@@ -142,7 +142,7 @@ module.exports = class Gatherer
     vec = _.keys names_map
 
     some_fn = (file, acb) =>
-      @_digest_calculator_.readFileDigest file, (err, res) =>
+      @_file_loader_.readCachedFileDigest file, (err, res) =>
         # if something go wrong - return false to re-read data
         return acb false if err?
         return acb res is names_map[file]

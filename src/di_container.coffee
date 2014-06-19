@@ -90,7 +90,7 @@ module.exports = class DIContainer
       when 'FILEPROCESSOR'
         @_file_processor_ or= new FileProcessor @getComponent('FileLoader'), settings
       when 'GATHERER'
-        @_gatherer_ or= new Gatherer @getComponent('DigestCalculator'), @getComponent('FileProcessor'), settings
+        @_gatherer_ or= new Gatherer @getComponent('DigestCalculator'), @getComponent('FileProcessor'), @getComponent('FileLoader'), settings
       when 'BUNDLEPROCESSOR'
         @_bundle_processor_ or= new BundleProcessor @getComponent('Gatherer'), settings
       when 'PACKER'
