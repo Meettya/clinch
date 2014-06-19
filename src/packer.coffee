@@ -15,7 +15,8 @@ RUNTIME_FILENAME = path.join __dirname, '..', 'clinch_runtime.js'
 
 RUNTIME_TARGET_VERSION = 2
 
-class Packer
+module.exports = class Packer
+  
   constructor: (@_bundle_processor_, @_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
@@ -233,5 +234,3 @@ class Packer
     """
 }).call(this);
     """
-
-module.exports = Packer

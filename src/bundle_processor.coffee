@@ -12,7 +12,8 @@ This class process raw data parts from Gatherer:
 _       = require 'lodash'
 async   = require 'async'
 
-class BundleProcessor
+module.exports = class BundleProcessor
+
   constructor: (@_gatherer_, @_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
@@ -219,5 +220,3 @@ class BundleProcessor
     function_gatherer : (name, cb) =>
       @_gatherer_.buildFunctionPack name, cb
 
-
-module.exports = BundleProcessor

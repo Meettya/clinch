@@ -14,7 +14,8 @@ DigestCalculator  = require './digest_calculator'
 # for debug
 # util = require 'util'
 
-class DIContainer
+module.exports = class DIContainer
+
   constructor : ->
     @_packer_             = null
     @_gatherer_           = null
@@ -137,4 +138,3 @@ class DIContainer
     BUNDLEPROCESSOR   : {}
     DIGESTCALCULATOR  : {}
 
-module.exports = DIContainer

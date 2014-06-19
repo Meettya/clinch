@@ -20,7 +20,7 @@ LRU           = require 'lru-cache'
 # and all togehter!
 Resolver      = require 'async-resolve'
 
-class Gatherer
+module.exports = class Gatherer
 
   # this is cache max_age, huge because we are have brutal invalidator now
   MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
@@ -355,6 +355,4 @@ class Gatherer
   _isFilesMustBeProcessed : (filters_list, path_name) ->
     ! _.any filters_list, (filter) ->
         filter is path_name 
-
-module.exports = Gatherer
 
