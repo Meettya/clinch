@@ -24,6 +24,7 @@ _keyBuilder = (args) ->
 _done_cb_builder = (queue_cache, key) ->
   (data...) ->
     while step = queue_cache[key].shift()
+      # prevent ANY interaction cased by result sharing (it may slow down execution, but safety first!)
       step (_.cloneDeep data)...
 
 queueSomeRequest = (methodBody) ->
