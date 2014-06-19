@@ -81,7 +81,7 @@ module.exports = class Gatherer
   ###
   buildModulePack : (path_name, options={}, main_cb) =>
 
-    step_cache_name = @_digest_calculator_.calculateDataDigest path_name + util.inspect options
+    step_cache_name = @_getStepCache path_name, options
 
     # in any case result will be same :)
     done_cb = (err, data) =>
@@ -96,6 +96,12 @@ module.exports = class Gatherer
       @_verifyAndBuildModulePack options, step_cache_name, done_cb
 
   ###
+  This method calculate step cache name
+  ###
+  _getStepCache: (path_name, options) =>
+    @_digest_calculator_.calculateDataDigest path_name + util.inspect options
+
+  ###
   This is verified rebuilder step
   ###
   _verifyAndBuildModulePack: (options, step_cache_name, main_cb) =>
@@ -107,7 +113,8 @@ module.exports = class Gatherer
       unless changed_list.length
         main_cb null, probably_res
       else
-        @_reBuildModulePack changed_list, step_cache_name, options, (err, new_data) =>
+        extended_options = @_extendOptionsRequireless { options, changed : changed_list, all_files : _.keys probably_res.names_map }
+        @_reBuildModulePack changed_list, extended_options, (err, new_data) =>
           return main_cb err if err
 
           # just update our pre-res
@@ -118,13 +125,29 @@ module.exports = class Gatherer
           main_cb null, probably_res 
 
   ###
+  This method extend options for rebuild module pack function to avoid re-calculate unchanged chidrens
+  ###
+  _extendOptionsRequireless: ({options, changed, all_files}) =>
+
+    new_options = []
+    new_options = if options.requireless?
+      @_forceFilterToArray options.requireless
+
+    options.requireless = new_options.concat _.difference all_files, changed
+
+    options
+
+  ###
   This is module pack rebuilder - in case something changed
   ###
-  _reBuildModulePack: (changed_list, step_cache_name, options, main_cb) =>
+  _reBuildModulePack: (changed_list, options, main_cb) =>
     console.log 'something changed!!!'
     console.log changed_list
 
     map_fn = (item, acb) =>
+
+      step_cache_name = @_getStepCache item, options
+
       @_buildModulePack item, options, step_cache_name, (err, data) =>
         return acb err if err?
         # unnided in sub-request
