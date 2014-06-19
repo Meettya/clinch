@@ -55,6 +55,7 @@ module.exports = class FileLoader
     else
       # console.log "cache exist #{filename}"
       cached_file = @_file_cache_.get filename
+
       # first step - compare meta
       @readFileMeta filename, (err, meta) =>
         return cb err if err
@@ -95,6 +96,29 @@ module.exports = class FileLoader
       content : (parallel_cb) =>
         @readFile filename, parallel_cb
       , step_cb # and parallel and, send all to next step
+
+  ###
+  This method read "cached" file digest
+  ###
+  readCachedFileDigest: (rejectOnInvalidFilenameType (filename, cb) ->
+
+    cache_fail = => 
+      @_digest_calculator_.readFileDigest filename, cb
+
+    return cache_fail() unless @_file_cache_.has filename
+
+    cached_file = @_file_cache_.get filename
+    # first step - compare meta
+    @readFileMeta filename, (err, meta) =>
+      return cb err if err
+      # if file not changed - just return it
+      if cached_file.meta.mtime is meta.mtime
+        # console.log 'mtime hit'
+        cb null, cached_file.digest
+      else
+        cache_fail()
+
+    )
 
   ###
   This method just read a file, from disk
