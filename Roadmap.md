@@ -14,3 +14,4 @@
   - Add travis-ci  - done
   - Add React support - done
   - Add more agressive cache - done
+  - Add correct processors error support
