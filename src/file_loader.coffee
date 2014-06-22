@@ -100,7 +100,7 @@ module.exports = class FileLoader
   ###
   This method read "cached" file digest
   ###
-  readCachedFileDigest: (rejectOnInvalidFilenameType (filename, cb) ->
+  readCachedFileDigest: (rejectOnInvalidFilenameType queueSomeRequest (filename, cb) ->
 
     cache_fail = => 
       @_digest_calculator_.readFileDigest filename, cb
