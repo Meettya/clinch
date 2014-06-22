@@ -1,3 +1,9 @@
+## 0.6.1 / 2014-06-22 10:00 PM
+
+ - Tune up module cache - no penalty for near-root changed file position
+ - Wipe resulted code from deleted parts
+ - add benchmark to '.npmignore'
+
 ## 0.5.8 / 2014-06-15 11:50 PM
 
  - Add more aggressive module cache to speed up huge project rebuild
