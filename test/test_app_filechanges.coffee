@@ -9,8 +9,6 @@ _ = require 'lodash'
 fs = require 'fs-extra'
 vm = require 'vm'
 
-os = require 'os'
-
 # we are will create temporary copy for our test
 # Automatically track and cleanup files at exit
 temp = require('temp') #.track()
@@ -35,7 +33,7 @@ Eco = require 'eco'
 Handlebars = require 'handlebars'
 
 # Mac OS X mtime granularity 1000 ms :(
-TIMEOUT = if os.platform() is 'darwin' then 1100 else 0
+TIMEOUT = 1100
 
 describe 'Clinch support file changes:', ->
 
