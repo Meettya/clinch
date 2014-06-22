@@ -9,6 +9,8 @@ _ = require 'lodash'
 fs = require 'fs-extra'
 vm = require 'vm'
 
+os = require 'os'
+
 # we are will create temporary copy for our test
 # Automatically track and cleanup files at exit
 temp = require('temp') #.track()
@@ -21,6 +23,7 @@ fixturesWebShims = fixtureRoot + '/web_modules'
 fixtureDefault = fixtureRoot + '/default'
 fixturesUniqueGeneratorParent = fixtureDefault + '/unique_generator_parent'
 fixturesSingle = fixtureDefault + '/substractor'
+fixturesTwoChild  = fixtureRoot + '/two_children'
 
 lib_path = GLOBAL?.lib_path || ''
 
@@ -31,78 +34,222 @@ Clinch = require "#{lib_path}app"
 Eco = require 'eco'
 Handlebars = require 'handlebars'
 
+# Mac OS X mtime granularity 1000 ms :(
+TIMEOUT = if os.platform() is 'darwin' then 1100 else 0
+
 describe 'Clinch support file changes:', ->
 
   clinch_obj = package_config = null
   tempFixteresRoot = tempfixtureDefault = tempfixturesSingle = tempfixturesSingleNew = null
+  tempFixturesTwoChild = tempFixturesTwoChildIndex = tempFixturesTwoChildIndexNew = tempFixturesTwoChildIndexRes = null
 
-  copyTempFiles = (tmp_root, cb) ->
-    fs.copy fixtureDefault, "#{tmp_root}/default", (err) ->
+  copyTempFiles = (scr_dir, tmp_root, dirname, cb) ->
+    fs.copy scr_dir, "#{tmp_root}/#{dirname}", (err) ->
       return cb Error err if err?
       cb null, yes
 
   createTempDir = (cb) ->
     temp.mkdir 'clinch_test', cb
 
-  changeFileContent = (src_path, dst_path, cb) ->
-    reader = fs.createReadStream "#{src_path}.js"
-    writer = fs.createWriteStream "#{dst_path}.js"
+  changeFileContent = (src_path, dst_path, ext, cb) ->
+    #console.log 'changeFileContent, src_path, dst_path, ext'
+    #console.log src_path, dst_path, ext
+    reader = fs.createReadStream "#{src_path}.#{ext}"
+    writer = fs.createWriteStream "#{dst_path}.#{ext}"
     writer.on 'finish', cb
     reader.pipe writer
 
-  beforeEach (done) ->
+  describe 'for one file', ->
 
-    clinch_obj = new Clinch
-    createTempDir (err, tmp_root) ->
-      throw Error err if err?
+    beforeEach (done) ->
 
-      tempFixteresRoot      = tmp_root
-      tempfixtureDefault    = tempFixteresRoot + '/default'
-      tempfixturesSingle    = tempfixtureDefault + '/substractor'
-      tempfixturesSingleNew = tempfixtureDefault + '/substractor_new'
-
-      copyTempFiles tmp_root, (err, isOk) ->
+      clinch_obj = new Clinch
+      createTempDir (err, tmp_root) ->
         throw Error err if err?
-        if isOk then done()
 
-  it 'should re-build package if file changes', (done) ->
+        tempFixteresRoot      = tmp_root
+        tempfixtureDefault    = tempFixteresRoot + '/default'
+        tempfixturesSingle    = tempfixtureDefault + '/substractor'
+        tempfixturesSingleNew = tempfixtureDefault + '/substractor_new'
 
-    @timeout 2000
+        copyTempFiles fixtureDefault, tmp_root, 'default', (err, isOk) ->
+          throw Error err if err?
+          if isOk then done()
 
-    package_config = 
-      bundle : 
-        substractor : tempfixturesSingle
-      package_name : 'my_package'
+    it 'should re-build package if file changes', (done) ->
 
-    res_fn2 = (err, code) ->
-      # console.log code
-      expect(err).to.be.null
-      # oh, its better than eval :)
-      vm.runInNewContext code, sandbox = {}
+      @timeout 2000
 
-      {substractor, substractor_new} = sandbox.my_package.substractor
-      (substractor 10, 2).should.to.be.equal 8
+      package_config = 
+        bundle : 
+          substractor : tempfixturesSingle
+        package_name : 'my_package'
 
-      (substractor_new 10, 2).should.to.be.equal 18
+      res_fn2 = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
 
-      done()
+        {substractor, substractor_new} = sandbox.my_package.substractor
+        (substractor 10, 2).should.to.be.equal 8
 
-    second_step = ->
-      clinch_obj.buildPackage package_config, res_fn2
+        (substractor_new 10, 2).should.to.be.equal 18
 
-    changes_prepare = ->
-      changeFileContent tempfixturesSingleNew, tempfixturesSingle, second_step
+        done()
 
-    res_fn = (err, code) ->
-      # console.log code
-      expect(err).to.be.null
-      # oh, its better than eval :)
-      vm.runInNewContext code, sandbox = {}
+      second_step = ->
+        clinch_obj.buildPackage package_config, res_fn2
 
-      {substractor} = sandbox.my_package.substractor
-      (substractor 10, 2).should.to.be.equal 8
+      changes_prepare = ->
+        changeFileContent tempfixturesSingleNew, tempfixturesSingle, 'js', second_step
 
-      # Mac OS X mtime granularity 1000 ms :(
-      setTimeout changes_prepare, 1100
+      res_fn = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
 
-    clinch_obj.buildPackage package_config, res_fn
+        {substractor} = sandbox.my_package.substractor
+        (substractor 10, 2).should.to.be.equal 8
+
+        # Mac OS X mtime granularity 1000 ms :(
+        setTimeout changes_prepare, TIMEOUT
+
+      clinch_obj.buildPackage package_config, res_fn
+
+  describe 'for main file in deep structure', ->
+
+    beforeEach (done) ->
+
+      clinch_obj = new Clinch
+      createTempDir (err, tmp_root) ->
+        throw Error err if err?
+
+        tempFixteresRoot              = tmp_root
+        tempFixturesTwoChild          = tempFixteresRoot + '/two_children'
+        tempFixturesTwoChildIndex     = tempFixturesTwoChild + '/index'
+        tempFixturesTwoChildIndexNew  = tempFixturesTwoChild + '/index_new'
+        tempFixturesTwoChildIndexRes  = tempFixturesTwoChild + '/index_reserve'
+
+        copyTempFiles fixturesTwoChild, tmp_root, 'two_children', (err, isOk) ->
+          throw Error err if err?
+          if isOk then done()
+
+    it 'should re-build package if file changes (add some requires)', (done) ->
+
+      @timeout 2000
+
+      package_config = 
+        bundle : 
+          app : tempFixturesTwoChild
+        package_name : 'my_package'
+
+      res_fn2 = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        #console.log 'res_fn2'
+        #console.log code
+
+        {substractor, processor} = sandbox.my_package.app
+        (substractor.substractor 10, 2).should.to.be.equal 8
+
+        #console.log 'processor.process 10,2'
+        #console.log processor.process 10, 2
+
+        (processor.process 10, 2).should.to.be.equal 20
+
+        done()
+
+      second_step = ->
+        clinch_obj.buildPackage package_config, res_fn2
+
+      changes_prepare = ->
+        changeFileContent tempFixturesTwoChildIndexNew, tempFixturesTwoChildIndex, 'coffee', second_step
+
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        # console.log inspect sandbox.app
+
+        {substractor} = sandbox.my_package.app.substractor
+        (substractor 10, 2).should.to.be.equal 8
+
+        expect(sandbox.my_package.processor).to.be.undefined
+        
+        # Mac OS X mtime granularity 1000 ms :(
+        setTimeout changes_prepare, TIMEOUT
+
+      clinch_obj.buildPackage package_config, res_fn
+
+    it 'should re-build package if file changes (remove some requires)', (done) ->
+
+      @timeout 3000
+
+      package_config = 
+        bundle : 
+          app : tempFixturesTwoChild
+        package_name : 'my_package'
+
+      res_fn2 = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        {substractor, processor} = sandbox.my_package.app
+        (substractor.substractor 10, 2).should.to.be.equal 8
+
+        (processor.process 10, 2).should.to.be.equal 20
+
+        # Mac OS X mtime granularity 1000 ms :(
+        setTimeout changes_prepare2, TIMEOUT
+
+      res_fn3 = (err, code) ->
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        #console.log 'res_fn3'
+        #console.log code
+
+        {substractor} = sandbox.my_package.app.substractor
+        (substractor 10, 2).should.to.be.equal 8
+
+        expect(sandbox.my_package.processor).to.be.undefined
+
+        done()
+
+      second_step = ->
+        clinch_obj.buildPackage package_config, res_fn2
+
+      third_step = ->
+        clinch_obj.buildPackage package_config, res_fn3
+
+      changes_prepare = ->
+        changeFileContent tempFixturesTwoChildIndexNew, tempFixturesTwoChildIndex, 'coffee', second_step
+
+      changes_prepare2 = ->
+        changeFileContent tempFixturesTwoChildIndexRes, tempFixturesTwoChildIndex, 'coffee', third_step
+
+      res_fn = (err, code) ->
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        # console.log inspect sandbox.app
+
+        {substractor} = sandbox.my_package.app.substractor
+        (substractor 10, 2).should.to.be.equal 8
+
+        expect(sandbox.my_package.processor).to.be.undefined
+        
+        # Mac OS X mtime granularity 1000 ms :(
+        setTimeout changes_prepare, TIMEOUT
+
+      clinch_obj.buildPackage package_config, res_fn
