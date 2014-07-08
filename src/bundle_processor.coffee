@@ -16,7 +16,7 @@ module.exports = class BundleProcessor
 
   constructor: (@_gatherer_, @_options_={}) ->
     # for debugging 
-    @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
+    @_do_logging_ = @_options_.log? and @_options_.log is on and console?.log?
 
   ###
   This META-method bulid package and process it in one touch
@@ -63,9 +63,12 @@ module.exports = class BundleProcessor
   buildRawPackageData : ( package_config, method_cb) ->
 
     {liberal_gatherer, strict_gatherer, function_gatherer} = @_buildGatherers package_config
-    [file_based_replacement, function_based_replacement]   = @_bundleSeparator package_config.replacement
 
-
+    try
+      [file_based_replacement, function_based_replacement]   = @_bundleSeparator package_config.replacement
+    catch err
+      return method_cb err
+    
     async.parallel
       bundle : (par_cb) =>  
         @_compileBundleSet strict_gatherer, package_config.bundle, par_cb
@@ -92,10 +95,10 @@ module.exports = class BundleProcessor
       else if _.isFunction value
         function_based_bundle[name] = value
       else
-        method_cb throw Error """
-                              unknown type of dependencies (not String or Function)
-                              |#{name}| = |#{value}|
-                              """
+        throw Error """
+                    unknown type of dependencies (not String or Function)
+                    |#{name}| = |#{value}|
+                    """
 
     [file_based_bundle, function_based_bundle]
 

@@ -60,6 +60,8 @@ module.exports = class FileProcessor
           res = @_compiled_cache_.get digest
           cb null, res.compiled_data, res.must_be_parsed, {digest}
     else
+      # TODO @add log level 
+      console.warn "missing |#{file_ext}| processor for file |#{filename}|"
       cb null, false
   
     )
