@@ -7,7 +7,8 @@ _ = require 'lodash'
 # its our registry
 DIContainer = require "./di_container"
 
-class Clinch 
+module.exports = class Clinch
+
   constructor: (@_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
@@ -120,6 +121,3 @@ class Clinch
       package_config.package_name = package_name
 
     package_config
-
-
-module.exports = Clinch

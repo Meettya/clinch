@@ -12,7 +12,8 @@ This class process raw data parts from Gatherer:
 _       = require 'lodash'
 async   = require 'async'
 
-class BundleProcessor
+module.exports = class BundleProcessor
+
   constructor: (@_gatherer_, @_options_={}) ->
     # for debugging 
     @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
@@ -22,9 +23,33 @@ class BundleProcessor
   ###
   buildAll : ( package_config, method_cb) ->
 
+    #first = (+new Date)
+    #console.log first, 'before buildAll'
+
     @buildRawPackageData package_config, (err, code) =>
+
+      #second = +new Date
+
+      #console.log (second - first),'after buildRawPackageData'
+
       return method_cb err if err
-      method_cb null, @changePathsToHashesInJoinedSet @joinBundleSets @replaceDependenciesInRawPackageData code
+
+      res = @replaceDependenciesInRawPackageData code
+
+      #second = +new Date
+      #console.log  (second - first),'after replaceDependenciesInRawPackageData'
+
+      res = @joinBundleSets res
+
+      #second = +new Date
+      #console.log  (second - first),'after joinBundleSets'
+
+      res = @changePathsToHashesInJoinedSet res
+      
+      #second = +new Date
+      #console.log  (second - first),'after joinBundleSets'
+
+      method_cb null, res
 
 
   ###
@@ -116,7 +141,6 @@ class BundleProcessor
 
     reduce_fn = (memo, val) ->
       [memo.members[val.package_name]] = _.values val.dependencies_tree['.']
-      delete val.dependencies_tree['.']
 
       for key in ['source_code', 'dependencies_tree', 'names_map']
         memo[key] = _.extend memo[key], val[key]
@@ -126,6 +150,9 @@ class BundleProcessor
       result_obj["#{step}_list"] = _.map step_data, (val) -> val.package_name
 
       _.reduce step_data, reduce_fn, result_obj
+
+    # instead of touch original object - whipe out in result
+    delete result_obj.dependencies_tree['.']
 
     result_obj                  
 
@@ -193,5 +220,3 @@ class BundleProcessor
     function_gatherer : (name, cb) =>
       @_gatherer_.buildFunctionPack name, cb
 
-
-module.exports = BundleProcessor

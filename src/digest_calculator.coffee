@@ -7,8 +7,9 @@ crypto    = require 'crypto'    # standart module
 shorthash = require 'shorthash' # to shorten our hex hashes
 
 {rejectOnInvalidFilenameType} = require './checkers'
+{queueSomeRequest}            =  require './queuficator'
 
-class DigestCalculator
+module.exports = class DigestCalculator
 
   HASH_TYPE   = 'md5'
   DIGEST_TYPE = 'hex'
@@ -18,7 +19,7 @@ class DigestCalculator
   ###
   This method generate digest for file content
   ###
-  readFileDigest : (rejectOnInvalidFilenameType (filename, cb) ->
+  readFileDigest : (rejectOnInvalidFilenameType queueSomeRequest (filename, cb) ->
     
     hasher = crypto.createHash HASH_TYPE
 
@@ -41,5 +42,3 @@ class DigestCalculator
 
     hasher.update in_data, 'utf8'
     shorthash.unique hasher.digest DIGEST_TYPE
-
-module.exports = DigestCalculator

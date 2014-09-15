@@ -13,7 +13,7 @@ lib_path = GLOBAL?.lib_path || ''
 
 require('node-jsx').install extension: '.jsx'
 
-jsdom = require 'jsdom'
+{ jsdom } = require 'jsdom'
 
 # change to app, for test
 Clinch = require "#{lib_path}app"
@@ -95,8 +95,8 @@ describe 'Clinch and template engines:', ->
                     """
 
     beforeEach ->
-      global.window     = jsdom.jsdom().createWindow '<html><body></body></html>'
-      global.document   = global.window.document
+      global.document   = jsdom '<html><body></body></html>'
+      global.window     = global.document.parentWindow
       global.navigator  = global.window.navigator
 
       React  = require "react/addons"

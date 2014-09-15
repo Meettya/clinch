@@ -14,19 +14,11 @@ React         = require 'react-tools'
 # for compiled cache
 LRU     = require 'lru-cache'
 
-###
-Checker method decorator
-###
-rejectOnInvalidFilenameType = (methodBody) ->
-  (filename, cb) ->
-    unless _.isString filename
-      return cb TypeError """
-                must be called with filename as String, but got:
-                |filename| = |#{filename}|
-                """
-    methodBody.call @, filename, cb
+{rejectOnInvalidFilenameType} = require './checkers'
+{queueSomeRequest}            =  require './queuficator'
 
-class FileProcessor
+
+module.exports = class FileProcessor
 
   CS_BARE = yes # use bare to compile without a top-level function wrapper
 
@@ -44,7 +36,7 @@ class FileProcessor
   ###
   This method load one file and, if it needed, compile it
   ###
-  loadFile : (rejectOnInvalidFilenameType (filename, cb) ->
+  loadFile : (rejectOnInvalidFilenameType queueSomeRequest (filename, cb) ->
 
     file_ext = path.extname filename
     if @_compilers_[file_ext]?
@@ -146,7 +138,5 @@ class FileProcessor
       pre_content = CoffeeScript.compile data, bare: CS_BARE
       content     = React.transform pre_content, react_settings
       cb null, content, yes
-
-module.exports = FileProcessor
 
 

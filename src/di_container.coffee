@@ -14,7 +14,8 @@ DigestCalculator  = require './digest_calculator'
 # for debug
 # util = require 'util'
 
-class DIContainer
+module.exports = class DIContainer
+
   constructor : ->
     @_packer_             = null
     @_gatherer_           = null
@@ -89,7 +90,7 @@ class DIContainer
       when 'FILEPROCESSOR'
         @_file_processor_ or= new FileProcessor @getComponent('FileLoader'), settings
       when 'GATHERER'
-        @_gatherer_ or= new Gatherer @getComponent('DigestCalculator'), @getComponent('FileProcessor'), settings
+        @_gatherer_ or= new Gatherer @getComponent('DigestCalculator'), @getComponent('FileProcessor'), @getComponent('FileLoader'), settings
       when 'BUNDLEPROCESSOR'
         @_bundle_processor_ or= new BundleProcessor @getComponent('Gatherer'), settings
       when 'PACKER'
@@ -137,4 +138,3 @@ class DIContainer
     BUNDLEPROCESSOR   : {}
     DIGESTCALCULATOR  : {}
 
-module.exports = DIContainer

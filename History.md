@@ -1,3 +1,20 @@
+## 0.6.3 / 2014-09-16 12:00 AM
+
+ - Update all libs
+ - Fix error in case of delete cached file
+
+## 0.6.1 / 2014-06-22 10:00 PM
+
+ - Tune up module cache - no penalty for near-root changed file position
+ - Wipe resulted code from deleted parts
+ - add benchmark to '.npmignore'
+
+## 0.5.8 / 2014-06-15 11:50 PM
+
+ - Add more aggressive module cache to speed up huge project rebuild
+ - Update all nmp modules to latest (again)
+ - Change travis to node v0.10 only
+
 ## 0.5.7 / 2014-04-13 04:00 PM
 
  - Add React support - `.jsx` and `.csbx` (Coffee&React)
