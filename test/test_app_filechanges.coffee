@@ -237,7 +237,7 @@ describe 'Clinch support file changes:', ->
         changeFileContent tempFixturesTwoChildIndexRes, tempFixturesTwoChildIndex, 'coffee', remove_unused
 
       remove_unused = ->
-        console.log 'remove file'
+        # console.log 'remove file'
         fs.remove tempFixturesTwoChildRemove, (err) ->
           return err if err?
           third_step()
