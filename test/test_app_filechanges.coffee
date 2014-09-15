@@ -39,7 +39,7 @@ describe 'Clinch support file changes:', ->
 
   clinch_obj = package_config = null
   tempFixteresRoot = tempfixtureDefault = tempfixturesSingle = tempfixturesSingleNew = null
-  tempFixturesTwoChild = tempFixturesTwoChildIndex = tempFixturesTwoChildIndexNew = tempFixturesTwoChildIndexRes = null
+  tempFixturesTwoChild = tempFixturesTwoChildIndex = tempFixturesTwoChildIndexNew = tempFixturesTwoChildIndexRes = tempFixturesTwoChildRemove = null
 
   copyTempFiles = (scr_dir, tmp_root, dirname, cb) ->
     fs.copy scr_dir, "#{tmp_root}/#{dirname}", (err) ->
@@ -129,6 +129,7 @@ describe 'Clinch support file changes:', ->
         tempFixturesTwoChildIndex     = tempFixturesTwoChild + '/index'
         tempFixturesTwoChildIndexNew  = tempFixturesTwoChild + '/index_new'
         tempFixturesTwoChildIndexRes  = tempFixturesTwoChild + '/index_reserve'
+        tempFixturesTwoChildRemove    = tempFixturesTwoChild + '/processor.coffee'
 
         copyTempFiles fixturesTwoChild, tmp_root, 'two_children', (err, isOk) ->
           throw Error err if err?
@@ -233,7 +234,13 @@ describe 'Clinch support file changes:', ->
         changeFileContent tempFixturesTwoChildIndexNew, tempFixturesTwoChildIndex, 'coffee', second_step
 
       changes_prepare2 = ->
-        changeFileContent tempFixturesTwoChildIndexRes, tempFixturesTwoChildIndex, 'coffee', third_step
+        changeFileContent tempFixturesTwoChildIndexRes, tempFixturesTwoChildIndex, 'coffee', remove_unused
+
+      remove_unused = ->
+        console.log 'remove file'
+        fs.remove tempFixturesTwoChildRemove, (err) ->
+          return err if err?
+          third_step()
 
       res_fn = (err, code) ->
         expect(err).to.be.null

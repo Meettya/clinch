@@ -29,6 +29,14 @@ module.exports = class FileLoader
     null
 
   ###
+  This method check file existance
+  ###
+  isFileExists: (rejectOnInvalidFilenameType (filename, cb) ->
+    # yes, I read all in mans, but it fast and exactly what I need
+    fs.exists filename, cb
+    )
+
+  ###
   This method try to get file content from hash or give up and read it from disk
   ###
   getFileContent : (rejectOnInvalidFilenameType (filename, cb) ->

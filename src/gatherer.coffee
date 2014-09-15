@@ -143,11 +143,18 @@ module.exports = class Gatherer
     #console.log changed_list
 
     map_fn = (item, acb) =>
-      @_buildModulePack item, options, step_cache_name, (err, data) =>
-        return acb err if err?
-        # unnided in sub-request
-        delete data.dependencies_tree[ROOT_PARENT] if data?.dependencies_tree?[ROOT_PARENT]?
-        acb null, data
+      # console.log 'item', item
+      @_file_loader_.isFileExists item, (is_exist) =>
+        if is_exist
+          @_buildModulePack item, options, step_cache_name, (err, data) =>
+            return acb err if err?
+            # unnided in sub-request
+            delete data.dependencies_tree[ROOT_PARENT] if data?.dependencies_tree?[ROOT_PARENT]?
+            # console.log data
+            acb null, data
+        else
+          delete data.dependencies_tree[ROOT_PARENT] if data?.dependencies_tree?[ROOT_PARENT]?
+          acb null
 
     async.map changed_list, map_fn, main_cb
 
@@ -190,6 +197,7 @@ module.exports = class Gatherer
     vec = _.keys names_map
 
     some_fn = (file, acb) =>
+      # console.log '_getChangedFiles', file
       @_file_loader_.readCachedFileDigest file, (err, res) =>
         # if something go wrong - return false to re-read data
         return acb false if err?
@@ -272,7 +280,8 @@ module.exports = class Gatherer
         # get all data and meta than go to next step
         #console.time "load #{parent} #{path_name}"
         @_file_processor_.loadFile real_file_name, (err, content, may_have_reqire, {digest}) ->
-          return waterfall_cb err if err
+          return waterfall_cb err if err?
+
           #console.timeEnd "load #{parent} #{path_name}"
           #console.log real_file_name
           #console.log digest
