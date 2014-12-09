@@ -95,7 +95,8 @@ describe 'Clinch and template engines:', ->
                     """
 
     beforeEach ->
-      global.window     = jsdom.jsdom().createWindow '<html><body></body></html>'
+      doc               = jsdom.jsdom '<html><body></body></html>'
+      global.window     = doc.parentWindow
       global.document   = global.window.document
       global.navigator  = global.window.navigator
 
@@ -105,6 +106,7 @@ describe 'Clinch and template engines:', ->
       global.react = React
 
     afterEach ->
+      global.window.close()
       delete global.window
       delete global.document
       delete global.navigator

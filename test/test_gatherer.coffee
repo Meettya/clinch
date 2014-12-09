@@ -5,7 +5,7 @@ Its so wrong, but its OK for test
 ###
 _ = require 'lodash'
 
-async   = require 'async'
+async   = require 'neo-async'
 
 util = require 'util'
 
@@ -68,7 +68,7 @@ describe 'Gatherer:', ->
           map_cb null, res
 
       async.map [fixturesFile, fixtures], map_fn, (err, data) ->
-        expect(err).to.be.undefined
+        expect(err).to.be.null
         #console.log util.inspect data, true, null, true
         expect(_.keys data[0].source_code).to.have.length 4
         expect(_.keys data[1].source_code).to.have.length 6
@@ -120,19 +120,19 @@ describe 'Gatherer:', ->
     it '1 resolving ALL childrens', (done) ->
 
       async.times 5, mapper, (err, results) ->
-        expect(err).to.be.undefined
+        expect(err).to.be.null
         check_fn results, done
 
     it '2 resolving ALL childrens', (done) ->
 
       async.times 5, mapper, (err, results) ->
-        expect(err).to.be.undefined
+        expect(err).to.be.null
         check_fn results, done
 
     it '3 resolving ALL childrens', (done) ->
       
       async.times 5, mapper, (err, results) ->
-        expect(err).to.be.undefined
+        expect(err).to.be.null
         check_fn results, done
 
   describe 'resetCaches()', ->
