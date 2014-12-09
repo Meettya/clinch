@@ -10,7 +10,7 @@ This class process raw data parts from Gatherer:
 ###
 
 _       = require 'lodash'
-async   = require 'async'
+async   = require 'neo-async'
 
 module.exports = class BundleProcessor
 

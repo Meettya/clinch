@@ -6,7 +6,7 @@ This class pack all together with layout
 ###
 
 _       = require 'lodash'
-async   = require 'async'
+async   = require 'neo-async'
 fs      = require 'fs'
 path    = require 'path'
 

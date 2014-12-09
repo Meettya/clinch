@@ -9,7 +9,7 @@ This class build whole codebase for path
 fs      = require 'fs'
 path    = require 'path'
 _       = require 'lodash'
-async   = require 'async'
+async   = require 'neo-async'
 
 util    = require 'util'
 

@@ -5,7 +5,7 @@ This method will load file, cache result and so on
 fs      = require 'fs'
 path    = require 'path'
 _       = require 'lodash'
-async   = require 'async'
+async   = require 'neo-async'
 
 LRU     = require 'lru-cache'
 

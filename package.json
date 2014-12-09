@@ -28,7 +28,7 @@
     "async-resolve": "*",
     "eco": "*",
     "jade": "*",
-    "async": "*",
+    "neo-async": "*",
     "detective": "*",
     "shorthash": "*",
     "lru-cache": "*",
