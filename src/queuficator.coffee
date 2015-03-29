@@ -39,7 +39,7 @@ queueSomeRequest = (methodBody) ->
       queue_cache[key].push cb
 
       if queue_cache[key].length is 1
-        methodBody.apply @, args.concat _done_cb_builder queue_cache, key
+        methodBody.apply this, args.concat _done_cb_builder queue_cache, key
 
 module.exports =
   { queueSomeRequest }
