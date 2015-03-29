@@ -5,12 +5,6 @@ This class compile and load files
 path    = require 'path'
 _       = require 'lodash'
 
-# our add-on parsers
-CoffeeScript  = require 'coffee-script'
-Eco           = require 'eco'
-Jade          = require 'jade'
-React         = require 'react-tools'
-
 # for compiled cache
 LRU     = require 'lru-cache'
 
@@ -20,8 +14,6 @@ LRU     = require 'lru-cache'
 
 module.exports = class FileProcessor
 
-  CS_BARE = yes # use bare to compile without a top-level function wrapper
-
   # this is cache max_age, huge because we are have brutal invalidator now
   MAX_AGE = 1000 * 60 * 60 * 10 # yes, 10 hours
 
@@ -29,7 +21,7 @@ module.exports = class FileProcessor
     # this big cache for all our files, work on size and so on
     @_compiled_cache_ = LRU max : 1000, maxAge: MAX_AGE
 
-    @_compilers_ = @_getAsyncCompilers @_getCompillersSettings @_options_
+    @_compilers_ = @_getAsyncCompilers()
     # and add third party compilers
     _.assign @_compilers_, @_options_.third_party_compilers
 
@@ -87,56 +79,13 @@ module.exports = class FileProcessor
     if content.charCodeAt(0) is 0xFEFF then content.slice(1) else content
 
   ###
-  This method return whole compillers settings
-  ###
-  _getCompillersSettings: (options={}) ->
-    jade_settings  : @_getJadeSettings   options.jade
-    react_settings : @_getReactSettings  options.react
-
-  ###
-  This internal method for Jade settings
-  ###
-  _getJadeSettings : (options = {})->
-    # looks strange, but all ok - main options, user, add-on
-    _.defaults options, pretty: on, self: on, compileDebug: off
-
-  ###
-  This internal method for React settings
-  ###
-  _getReactSettings : (options = {})->
-    _.defaults options, harmony: off
-
-  ###
   This is Async compilers list.
   @return - error, data, isRealCode (ie. may have 'require' and should to be processed) 
   ###
-  _getAsyncCompilers : ({jade_settings, react_settings}) ->
+  _getAsyncCompilers : ->
 
     '.js'     : (data, filename, cb) ->
       cb null, data, yes
 
     '.json'   : (data, filename, cb) ->
       cb null, "module.exports = #{data}"
-
-    '.coffee' : (data, filename, cb) ->
-      content = CoffeeScript.compile data, bare: CS_BARE
-      cb null, content, yes
-    
-    '.eco'    : (data, filename, cb) ->
-      content = Eco.precompile data
-      cb null, "module.exports = #{content}"
-
-    '.jade'   : (data, filename, cb) ->
-      content = Jade.compileClient data, _.assign jade_settings, {filename}
-      cb null, "module.exports = #{content}"
-
-    '.jsx'    : (data, filename, cb) ->
-      content = React.transform data, react_settings
-      cb null, content, yes
-
-    '.csbx'    : (data, filename, cb) ->
-      pre_content = CoffeeScript.compile data, bare: CS_BARE
-      content     = React.transform pre_content, react_settings
-      cb null, content, yes
-
-
