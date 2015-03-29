@@ -14,6 +14,9 @@ lib_path = GLOBAL?.lib_path || ''
 # change to DIContainer
 DIContainer = require "#{lib_path}di_container"
 
+# our external plugins
+clinch_coffee = require 'clinch.coffee'
+
 fixtureRoot  = __dirname + "/fixtures"
 fixtures     = fixtureRoot + "/default"
 fixturesFile = fixtures + "/summator"
@@ -25,12 +28,18 @@ describe 'Gatherer:', ->
 
   g_obj = g_conf = null
 
+  file_extention  = clinch_coffee.extension
+  coffee_comp   = {}
+  coffee_comp[file_extention] = clinch_coffee.processor
+
   beforeEach ->
     ###
     YES, I know it will be correctly to create object with mock etc.
     but it SHOULD work right this and now I don't care about it at all
     ###
     registry_obj = new DIContainer()
+    registry_obj.addComponentsSettings 'FileProcessor' , 'third_party_compilers', coffee_comp
+
     g_obj = registry_obj.getComponent 'Gatherer'
     
   describe 'buildModulePack() *async*', ->
@@ -154,8 +163,5 @@ describe 'Gatherer:', ->
         done()
 
       g_obj.buildFunctionPack data_in, res_fn
-
-
-
 
 

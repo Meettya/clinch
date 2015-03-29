@@ -15,6 +15,9 @@ lib_path = GLOBAL?.lib_path || ''
 # change to DIContainer
 DIContainer = require "#{lib_path}di_container"
 
+# our external plugins
+clinch_coffee = require 'clinch.coffee'
+
 fixtureRoot  = __dirname + "/fixtures"
 fixtures     = fixtureRoot + "/default"
 fixturesFile = fixtures + "/summator"
@@ -29,8 +32,14 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
 
   bp_obj = package_config = null
 
+  file_extention  = clinch_coffee.extension
+  coffee_comp   = {}
+  coffee_comp[file_extention] = clinch_coffee.processor
+
   beforeEach ->
     registry_obj = new DIContainer()
+    registry_obj.addComponentsSettings 'FileProcessor' , 'third_party_compilers', coffee_comp
+
     bp_obj = registry_obj.getComponent 'BundleProcessor'
 
     package_config = 
@@ -139,8 +148,3 @@ describe 'BundleProcessor: (actually its not test, just try to get results)', ->
         done()
 
       bp_obj.buildAll package_config, res_fn
-
-
-
-
-

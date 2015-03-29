@@ -16,6 +16,9 @@ lib_path = GLOBAL?.lib_path || ''
 # change to DIContainer
 DIContainer = require "#{lib_path}di_container"
 
+# our external plugins
+clinch_coffee = require 'clinch.coffee'
+
 fixtureRoot  = __dirname + "/fixtures"
 fixtures     = fixtureRoot + "/default"
 fixturesFile = fixtures + "/summator"
@@ -32,8 +35,14 @@ describe 'Packer:', ->
 
   p_obj = package_config = null
 
+  file_extention  = clinch_coffee.extension
+  coffee_comp   = {}
+  coffee_comp[file_extention] = clinch_coffee.processor
+
   beforeEach ->
     registry_obj = new DIContainer()
+    registry_obj.addComponentsSettings 'FileProcessor' , 'third_party_compilers', coffee_comp
+
     p_obj = registry_obj.getComponent 'Packer'
     
   describe 'buildPackage()', ->
@@ -316,7 +325,7 @@ describe 'Packer:', ->
           './power' : fixturesReplacer
           lodash    : -> @_
 
-      lodash_runtime_file = "#{__dirname}/../node_modules/lodash/lodash.js"
+      lodash_runtime_file = "#{__dirname}/../node_modules/lodash/index.js"
       lodash_runtime = fs.readFileSync lodash_runtime_file, 'utf8'
       vm.runInNewContext lodash_runtime, sandbox = {}
 

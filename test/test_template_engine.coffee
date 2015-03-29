@@ -18,6 +18,12 @@ require('node-jsx').install extension: '.jsx'
 # change to app, for test
 Clinch = require "#{lib_path}app"
 
+# our external plugins
+clinch_jade   = require 'clinch.jade'
+clinch_jsx    = require 'clinch.jsx'
+clinch_csbx   = require 'clinch.csbx'
+clinch_coffee = require 'clinch.coffee'
+
 fixtureRoot  = __dirname + "/fixtures"
 fixturesJade = fixtureRoot + '/jade_powered'
 fixturesReact = fixtureRoot + '/react_powered'
@@ -33,6 +39,10 @@ describe 'Clinch and template engines:', ->
 
   beforeEach ->
     clinch_obj = new Clinch()
+    clinch_obj.addPlugin clinch_jade
+              .addPlugin clinch_jsx
+              .addPlugin clinch_csbx
+              .addPlugin clinch_coffee
     
   describe 'jade:', ->
 
