@@ -306,7 +306,7 @@ describe 'Packer:', ->
         # this should work
         (summator 10, 2).should.to.be.equal 12
         # but not this
-        expect(-> summator_pow 10, 2).to.throw /has no method 'pow'/
+        expect(-> summator_pow 10, 2).to.throw()
 
         done()
 
