@@ -11,7 +11,7 @@ module.exports = class Clinch
 
   constructor: (@_options_={}) ->
     # for debugging 
-    @_do_logging_  = console?.log? and @_options_.log is on
+    @_do_logging_  = !!@_options_.log
     @_di_cont_obj_ = new DIContainer()
     @_configureComponents()
     
@@ -22,6 +22,13 @@ module.exports = class Clinch
   buildPackage : (in_settings..., main_cb) ->
     packer = @_di_cont_obj_.getComponent 'Packer'
     packer.buildPackage @_composePackageSettings(in_settings), main_cb
+
+  ###
+  Silly mistype, will be deprecated soon
+  ###
+  buldPackage : ->
+    console.info "Depricated! use 'clinch.buildPackage' instead (sorry for mistype)"
+    @buildPackage arguments...
 
   ###
   This method force flush all caches

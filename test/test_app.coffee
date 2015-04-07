@@ -92,6 +92,27 @@ describe 'Clinch app itself:', ->
       # here we are build our package, its what you need for browser
       clinch_obj.buildPackage package_config, res_fn
 
+  describe 'buldPackage()', ->
+
+    it 'should build package (mistype, but must be supported)', (done) ->
+
+      package_config = 
+        bundle : 
+          substractor : fixturesSingle
+        package_name : 'my_package'
+ 
+      res_fn = (err, code) ->
+        # console.log code
+        expect(err).to.be.null
+        # oh, its better than eval :)
+        vm.runInNewContext code, sandbox = {}
+
+        {substractor} = sandbox.my_package.substractor
+        (substractor 10, 2).should.to.be.equal 8
+        done()
+
+      clinch_obj.buldPackage package_config, res_fn
+
   describe 'flushCache()', ->
 
     it 'should drop cache and return null', ->
