@@ -16,6 +16,7 @@ DIContainer = require "#{lib_path}di_container"
 
 # our external plugins
 clinch_coffee = require 'clinch.coffee'
+clinch_csbx   = require 'clinch.csbx'
 
 fixtureRoot  = __dirname + "/fixtures"
 fixtures     = fixtureRoot + "/default"
@@ -23,14 +24,21 @@ fixturesFile = fixtures + "/summator"
 fixturesNpm  = fixtureRoot + "/node_modules/summator"
 fixturesTwoChild = fixtureRoot + '/two_children'
 fixturesWithCore = fixtureRoot + '/with_core'
+fixturesFaled = fixtureRoot + "/with_syntax_error"
+fixturesFiledScbx = fixturesFaled + '/misstype'
 
 describe 'Gatherer:', ->
 
   g_obj = g_conf = null
 
-  file_extention  = clinch_coffee.extension
+
+  coffee_extention  = clinch_coffee.extension
   coffee_comp   = {}
-  coffee_comp[file_extention] = clinch_coffee.processor
+  coffee_comp[coffee_extention] = clinch_coffee.processor
+
+  csbx_extention  = clinch_csbx.extension
+  csbx_comp   = {}
+  csbx_comp[csbx_extention] = clinch_csbx.processor
 
   beforeEach ->
     ###
@@ -39,6 +47,7 @@ describe 'Gatherer:', ->
     ###
     registry_obj = new DIContainer()
     registry_obj.addComponentsSettings 'FileProcessor' , 'third_party_compilers', coffee_comp
+    registry_obj.addComponentsSettings 'FileProcessor' , 'third_party_compilers', csbx_comp
 
     g_obj = registry_obj.getComponent 'Gatherer'
     
@@ -92,6 +101,14 @@ describe 'Gatherer:', ->
         done()
       g_obj.buildModulePack fixturesWithCore, g_conf, res_fn
 
+    it 'should return error on defected .csbx sources', (done) ->
+      res_fn = (err, data) ->
+        expect(err).not.to.be.null
+        #console.log err
+        #console.log data
+        expect(err).to.be.an.instanceOf SyntaxError 
+        done()
+      g_obj.buildModulePack fixturesFiledScbx, g_conf, res_fn
 
   describe 'test buildModulePack() |requireless| options', ->
 
