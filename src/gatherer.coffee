@@ -252,7 +252,7 @@ module.exports = class Gatherer
       else
         main_cb pack_cache.err
 
-    load_queue.push {path_name, parent : ROOT_PARENT, pack_cache}, (err) -> pack_cache.err = err
+    load_queue.push {path_name, parent : ROOT_PARENT, pack_cache}, (err) -> pack_cache.err = err if err?
 
   ###
   Oh!
@@ -384,7 +384,7 @@ module.exports = class Gatherer
             parent : real_file_name
             pack_cache : pack_cache
             , (err) ->
-              pack_cache.err = err
+              pack_cache.err = err if err?
         else
           @_dependenciesTreeSaver { path_name: child, parent : real_file_name, real_file_name : real_child_name, pack_cache}
 

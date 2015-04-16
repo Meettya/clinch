@@ -14,6 +14,9 @@ fixturesWebShims = fixtureRoot + '/web_modules'
 fixtureDefault = fixtureRoot + '/default'
 fixturesUniqueGeneratorParent = fixtureDefault + '/unique_generator_parent'
 fixturesSingle = fixtureDefault + '/substractor'
+fixturesFaled = fixtureRoot + "/with_syntax_error"
+fixturesFiledScbx = fixturesFaled + '/misstype_parent'
+
 
 lib_path = GLOBAL?.lib_path || ''
 
@@ -91,6 +94,25 @@ describe 'Clinch app itself:', ->
 
       # here we are build our package, its what you need for browser
       clinch_obj.buildPackage package_config, res_fn
+
+
+    it 'should not build package with defected sources (error should not be lossed)', (done) ->
+
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          defected : fixturesFiledScbx
+
+      res_fn = (err, code) ->
+        expect(err).not.to.be.null
+        #console.log err
+        #console.log code
+        expect(err).to.be.an.instanceOf SyntaxError 
+        done()
+
+      # here we are build our package, its what you need for browser
+      clinch_obj.buildPackage package_config, res_fn
+
 
   describe 'buldPackage()', ->
 
