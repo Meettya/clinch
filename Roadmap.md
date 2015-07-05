@@ -10,8 +10,13 @@
   - Add more tests - in process
   - Add 'runtime' package option, to replace boilerplate code to runtime lib - done
   - Add modules cache to prevent re-creating prototypes on every call - done
-  - Add 'clinch require start/end' statimen support to speed up require parsing (with RegExp, not detective)
+  - Add 'clinch require start/end' statement support to speed up require parsing (with RegExp, not detective)
   - Add travis-ci  - done
   - Add React support - done
-  - Add more agressive cache - done
-  - Add correct processors error support
+  - Add more aggressive cache - done
+  - Add correct processors error support - done
+  - Move processors to separate modules - done
+  - Update tests - done
+  - Update documentation - done
+  - Update history - done
+  - Remove unneeded dependencies and devDependencies - done
