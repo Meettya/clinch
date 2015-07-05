@@ -2,5 +2,8 @@ plato_report
 benchmark
 test
 src
+tmp
 cake_dep
 Cakefile
+History.md
+Roadmap.md
