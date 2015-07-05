@@ -9,7 +9,8 @@ assert  = require 'assert'
 util    = require 'util'
 fs      = require 'fs'
 
-Clinch = require '../../' # it will be 'clinch' in your code
+Clinch        = require '../../' # it will be 'clinch' in your code
+clinch_coffee = require 'clinch.coffee'
 
 pack_config = 
   package_name : 'my_package'
@@ -17,6 +18,8 @@ pack_config =
     main : "#{__dirname}/hello_world"
 
 packer = new Clinch runtime : on
+# register '.coffee' processor
+packer.addPlugin clinch_coffee
 
 packer.buildPackage pack_config, (err, data) ->
   if err
