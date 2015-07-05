@@ -38,7 +38,7 @@
     "sprintf-js": "*",
     "walkdir": "*",
     "fs-extra": "*",
-    "eco": "*",
+    "eco": "1.1.0-rc-3",
     "jade": "*",
     "temp":"*",
     "clinch.jade": "*",
