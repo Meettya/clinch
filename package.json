@@ -1,6 +1,6 @@
 {
   "name": "clinch",
-  "version": "1.0.0-beta1",
+  "version": "1.0.1",
   "description": "YA ComonJS to browser packer tool, well-suited for widgets by small overhead and big app by smart settings",
   "main": "./lib/app",
   "scripts": {
