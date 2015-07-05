@@ -279,7 +279,7 @@ describe 'Packer:', ->
  
       res_fn = (err, code) ->
         # console.log err
-        expect(err).to.be.an 'object'
+        expect(err).to.be.an.instanceof SyntaxError
         expect(code).to.be.undefined
 
         done()
