@@ -22,13 +22,20 @@ lib_path = GLOBAL?.lib_path || ''
 # change to app, for test
 Clinch = require "#{lib_path}app"
 
+# our external plugins
+clinch_jade   = require 'clinch.jade'
+clinch_coffee = require 'clinch.coffee'
+
 describe 'Clinch with runtime lib:', ->
 
   clinch_obj = package_config = null
 
   beforeEach ->
 
-    clinch_obj = new Clinch strict : off, runtime : on, jade : pretty : off
+    clinch_obj = new Clinch strict : off, runtime : on
+
+    clinch_obj.addPlugin clinch_jade pretty : off
+              .addPlugin clinch_coffee
 
   describe 'buildPackage()', ->
 
@@ -62,7 +69,10 @@ describe 'Clinch with runtime lib:', ->
     # oh, I chitting a litle, but its correct detection :)
     it 'should build package with runtime version ("on" in package options)', (done) ->
 
-      clinch_obj = new Clinch strict : off, jade : pretty : off
+      clinch_obj = new Clinch strict : off
+
+      clinch_obj.addPlugin clinch_jade pretty : off
+                .addPlugin clinch_coffee
 
       package_config = 
         package_name : 'my_package'
@@ -209,7 +219,10 @@ describe 'Clinch with runtime lib:', ->
 
     it 'should not lose "this" in packages with built-in version', (done) ->
 
-      clinch_obj = new Clinch strict : off, runtime : off, jade : pretty : off
+      clinch_obj = new Clinch strict : off, runtime : off
+
+      clinch_obj.addPlugin clinch_jade pretty : off
+                .addPlugin clinch_coffee
 
       # CANT test with runtime, because http://nodejs.org/api/vm.html#vm_caveats
       # Furthermore, the `this` expression within the global scope of the context evaluates to the empty object ({}) instead of to your sandbox.
@@ -221,7 +234,7 @@ describe 'Clinch with runtime lib:', ->
       vm.runInNewContext clinch_runtime, clinch_sandbox = {}
       ###
   
-      lodash_runtime_file = "#{__dirname}/../node_modules/lodash/lodash.js"
+      lodash_runtime_file = "#{__dirname}/../node_modules/lodash/index.js"
       lodash_runtime = fs.readFileSync lodash_runtime_file, 'utf8'
       vm.runInNewContext lodash_runtime, clinch_sandbox = {}
 

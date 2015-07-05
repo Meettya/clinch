@@ -5,47 +5,57 @@
 
 YA ComonJS to browser packer tool, well-suited for tiny widgets by small overhead and big app by module replacement, node-environment emulations and multi-exports.
 
+In addition it rapidly compiles the first pass of packaging and has an elegant solution to caching data.
+
+## BRAKING CHANGES
+
+### 1.0.1
+
+A lot of processors moved to separate modules.
+
+It may brake you old bundler and require some changes - add used processor to dependencies, install it and declare via `.addPlugin()` - see example section.
+
 ## what in a box?
 
  - `.js`      - just put it to bundle as is
  - `.json`    - wrap in `module.exports` as node do it on `require('file.json')`
- - `.coffee`  - compile to JavaScript
- - `.eco`     - precompile to JavaScript function
- - `.jade`    - precompile it in [client-mode](https://github.com/visionmedia/jade#a4) way
- - `.jsx`     - compile [React '.jsx'](http://facebook.github.io/react/index.html) to JavaScript
- - `.csbx`     - compile '.jsx' on Coffee with backticks to JavaScript (yes, we do it)
+
+Yes, with version 1.0.1 box fairly empty and the default itself ** clinch ** can only work with these two types of files.
+
+## where another processors?
+
+All other processors moved into separate modules. At the moment, the list is as follows:
+
+ - [clinch.coffee](https://github.com/Meettya/clinch.coffee) - `.coffee` - compile to JavaScript
+ - [clinch.eco](https://github.com/Meettya/clinch.eco)    - `.eco` - precompile to JavaScript function
+ - [clinch.jade](https://github.com/Meettya/clinch.jade)   - `.jade` -  precompile it in [client-mode](https://github.com/visionmedia/jade#a4) way
+ - [clinch.jsx](https://github.com/Meettya/clinch.jsx)    - `.jsx` - compile [React '.jsx'](http://facebook.github.io/react/index.html) to JavaScript
+ - [clinch.csbx](https://github.com/Meettya/clinch.csbx)   - `.csbx` - compile '.jsx' on Coffee with backticks to JavaScript (yes, we do it)
+
+Separation of code done in order to provide flexibility in target versions required you to processors. Ie for example, you can continue to use the processor with a version of `.csbx` ** React ** 0.11.1 for the old project and to take for the new 0.14.1, simply prescribe the right version you react-processor ** clinch ** in your package.json project.
 
 ## what about my custom template engine?
 
 This possibility almost exists - **clinch** from 0.2.5 have API for third party processors, but template engine must support template-to-function precompilation.
 
-More info and example - below at description of method `registerProcessor()`
+More info and example - below at description of methods `addPlugin()` and `registerProcessor()`
 
 For additional example - see [using Handelbars](https://github.com/Meettya/clinch/wiki/Handlebars-template-engine-support) - yap, now [Hadlebars](http://handlebarsjs.com/) supported as add-on.
 
-### More about .jade
-
-Compiled [client-mode](https://github.com/visionmedia/jade#a4) template may be used wia `require()`. More information at './test', also examples was placed in wiki [jade template engine](https://github.com/Meettya/clinch/wiki/Jade-template-engine-support). In browser should be pre-loaded Jade's `runtime.js`.
-
-### More about React (.jsx, .csbx)
-
-Created by clinch file can be requested via the `require ()`, as is done in the tests. For use in the browser requires the connect of the React, its runtime-transfom tool not needed, everything will be prepared and packed.
-
-React was added to the kernel and will be mandatory to be supported, it's a phenomenal tool for writing maintainable code.
-
-Unfortunately while combining the best of two worlds - CoffeeScrip and jsx by React implemented "in place" - used trick with the backticks, which allow you to insert in CoffeScript js code that are not parsed them . This is the reason for such an extension of selected files - "Coffee Script with Backticks eXt" - `.csb`
-
-As soon as the normal method to combine both of these tools - I 'll do it ASAP, most likely with the file extension is `.csx`
-
 ## installation
 
-    npm install clinch
+    npm install clinch clinch.coffee
 
 ## example
 
     #!/usr/bin/env coffee
-    Clinch = require 'clinch'
+    Clinch           = require 'clinch'
+    clinch_coffee = require 'clinch.coffee'
+
     packer = new Clinch runtime : on
+    # register '.coffee' processor
+    packer.addPlugin clinch_coffee
+
     pack_config = 
       package_name : 'my_package'
       bundle : 
@@ -75,10 +85,10 @@ Now `data` contain something like this
       sources = {
     "JPGt0": function(exports, module, require) {
     // /Users/meettya/github/clinch/example/hello_world/hello_world.coffee 
+
     /*
     This is 'Hello World!' example
-    */
-
+     */
     module.exports = {
       hello_world: function() {
         return 'Hello World!';
@@ -86,6 +96,7 @@ Now `data` contain something like this
     };
 
     }};
+
     if(this.clinch_runtime_v2 == null) {
       throw Error("Resolve clinch runtime library version |2| first!");
     }
@@ -125,6 +136,26 @@ And in browser function may be accessed in this way
 
 `cb` - standard callback, all in **clinch** are async
 
+### addPlugin()
+
+    packer.addPlugin clinch_plugin
+
+This method allows you to connect plug-ins, in fact being a syntactic sugar to `registerProcessor ()`
+
+`clinch_plugin` -  plugin-processor for selected files
+
+Example:
+
+    # declare plugin in place
+    econ_plugin = 
+      extension : '.econ'
+      processor : (file_content, filename, cb) ->
+        content = Eco.precompile file_content
+        cb null, "module.exports = #{content}"
+
+    # add .econ processor
+    packer.addPlugin econ_plugin
+
 ### registerProcessor()
 
     packer.registerProcessor file_extention, fn
@@ -149,6 +180,8 @@ And in module code:
     template = require './template' # ./template.econ, extension may be omitted
     res = template data # res now is some html-contented string
 
+In fact, similar to the method `addPlugin ()`.
+
 ### flushCache()
 
     packer.flushCache()
@@ -170,20 +203,6 @@ May be used for custom `watch` implementation or in other cases
     inject        : on   # if changed to 'off' - bundle will not to inject 'package_name' to global
     runtime       : off  # use internal boilerplate code, or as external file
     cache_modules : on   # by default all resolved by 'require' file will be cached, if you have some problem - turn cache off and notice me
-
-    ###
-    this settings will be applied to jade.compile() function
-    ###
-    jade :
-      pretty : on
-      self : on
-      compileDebug : off
-
-    ###
-    this settings will be applied to React compiler
-    ###
-    react :
-      harmony : off
 
 ### package_config
     ###

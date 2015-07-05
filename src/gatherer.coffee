@@ -252,7 +252,7 @@ module.exports = class Gatherer
       else
         main_cb pack_cache.err
 
-    load_queue.push {path_name, parent : ROOT_PARENT, pack_cache}, (err) -> pack_cache.err = err
+    load_queue.push {path_name, parent : ROOT_PARENT, pack_cache}, (err) -> pack_cache.err = err if err?
 
   ###
   Oh!
@@ -279,13 +279,13 @@ module.exports = class Gatherer
 
         # get all data and meta than go to next step
         #console.time "load #{parent} #{path_name}"
-        @_file_processor_.loadFile real_file_name, (err, content, may_have_reqire, {digest}) ->
+        @_file_processor_.loadFile real_file_name, (err, content, may_have_reqire, file_props) ->
           return waterfall_cb err if err?
 
           #console.timeEnd "load #{parent} #{path_name}"
           #console.log real_file_name
           #console.log digest
-          waterfall_cb null, {digest, content, may_have_reqire, path_name, real_file_name}
+          waterfall_cb null, { digest : file_props.digest, content, may_have_reqire, path_name, real_file_name }
 
       # 3. save data and, if it real code, search for requires in it
       ({digest, content, may_have_reqire, path_name, real_file_name}, waterfall_cb) =>
@@ -384,7 +384,7 @@ module.exports = class Gatherer
             parent : real_file_name
             pack_cache : pack_cache
             , (err) ->
-              pack_cache.err = err
+              pack_cache.err = err if err?
         else
           @_dependenciesTreeSaver { path_name: child, parent : real_file_name, real_file_name : real_child_name, pack_cache}
 

@@ -11,4 +11,4 @@ module.exports =
                   must be called with filename as String, but got:
                   |filename| = |#{filename}|
                   """
-      methodBody.call @, filename, cb
+      methodBody.call this, filename, cb

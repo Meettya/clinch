@@ -14,11 +14,20 @@ fixturesWebShims = fixtureRoot + '/web_modules'
 fixtureDefault = fixtureRoot + '/default'
 fixturesUniqueGeneratorParent = fixtureDefault + '/unique_generator_parent'
 fixturesSingle = fixtureDefault + '/substractor'
+fixturesFaled = fixtureRoot + "/with_syntax_error"
+fixturesFiledScbx = fixturesFaled + '/misstype_parent'
+
 
 lib_path = GLOBAL?.lib_path || ''
 
 # change to app, for test
 Clinch = require "#{lib_path}app"
+
+# our external plugins
+clinch_jade   = require 'clinch.jade'
+clinch_jsx    = require 'clinch.jsx'
+clinch_csbx   = require 'clinch.csbx'
+clinch_coffee = require 'clinch.coffee'
 
 # for third party processor check
 Eco = require 'eco'
@@ -30,10 +39,12 @@ describe 'Clinch app itself:', ->
 
   beforeEach ->
 
-    jade = 
-      pretty : off
+    clinch_obj = new Clinch strict : off
+    clinch_obj.addPlugin clinch_jade pretty : off
+              .addPlugin clinch_jsx
+              .addPlugin clinch_csbx
+              .addPlugin clinch_coffee
 
-    clinch_obj = new Clinch {jade, strict : off}
 
   describe 'buildPackage()', ->
 
@@ -58,6 +69,7 @@ describe 'Clinch app itself:', ->
       think about it as taxes - nobody like it, but every should to pay
       ###
       package_config = 
+        package_name : 'my_package'
         bundle : 
           JadePowered : fixturesJade
         replacement :
@@ -81,7 +93,26 @@ describe 'Clinch app itself:', ->
         done()
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buildPackage 'my_package', package_config, res_fn     
+      clinch_obj.buildPackage package_config, res_fn
+
+
+    it 'should not build package with defected sources (error should not be lossed)', (done) ->
+
+      package_config = 
+        package_name : 'my_package'
+        bundle : 
+          defected : fixturesFiledScbx
+
+      res_fn = (err, code) ->
+        expect(err).not.to.be.null
+        #console.log err
+        #console.log code
+        expect(err).to.be.an.instanceOf SyntaxError 
+        done()
+
+      # here we are build our package, its what you need for browser
+      clinch_obj.buildPackage package_config, res_fn
+
 
   describe 'buldPackage()', ->
 
@@ -102,7 +133,7 @@ describe 'Clinch app itself:', ->
         (substractor 10, 2).should.to.be.equal 8
         done()
 
-      clinch_obj.buildPackage package_config, res_fn
+      clinch_obj.buldPackage package_config, res_fn
 
   describe 'flushCache()', ->
 
@@ -138,6 +169,7 @@ describe 'Clinch app itself:', ->
                       """
 
       package_config = 
+        package_name : 'my_package'
         bundle : 
           EconPowered : fixturesEcon
         
@@ -168,7 +200,7 @@ describe 'Clinch app itself:', ->
         cb null, "module.exports = function(){return 'Dummy'};"
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buildPackage 'my_package', package_config, res_fn    
+      clinch_obj.buildPackage package_config, res_fn    
 
 
     it 'should throw error if file extention not a String', ->
@@ -187,7 +219,7 @@ describe 'Clinch app itself:', ->
        # looks strange, but its just <script src='./runtime.js'></script> analog
       handlebars_runtime_file = "#{__dirname}/../node_modules/handlebars/dist/handlebars.runtime.js"
       handlebars_runtime = fs.readFileSync handlebars_runtime_file, 'utf8'
-      vm.runInNewContext handlebars_runtime, handlebars_sandbox = {}
+      vm.runInNewContext handlebars_runtime, handlebars_sandbox = window : {}
 
       ###
       so, we are should to stub 'fs' and 'handlebars'
@@ -195,6 +227,7 @@ describe 'Clinch app itself:', ->
       think about it as taxes - nobody like it, but every should to pay
       ###
       package_config = 
+        package_name : 'my_package'
         bundle : 
           HandlebarsPowered : fixturesHandlebars
         
@@ -219,16 +252,20 @@ describe 'Clinch app itself:', ->
         cb null, "module.exports = #{content}"
 
       # here we are build our package, its what you need for browser
-      clinch_obj.buildPackage 'my_package', package_config, res_fn   
+      clinch_obj.buildPackage package_config, res_fn   
 
 
   describe 'constructor options', ->
 
     it 'should supress injection on "inject : off" ', (done) ->
 
-      clinch_obj = new Clinch {inject : off}
+      clinch_obj = new Clinch inject : off
+
+      clinch_obj.addPlugin clinch_jade
+                .addPlugin clinch_coffee
 
       package_config = 
+        package_name : 'my_package'
         bundle : 
           JadePowered : fixturesJade
         replacement :
@@ -241,15 +278,7 @@ describe 'Clinch app itself:', ->
         jade_sandbox.should.not.to.contain.keys 'my_package'
         done()
 
-      clinch_obj.buildPackage 'my_package', package_config, res_fn  
-
-    it 'should set "react : { harmony : on }" ', ->
-
-      settings = react : harmony : on
-
-      clinch_obj = new Clinch settings
-
-      clinch_obj._di_cont_obj_._component_settings_.FILEPROCESSOR.should.to.be.eql settings
+      clinch_obj.buildPackage package_config, res_fn  
 
   describe 'package options', ->
 
@@ -257,7 +286,11 @@ describe 'Clinch app itself:', ->
 
       clinch_obj = new Clinch
 
+      clinch_obj.addPlugin clinch_jade
+                .addPlugin clinch_coffee
+
       package_config = 
+        package_name : 'my_package'
         strict : off
         bundle : 
           JadePowered : fixturesJade
@@ -270,13 +303,17 @@ describe 'Clinch app itself:', ->
         expect(/'use strict';/.test code).to.be.false
         done()
 
-      clinch_obj.buildPackage 'my_package', package_config, res_fn 
+      clinch_obj.buildPackage package_config, res_fn 
 
     it 'should supress injection on "inject : off" ', (done) ->
 
       clinch_obj = new Clinch
 
+      clinch_obj.addPlugin clinch_jade
+                .addPlugin clinch_coffee
+
       package_config = 
+        package_name : 'my_package'
         inject : off
         bundle : 
           JadePowered : fixturesJade
@@ -290,13 +327,17 @@ describe 'Clinch app itself:', ->
         jade_sandbox.should.not.to.contain.keys 'my_package'
         done()
 
-      clinch_obj.buildPackage 'my_package', package_config, res_fn  
+      clinch_obj.buildPackage package_config, res_fn  
 
     it 'should supress injection on "inject : off" and without package name', (done) ->
 
       clinch_obj = new Clinch
 
+      clinch_obj.addPlugin clinch_jade
+                .addPlugin clinch_coffee
+
       package_config = 
+        package_name : 'my_package'
         inject : off
         bundle : 
           JadePowered : fixturesJade
@@ -315,6 +356,8 @@ describe 'Clinch app itself:', ->
     it 'should supress build cached package on "cache_modules : off"', (done) ->
 
       clinch_obj = new Clinch
+
+      clinch_obj.addPlugin clinch_coffee
   
       package_config = 
         package_name : 'my_package'
@@ -342,6 +385,8 @@ describe 'Clinch app itself:', ->
     it 'should build package with runtime version on "runtime : on"', (done) ->
 
       clinch_obj = new Clinch
+
+      clinch_obj.addPlugin clinch_coffee
 
       package_config = 
         package_name : 'my_package'

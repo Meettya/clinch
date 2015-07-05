@@ -16,12 +16,12 @@ module.exports = class BundleProcessor
 
   constructor: (@_gatherer_, @_options_={}) ->
     # for debugging 
-    @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
+    @_do_logging_ = console?.log? and @_options_.log is on
 
   ###
   This META-method bulid package and process it in one touch
   ###
-  buildAll : ( package_config, method_cb) ->
+  buildAll : (package_config, method_cb) ->
 
     #first = (+new Date)
     #console.log first, 'before buildAll'
@@ -39,17 +39,17 @@ module.exports = class BundleProcessor
       #second = +new Date
       #console.log  (second - first),'after replaceDependenciesInRawPackageData'
 
-      res = @joinBundleSets res
+      res2 = @joinBundleSets res
 
       #second = +new Date
       #console.log  (second - first),'after joinBundleSets'
 
-      res = @changePathsToHashesInJoinedSet res
+      res3 = @changePathsToHashesInJoinedSet res2
       
       #second = +new Date
       #console.log  (second - first),'after joinBundleSets'
 
-      method_cb null, res
+      method_cb null, res3
 
 
   ###
@@ -134,10 +134,10 @@ module.exports = class BundleProcessor
   joinBundleSets : (package_data) ->
 
     result_obj = 
-          source_code : {}
-          dependencies_tree : {}
-          names_map : {}
-          members : {}
+      source_code       : {}
+      dependencies_tree : {}
+      names_map         : {}
+      members           : {}
 
     reduce_fn = (memo, val) ->
       [memo.members[val.package_name]] = _.values val.dependencies_tree['.']

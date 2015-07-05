@@ -1,6 +1,6 @@
 {
   "name": "clinch",
-  "version": "0.6.3",
+  "version": "1.0.0-beta1",
   "description": "YA ComonJS to browser packer tool, well-suited for widgets by small overhead and big app by smart settings",
   "main": "./lib/app",
   "scripts": {
@@ -16,25 +16,20 @@
     "commonjs",
     "bundle",
     "npm",
-    "javascript",
-    "react",
-    "coffeescript"
+    "javascript"
   ],
   "author": "Dmitrii Karpich <meettya@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "coffee-script": "*",
     "lodash": "*",
     "async-resolve": "*",
-    "eco": "*",
-    "jade": "*",
     "async": "*",
     "detective": "*",
     "shorthash": "*",
-    "lru-cache": "*",
-    "react-tools": "*"
+    "lru-cache": "*"
   },
   "devDependencies": {
+    "coffee-script": "*",    
     "chai": "*",
     "mocha": "*",
     "dateformat": "*",
@@ -43,10 +38,14 @@
     "sprintf-js": "*",
     "walkdir": "*",
     "fs-extra": "*",
-    "jsdom": "*",
-    "node-jsx": "*",
-    "react": "*",
-    "temp":"*"
+    "eco": "1.1.0-rc-3",
+    "jade": "*",
+    "temp":"*",
+    "clinch.jade": "*",
+    "clinch.eco":"*",
+    "clinch.csbx":"0.11.x",
+    "clinch.jsx":"0.11.x",
+    "clinch.coffee":"*"
   },
   "engines": {
     "node": ">=0.10.0"

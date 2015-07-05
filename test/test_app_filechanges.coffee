@@ -28,6 +28,10 @@ lib_path = GLOBAL?.lib_path || ''
 # change to app, for test
 Clinch = require "#{lib_path}app"
 
+# our external plugins
+clinch_jade   = require 'clinch.jade'
+clinch_coffee = require 'clinch.coffee'
+
 # for third party processor check
 Eco = require 'eco'
 Handlebars = require 'handlebars'
@@ -62,6 +66,10 @@ describe 'Clinch support file changes:', ->
     beforeEach (done) ->
 
       clinch_obj = new Clinch
+
+      clinch_obj.addPlugin clinch_jade
+                .addPlugin clinch_coffee
+
       createTempDir (err, tmp_root) ->
         throw Error err if err?
 
@@ -121,6 +129,10 @@ describe 'Clinch support file changes:', ->
     beforeEach (done) ->
 
       clinch_obj = new Clinch
+
+      clinch_obj.addPlugin clinch_jade
+                .addPlugin clinch_coffee
+
       createTempDir (err, tmp_root) ->
         throw Error err if err?
 

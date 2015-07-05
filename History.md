@@ -1,3 +1,11 @@
+## 1.0.1 / 2015-07-16 12:00 AM
+ - Move all processors to separate modules
+ - Remove unneeded dependencies
+ - Remove templates tests - its test in separate modules
+ - Update all nmp modules to latest (again)
+ - Rebuild lib with CS 1.9.3
+ - Update documentation
+
 ## 0.6.3 / 2014-09-16 12:00 AM
 
  - Update all libs
