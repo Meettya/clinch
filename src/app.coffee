@@ -11,7 +11,7 @@ module.exports = class Clinch
 
   constructor: (@_options_={}) ->
     # for debugging 
-    @_do_logging_ = if @_options_.log? and @_options_.log is on and console?.log? then yes else no
+    @_do_logging_  = !!@_options_.log
     @_di_cont_obj_ = new DIContainer()
     @_configureComponents()
     
@@ -27,8 +27,7 @@ module.exports = class Clinch
   Silly mistype, will be deprecated soon
   ###
   buldPackage : ->
-    if @_do_logging_
-      console.log "'clinch.buldPackage' is now called 'clinch.buildPackage' (sorry for mistype)"
+    console.info "Depricated! use 'clinch.buildPackage' instead (sorry for mistype)"
     @buildPackage arguments...
 
   ###
@@ -52,6 +51,12 @@ module.exports = class Clinch
       main_cb null, _.keys bundler.joinBundleSets(raw_data).names_map
 
   ###
+  This method add separate clinch plugin, just shortcut 
+  ###
+  addPlugin : ({extension, processor}) ->
+    @registerProcessor extension, processor
+
+  ###
   This method add third party file processor to Clinch
   ###
   registerProcessor : (file_extention, processor_fn) ->
@@ -65,32 +70,12 @@ module.exports = class Clinch
     processor_obj[file_extention] = processor_fn
 
     @_di_cont_obj_.addComponentsSettings 'FileProcessor' , 'third_party_compilers', processor_obj
+    this
 
   ###
   This internal method used to configure components in DiC
   ###
   _configureComponents : ->
-    # just use short-cut
-    log = !!@_options_.log
-
-    ###
-    set jade compiler settings for jade.compile()
-    jade = 
-      pretty : on
-      self : on
-      compileDebug : off
-    ###
-    if jade = @_options_.jade
-      @_di_cont_obj_.setComponentsSettings FileProcessor : {jade, log}
-
-    ###
-    set React compiller settings
-    react = 
-      harmony: off
-    ###
-    if react = @_options_.react
-      @_di_cont_obj_.addComponentsSettings 'FileProcessor', 'react', react
-
     ###
     set packer settings, default setting are
     
@@ -99,7 +84,9 @@ module.exports = class Clinch
     runtime       : off
     cache_modules : on
     ###
-    packer_settings = {log}
+    packer_settings = 
+      log : !!@_options_.log
+
     for setting_name in ['strict', 'inject', 'runtime', 'cache_modules']
       if @_options_[setting_name]?
         packer_settings[setting_name] = @_options_[setting_name]
@@ -118,6 +105,8 @@ module.exports = class Clinch
     [ package_config, package_name ] = in_settings
 
     if package_name? and not package_config.package_name?
+      console.info 'Depricated! Use "package_name" in package_config instead!'
       package_config.package_name = package_name
 
     package_config
+

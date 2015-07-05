@@ -15,6 +15,9 @@ lib_path = GLOBAL?.lib_path || ''
 # change to app, for test
 Clinch = require "#{lib_path}app"
 
+# our external plugins
+clinch_coffee = require 'clinch.coffee'
+
 describe 'Clinch and its modules cache:', ->
 
   clinch_obj = package_config = null
@@ -24,6 +27,7 @@ describe 'Clinch and its modules cache:', ->
     beforeEach ->
 
       clinch_obj = new Clinch runtime : on
+      clinch_obj.addPlugin clinch_coffee
 
     it 'should build cached package', (done) ->
 
@@ -58,6 +62,7 @@ describe 'Clinch and its modules cache:', ->
     it 'should not build cached package ("off" in clinch options)', (done) ->
 
       clinch_obj = new Clinch runtime : on, cache_modules : off
+      clinch_obj.addPlugin clinch_coffee
 
       # looks strange, but its just <script src='./clinch_runtime.js'></script> analog
       clinch_runtime_file = "#{__dirname}/../clinch_runtime.js"

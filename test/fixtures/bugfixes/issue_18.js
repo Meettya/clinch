@@ -7,7 +7,8 @@ if (typeof exports !== 'undefined') {
     // we are want to see this functionality
     exports = module.exports = 'module';
   }
-  exports.TESTED = 'exports';
+  exports = { TESTED : 'exports' };
+    
 } else {
   root.TESTED = 'root';
 }

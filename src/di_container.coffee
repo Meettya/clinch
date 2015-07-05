@@ -55,8 +55,7 @@ module.exports = class DIContainer
 
     deep_walker = (accumulator, step_val, idx) ->
       # ensure deep builder may use object
-      unless accumulator[step_val]
-        accumulator[step_val] = {}
+      accumulator[step_val] ?= {}
 
       # just inject new value
       if idx is last_path_idx

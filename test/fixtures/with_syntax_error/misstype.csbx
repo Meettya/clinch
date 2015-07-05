@@ -1,0 +1,10 @@
+###
+Syntax error at jsx-part of csbx file
+###
+
+module.exports = ReactComponent = React.createClass
+
+  render : ->
+    `<div>
+      <input value={null />
+    </div>

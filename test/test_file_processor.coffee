@@ -20,9 +20,16 @@ fixturesErr     = fixtures    + "/unexistanse.js"
 # change to DIContainer
 DIContainer = require "#{lib_path}di_container"
 
+# our external plugins
+clinch_coffee = require 'clinch.coffee'
+
 describe 'FileProcessor:', ->
 
   fp_obj = null
+
+  file_extention  = clinch_coffee.extension
+  coffee_comp   = {}
+  coffee_comp[file_extention] = clinch_coffee.processor
 
   beforeEach ->
     ###
@@ -30,6 +37,8 @@ describe 'FileProcessor:', ->
     but it SHOULD work right this and now I don't care about it at all
     ###
     registry_obj = new DIContainer()
+    registry_obj.addComponentsSettings 'FileProcessor' , 'third_party_compilers', coffee_comp
+
     fp_obj = registry_obj.getComponent 'FileProcessor'
     
   describe 'loadFile() *async*', ->
