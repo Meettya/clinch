@@ -1,6 +1,6 @@
 {
   "name": "clinch",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "YA ComonJS to browser packer tool, well-suited for widgets by small overhead and big app by smart settings",
   "main": "./lib/app",
   "scripts": {
@@ -21,12 +21,12 @@
   "author": "Dmitrii Karpich <meettya@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "lodash": "*",
-    "async-resolve": "*",
-    "async": "*",
-    "detective": "*",
-    "shorthash": "*",
-    "lru-cache": "*"
+    "async": "1.x",
+    "async-resolve": "0.3.x",
+    "detective": "4.x",
+    "lodash": "3.x",
+    "lru-cache": "2.x",
+    "shorthash": "0.0.x"
   },
   "devDependencies": {
     "coffee-script": "*",    
